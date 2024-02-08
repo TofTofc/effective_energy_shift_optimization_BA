@@ -22,7 +22,7 @@ if __name__ == '__main__':
     #capacity_target = np.linspace(0.01, 20000, 100)
     power_max = np.inf
 
-    t0 = time.time_ns()
+    t0 = time.time()
     results = efes.perform_energy_storage_dimensioning(
         power_max_charging=power_max,
         power_max_discharging=power_max,
@@ -34,4 +34,4 @@ if __name__ == '__main__':
         efficiency_charging=efficiency_charging,
         #capacity_target=capacity_target
     )
-    print(time.time_ns() - t0)
+    print(time.time() - t0)

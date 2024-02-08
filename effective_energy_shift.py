@@ -169,6 +169,14 @@ def calculate_initial_self_sufficiency_and_self_consumption(power_generation: Un
                 )
 
 
+def process_callback(callback, current_step, phases, mask, **kwargs):
+    if callback is not None:
+        stop_algorithm = callback(current_step=current_step, phases=phases, mask=mask, **kwargs)
+        if isinstance(stop_algorithm, bool):
+            return stop_algorithm
+    return False
+
+
 def balance_phase(phase: efes_dataclasses.Phase):
     #logging.info(f'Balancing phase {phase.id}')
 
@@ -220,7 +228,7 @@ def balance_phases(phases, mask):
     potential_balance = mask[0] & mask[1]
 
     mask[:, potential_balance] = np.array(list(map(balance_phase, phases[potential_balance]))).transpose()
-    return mask
+    return phases, mask
 
 
 def calculate_virtual_excess(current_phase, next_phase):
@@ -236,7 +244,6 @@ def calculate_virtual_excess(current_phase, next_phase):
 
     return virtual_excess_start, virtual_excess_content, virtual_excess_id
 
-
 def add_excess_to_phase(phase, excess_start, excess_content, excess_id):
     phase.starts_excess = np.append(phase.starts_excess, excess_start)
     phase.energy_excess = np.append(phase.energy_excess, excess_content)
@@ -250,8 +257,7 @@ def remove_excess(phase, index_to_remove):
     phase.excess_balanced = np.delete(phase.excess_balanced, obj=index_to_remove)
     phase.excess_ids = np.delete(phase.excess_ids, obj=index_to_remove)
 
-def move_overflow(phases, mask):
-    # print(mask)
+def move_overflow(phases, mask, callback_between_steps:callable = None, callback_kwargs={}):
     #logging.info(f'overflow in {np.nonzero(mask[0])}')
     add_virtual_excess_mask = np.roll(mask[0], shift=1)
     next_indices = (np.arange(len(mask[0]))[mask[0]] + 1) % len(mask[0])
@@ -266,6 +272,9 @@ def move_overflow(phases, mask):
 
     #logging.info(f'Excess added to {next_indices}')
 
+    if process_callback(callback_between_steps, 'shift', phases, mask, **callback_kwargs):
+        return phases, mask, True
+
     # remove excess at index -2 where we had excess (mask[0]) and where virtual excess has been added (np.roll(mask[0], shift=1))
     list(map(lambda phase: remove_excess(phase, -2), phases[mask[0] & add_virtual_excess_mask]))
     #logging.info(f'Excess at -2 removed from {np.nonzero(mask[0] & add_virtual_excess_mask)}')
@@ -277,23 +286,37 @@ def move_overflow(phases, mask):
 
     mask[0] = add_virtual_excess_mask
     #logging.info(f'new excess in {mask[0]}')
-    return mask
+    if process_callback(callback_between_steps, 'settle', phases, mask, **callback_kwargs):
+        return phases, mask, True
+
+    return phases, mask, False
 
 
-def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases, verbose:bool = False):
+def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,
+                   verbose:bool = False,
+                   callback_between_steps: callable = None,
+                   callback_kwargs: dict = {}
+                   ):
 
     phases = np.array([efes_dataclasses.Phase(excess, deficit, id=start_time_phase) for (excess, deficit, start_time_phase) in zip(energy_excess, energy_deficit, start_time_phases)])
     n_phases = len(phases)
     mask = None
+
+    if process_callback(callback_between_steps, 'init', phases, mask, **callback_kwargs):
+        return dict(phases=phases, mask=mask)
+
     while True:
-        mask = balance_phases(phases, mask)
+        phases, mask = balance_phases(phases, mask)
+        if process_callback(callback_between_steps, 'balance', phases, mask, **callback_kwargs):
+            return dict(phases=phases, mask=mask)
+
         if verbose:
             print(f'{n_phases - np.count_nonzero(mask, axis=1)} of {n_phases} done.')
         if np.any(~np.any(mask, axis=1)):
             break
-        mask = move_overflow(phases, mask)
+        phases, mask, stop_algorithm = move_overflow(phases, mask, callback_between_steps=callback_between_steps, callback_kwargs=callback_kwargs)
 
-    return dict(phases=phases)
+    return dict(phases=phases, mask=mask)
 
 def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], discharging_efficiency: float):
 
@@ -412,7 +435,10 @@ def get_phase_power_data(power_residual_generation: np.ndarray, delta_time_step:
 
 def analyse_power_data(power_generation, power_demand, delta_time_step,
                        power_max_discharging=np.inf, power_max_charging=np.inf,
-                       efficiency_direct_usage=1.0, efficiency_discharging=1.0, efficiency_charging=1.0):
+                       efficiency_direct_usage=1.0, efficiency_discharging=1.0, efficiency_charging=1.0,
+                       callback_between_steps: callable = None,
+                       callback_kwargs: dict = {}
+                       ):
     """
     This is the frame of the Effective Energy Shift (EfES) algorithm, that will call the functions to perform
     the different steps for preparing the data, processing it and calculating the output of the analyis.
@@ -518,7 +544,9 @@ def analyse_power_data(power_generation, power_demand, delta_time_step,
     analysis_results.update(**process_phases(
         energy_excess=analysis_results.energy_excess,
         energy_deficit=analysis_results.energy_deficit,
-        start_time_phases=data_input.delta_time_step*analysis_results.starts_phases
+        start_time_phases=data_input.delta_time_step*analysis_results.starts_phases,
+        callback_between_steps=callback_between_steps,
+        callback_kwargs=callback_kwargs
     ))
 
     analysis_results.update(**compute_battery_arrays_from_phases(
@@ -741,7 +769,9 @@ def run_dimensioning_query_for_target_capacity(analysis_results: efes_dataclasse
 def perform_energy_storage_dimensioning(power_generation, power_demand, delta_time_step,
                                         power_max_discharging=np.inf, power_max_charging=np.inf,
                                         efficiency_direct_usage=1.0, efficiency_discharging=1.0, efficiency_charging=1.0,
-                                        self_sufficiency_target=None, self_consumption_target=None, energy_additional_target=None, capacity_target=None
+                                        self_sufficiency_target=None, self_consumption_target=None, energy_additional_target=None, capacity_target=None,
+                                        callback_between_steps: callable = None,
+                                        callback_kwargs: dict = {}
                                         ):
     """
     The main function that will run the EfES algorithm based on the provided data.
@@ -777,7 +807,9 @@ def perform_energy_storage_dimensioning(power_generation, power_demand, delta_ti
             power_max_charging=power_max_charging,
             efficiency_direct_usage=efficiency_direct_usage,
             efficiency_discharging=efficiency_discharging,
-            efficiency_charging=efficiency_charging
+            efficiency_charging=efficiency_charging,
+            callback_between_steps=callback_between_steps,
+            callback_kwargs=callback_kwargs
         )
     except AttributeError as e:
         print('An error has been raised by analyse_power_data and the dimensioning can not be performed!')
