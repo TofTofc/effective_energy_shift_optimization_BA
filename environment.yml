@@ -1,0 +1,11 @@
+name: efes-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - jupyterlab
+  - ipywidgets
+  - conda-forge::matplotlib
+  - conda-forge::numpy
+  - conda-forge::pandas
