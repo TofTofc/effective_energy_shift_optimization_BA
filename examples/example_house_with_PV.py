@@ -23,7 +23,7 @@ if __name__ == '__main__':
     power_max = np.inf
 
     t0 = time.time()
-    results = efes.perform_energy_storage_dimensioning(
+    results = efes.perform_effective_energy_shift(
         power_max_charging=power_max,
         power_max_discharging=power_max,
         power_generation=input_data['power_generation'],

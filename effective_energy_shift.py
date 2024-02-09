@@ -766,13 +766,13 @@ def run_dimensioning_query_for_target_capacity(analysis_results: efes_dataclasse
     return query_results
 
 
-def perform_energy_storage_dimensioning(power_generation, power_demand, delta_time_step,
-                                        power_max_discharging=np.inf, power_max_charging=np.inf,
-                                        efficiency_direct_usage=1.0, efficiency_discharging=1.0, efficiency_charging=1.0,
-                                        self_sufficiency_target=None, self_consumption_target=None, energy_additional_target=None, capacity_target=None,
-                                        callback_between_steps: callable = None,
-                                        callback_kwargs: dict = {}
-                                        ):
+def perform_effective_energy_shift(power_generation, power_demand, delta_time_step,
+                                   power_max_discharging=np.inf, power_max_charging=np.inf,
+                                   efficiency_direct_usage=1.0, efficiency_discharging=1.0, efficiency_charging=1.0,
+                                   self_sufficiency_target=None, self_consumption_target=None, energy_additional_target=None, capacity_target=None,
+                                   callback_between_steps: callable = None,
+                                   callback_kwargs: dict = {}
+                                   ):
     """
     The main function that will run the EfES algorithm based on the provided data.
     If any of the {...}_target parameters has been provided it will query the results at those data points.
@@ -910,7 +910,7 @@ def run_parameter_study(power_generation, power_demand, delta_time_step, paramet
             return filename_results
 
         print(f'Running: {variation.to_dict()}')
-        results = perform_energy_storage_dimensioning(power_generation, power_demand, delta_time_step, **kwargs)
+        results = perform_effective_energy_shift(power_generation, power_demand, delta_time_step, **kwargs)
         efes_dataclasses.pickle(results, filename_results)
         del results
         return filename_results
