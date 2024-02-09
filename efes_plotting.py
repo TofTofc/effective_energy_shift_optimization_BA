@@ -7,19 +7,13 @@ import numpy as np
 import pandas as pd
 
 import efes_dataclasses
-import effective_energy_shift as ebd
+import effective_energy_shift as efes
 import math_energy_systems as mes
 
 class PlotContext:
     def __init__(self, style_context=None, fontsize=None):
         self.fig = None
         self.axs = None
-
-        self.scale_energy = 1.
-        self.scale_str_energy = ''
-
-        self.scale_capacity = 1.
-        self.scale_str_capacity = ''
 
         self.gain_plot_added = False
 
@@ -127,22 +121,22 @@ def add_self_sufficiency_axis_to_plot(ctx, energy_additional_max, self_sufficien
     with plt.style.context(ctx.style_context):
         ctx.setup_matplotlib_context()
 
-        ctx.scale_energy, ctx.scale_str_energy = ebd.get_scaling(energy_additional_max)
+        ctx.scale_energy, ctx.scale_str_energy = efes.get_scaling(energy_additional_max)
 
         def func_energy_to_self_sufficiency(energy):
-            return ebd.mes.calculate_self_sufficiency_from_additional_energy(
-                energy_additional=energy,#/ctx.scale_energy,
+            return efes.mes.calculate_self_sufficiency_from_additional_energy(
+                energy_additional=energy,
                 energy_demand=energy_demand,
                 self_sufficiency_initial=self_sufficiency_initial,
                 clip=False
             )
 
         def func_self_sufficiency_to_energy(self_sufficiency):
-            return ebd.mes.calculate_additional_energy_from_self_sufficiency(
+            return efes.mes.calculate_additional_energy_from_self_sufficiency(
                 self_sufficiency=self_sufficiency,
                 energy_demand=energy_demand,
                 self_sufficiency_initial=self_sufficiency_initial
-            ) # * ctx.scale_energy
+            )
 
         ctx.axis_self_sufficiency = ctx.axs[0].secondary_yaxis(ctx.position_additional_y_axis, functions=(func_energy_to_self_sufficiency, func_self_sufficiency_to_energy))
         ctx.axis_self_sufficiency.set(ylabel=r'self-sufficiency $\psi_{\mathrm{ss}}$ [1]')
@@ -158,10 +152,10 @@ def add_self_consumption_axis_to_plot(ctx, energy_additional_max, self_consumpti
 
     with plt.style.context(ctx.style_context):
         ctx.setup_matplotlib_context()
-        ctx.scale_energy, ctx.scale_str_energy = ebd.get_scaling(energy_additional_max)
+        ctx.scale_energy, ctx.scale_str_energy = efes.get_scaling(energy_additional_max)
 
         def func_energy_to_self_consumption(energy):
-            return ebd.mes.calculate_self_consumption_from_additional_energy(
+            return efes.mes.calculate_self_consumption_from_additional_energy(
                 energy_additional=energy,#/ctx.scale_energy,
                 energy_generation=energy_generation,
                 self_consumption_initial=self_consumption_initial,
@@ -171,7 +165,7 @@ def add_self_consumption_axis_to_plot(ctx, energy_additional_max, self_consumpti
             )
 
         def func_self_consumption_to_energy(self_consumption):
-            return ebd.mes.calculate_additional_energy_from_self_consumption(
+            return efes.mes.calculate_additional_energy_from_self_consumption(
                 self_consumption=self_consumption,
                 energy_generation=energy_generation,
                 self_consumption_initial=self_consumption_initial,
@@ -279,91 +273,18 @@ def add_scatter_at_values(ctx:PlotContext, capacity, energy_additional, cbar_val
 
 def finalize_plot(ctx,
                   title:str = '',
-                  axs_settings=None,
-                  scale_capacity=1.0,
-                  scale_energy=1.0,
+                  axs_settings=None
                   ):
 
     with plt.style.context(ctx.style_context):
         ctx.setup_matplotlib_context()
-
-        def rescale_axis(ax, x_scale=1.0, y_scale=1.0, y_unit_str=''):
-
-            '''bbox_axs = [line.get_bbox() for line in ax.get_lines()]
-            [artist for artist in ax.get_children() if isinstance(artist, mpl.collections.PolyCollection)]
-            if len(bbox_axs) == 0:
-                return 1., '', 1., ''
-
-            x_max_bbox_axs = [max(abs(bbox_ax.x0), abs(bbox_ax.x1)) for bbox_ax in bbox_axs]
-            y_max_bbox_axs = [max(abs(bbox_ax.y0), abs(bbox_ax.y1)) for bbox_ax in bbox_axs]
-            x_scale, x_scaling_str = ebd.get_scaling(np.max(x_max_bbox_axs))
-            y_scale, y_scaling_str = ebd.get_scaling(np.max(y_max_bbox_axs))'''
-
-            #def rescale_line(line, x_scale, y_scale, rescale_y):
-            #    xdata, ydata = line.get_data(orig=True)
-            #    line.set_xdata(x_scale*xdata)
-            #    if rescale_y:
-            #        line.set_ydata(y_scale*ydata)
-
-            #list(map(lambda artist: rescale_line(artist, x_scale, y_scale, rescale_y), ax.get_lines()))
-
-            def rescale_artist(artist, x_scale, y_scale):
-                if isinstance(artist, plt.Line2D):
-                    xdata, ydata = artist.get_data(orig=True)
-                    if x_scale != 1.0:
-                        artist.set_xdata(x_scale * xdata)
-                    if y_scale != 1.0:
-                        artist.set_ydata(y_scale * ydata)
-                    return
-
-                if isinstance(artist, mpl.collections.LineCollection):
-                    segments = artist.get_segments()
-
-                    for segment in segments:
-                        if y_scale != 1.0:
-                            segment[0] = y_scale*segment[0]
-                        if x_scale != 1.0:
-                            segment[1] = x_scale*segment[1]
-
-                    artist.set_segments(segments)
-                    return
-
-                if isinstance(artist, mpl.collections.PolyCollection):
-                    paths = artist.get_paths()
-                    #print(paths)
-                    for path in paths:
-                        for vertice in path.vertices:
-                            if y_scale != 1.0:
-                                vertice[0] = y_scale * vertice[0]
-                            if x_scale != 1.0:
-                                vertice[1] = x_scale * vertice[1]
-                    #print(paths)
-                    artist._paths = paths
-                    return
-
-
-            list(map(lambda artist: rescale_artist(artist, x_scale, y_scale), ax.get_children()))
-
-            if y_scale != 1.0:
-                _, y_scaling_str = ebd.get_scaling(2/y_scale)
-                ax.get_yaxis().set_label_text(ax.get_yaxis().get_label_text() + f'\n[{y_scaling_str}{y_unit_str}]')
-
-            ax.relim()
-
-        #ctx.scale_capacity, ctx.scale_str_capacity, ctx.scale_energy, ctx.scale_str_energy = rescale_axis(ctx.axs[0], True, 'Wh')
-        #rescale_axis(ctx.axs[0], x_scale=scale_capacity, y_scale=scale_energy, y_unit_str='Wh')
 
         ctx.axs[0].legend(frameon=False, bbox_to_anchor=(0.04, 1.0, 1, 0.102), labelspacing=0.5, loc='lower left', ncols=1, borderaxespad=0., mode="expand")
         row = 0
 
         if ctx.gain_plot_added:
             row += 1
-            # rescale_axis(ctx.axs[row])
-            #rescale_axis(ctx.axs[row], x_scale=scale_capacity)
             ctx.axs[row].legend(frameon=False, bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0., labelspacing=0.5)
-
-        #_, scale_str_capacity = ebd.get_scaling(2/scale_capacity)
-        #ctx.axs[-1].get_xaxis().set_label_text(ctx.axs[-1].get_xaxis().get_label_text() + f'\n[{scale_str_capacity}Wh]')
 
         if title != '':
             ctx.fig.suptitle(title, fontsize=1.2*ctx.fontsize)
@@ -395,7 +316,7 @@ def show_plot(ctx):
         plt.show()
 
 
-def create_simple_result_plot(results: ebd.ebd_dataclasses.Results, figsize=None, axs_settings=None,
+def create_simple_result_plot(results: efes.efes_dataclasses.Results, figsize=None, axs_settings=None,
                               add_self_sufficiency_axis=True, add_self_consumption_axis=True,
                               add_gain_plot=True,
                               title:str = '',
@@ -429,8 +350,8 @@ def create_simple_result_plot(results: ebd.ebd_dataclasses.Results, figsize=None
     self_sufficiency_max = results.analysis_results.self_sufficiency_max
     self_consumption_max = results.analysis_results.self_consumption_max
 
-    scale_energy, scale_str_energy = ebd.get_scaling(energy_additional_max)
-    scale_capacity, _ = ebd.get_scaling(capacity[-1])
+    scale_energy, scale_str_energy = efes.get_scaling(energy_additional_max)
+    scale_capacity, _ = efes.get_scaling(capacity[-1])
     self_sufficiency_initial = results.analysis_results.self_sufficiency_initial
     self_consumption_initial = results.analysis_results.self_consumption_initial
 
@@ -441,7 +362,7 @@ def create_simple_result_plot(results: ebd.ebd_dataclasses.Results, figsize=None
     ctx.axs[row].hlines(xmin=0, xmax=capacity[-1], y=0, linestyles='-.', color='black', linewidth=linewidth, label=r'$\psi_{\mathrm{ss,0}}=' + f'{self_sufficiency_initial:.2f}$, ' + r'$\psi_{\mathrm{sc,0}}=' + f'{self_consumption_initial:.2f}$')
     ctx.axs[row].plot(capacity, energy_additional, linewidth=linewidth, color='black', label=r'$E^{+}$')#,r'$\energyAdditional$')
 
-    label_max = r'$\mathit{E}^{+}_{\mathrm{mmax}}(\mathit{C}=' + ebd.pretty_print(capacity_max, "Wh") + ')=' + f'{scale_energy * energy_additional_max:.2f}$' + scale_str_energy + 'Wh' + r' $\longrightarrow$ ' + r'$\psi_{\mathrm{ss,max}}=' + f'{self_sufficiency_max:.2f}$, ' + r'$\psi_{\mathrm{sc,max}}=' + f'{self_consumption_max:.2f}$'
+    label_max = r'$\mathit{E}^{+}_{\mathrm{mmax}}(\mathit{C}=' + efes.pretty_print(capacity_max, "Wh") + ')=' + f'{scale_energy * energy_additional_max:.2f}$' + scale_str_energy + 'Wh' + r' $\longrightarrow$ ' + r'$\psi_{\mathrm{ss,max}}=' + f'{self_sufficiency_max:.2f}$, ' + r'$\psi_{\mathrm{sc,max}}=' + f'{self_consumption_max:.2f}$'
     ctx.axs[row].hlines(xmin=0, xmax=capacity[-1], y=energy_additional_max, linestyles='--', color='black', linewidth=linewidth, label=label_max)
 
     if add_self_sufficiency_axis:
@@ -466,8 +387,6 @@ def create_simple_result_plot(results: ebd.ebd_dataclasses.Results, figsize=None
 
     finalize_plot(ctx,
                   title=title,
-                  scale_energy=scale_energy,
-                  scale_capacity=scale_capacity,
                   axs_settings=axs_settings
                   )
 
@@ -480,7 +399,7 @@ def create_simple_result_plot(results: ebd.ebd_dataclasses.Results, figsize=None
     return ctx
 
 
-def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStudyResults,
+def create_variation_plot(parameter_study_results: efes_dataclasses.ParameterStudyResults,
                           cbar_label: str,
                           cmap_parameter_name: str=None,
                           cmap_name:str = 'jet',
@@ -521,7 +440,7 @@ def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStud
     reference_result = parameter_study_results.results[index_reference_result]
     reference_result_needs_loading = isinstance(reference_result, str)
     if reference_result_needs_loading:
-        reference_result = ebd_dataclasses.unpickle(reference_result)
+        reference_result = efes_dataclasses.unpickle(reference_result)
 
     capacity_max = reference_result.analysis_results.capacity_max
     energy_additional_max = reference_result.analysis_results.energy_additional_max
@@ -530,7 +449,7 @@ def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStud
     energy_demand = reference_result.analysis_results.energy_demand
     energy_generation = reference_result.analysis_results.energy_generation
 
-    scale_energy, scale_str_energy = ebd.get_scaling(energy_additional_max)
+    scale_energy, scale_str_energy = efes.get_scaling(energy_additional_max)
 
     self_sufficiency_initial = reference_result.analysis_results.self_sufficiency_initial
     self_consumption_initial = reference_result.analysis_results.self_consumption_initial
@@ -575,7 +494,7 @@ def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStud
                     label=r'$\mathit{E}^{+}(\mathit{C})$',
                     zorder=2)
 
-    label_max = r'$\mathit{E}^{+}(\mathit{C} = \text{' + ebd.pretty_print(capacity_max, "Wh") + '})=' + f'{scale_energy * energy_additional_max:.2f}$' + scale_str_energy + 'Wh' + r' $\longrightarrow$ ' + r'$\psi_{\mathrm{ss,max}}=' + f'{self_sufficiency_max:.2f}$, ' + r'$\psi_{\mathrm{sc,max}}=' + f'{self_consumption_max:.2f}$'
+    label_max = r'$\mathit{E}^{+}(\mathit{C} = \text{' + efes.pretty_print(capacity_max, "Wh") + '})=' + f'{scale_energy * energy_additional_max:.2f}$' + scale_str_energy + 'Wh' + r' $\longrightarrow$ ' + r'$\psi_{\mathrm{ss,max}}=' + f'{self_sufficiency_max:.2f}$, ' + r'$\psi_{\mathrm{sc,max}}=' + f'{self_consumption_max:.2f}$'
     if add_line_for_maximum_values:
         ctx.axs[0].hlines(xmin=0, xmax=reference_result.query_results[0].capacity[-1],
                           y=energy_additional_max, linestyles='--', color='black',
@@ -583,13 +502,13 @@ def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStud
                           label=label_max
                           )
 
-    scale_capacity, _ = ebd.get_scaling(reference_result.query_results[0].capacity[-1])
+    scale_capacity, _ = efes.get_scaling(reference_result.query_results[0].capacity[-1])
 
     for variation, results in zip(parameter_study_results.parameter_variation.to_dict(orient='records')[::-1],
                                   parameter_study_results.results[::-1]):
         results_needs_loading = isinstance(results, str)
         if results_needs_loading:
-            results = ebd_dataclasses.unpickle(results)
+            results = efes_dataclasses.unpickle(results)
 
         color = ctx.get_color(variation[cmap_parameter_name])
 
@@ -620,8 +539,6 @@ def create_variation_plot(parameter_study_results: ebd_dataclasses.ParameterStud
 
     ctx = finalize_plot(ctx,
                   title=title,
-                  scale_energy=scale_energy,
-                  scale_capacity=scale_capacity,
                   axs_settings=axs_settings
                   )
 
