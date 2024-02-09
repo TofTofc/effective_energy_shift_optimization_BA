@@ -318,7 +318,7 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
 
     return dict(phases=phases, mask=mask)
 
-def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], discharging_efficiency: float):
+def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], efficiency_discharging: float):
 
     capacity_phases = []
     energy_additional_phases = []
@@ -339,11 +339,11 @@ def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], dis
 
     delta_capacity = np.diff(capacity)
     delta_energy_additional = effectiveness[:-1]*delta_capacity
-    energy_additional = discharging_efficiency * np.array([0, *delta_energy_additional.cumsum()])
+    energy_additional = efficiency_discharging * np.array([0, *delta_energy_additional.cumsum()])
     return dict(capacity=capacity, energy_additional=energy_additional, effectiveness=effectiveness)
 
 
-def calculate_energy_per_phase(power_residual_generation: np.ndarray, power_max_discharging: float, power_max_charging: float, discharging_efficiency: float, charging_efficiency: float, delta_time_step: float):
+def calculate_energy_per_phase(power_residual_generation: np.ndarray, power_max_discharging: float, power_max_charging: float, efficiency_discharging: float, efficiency_charging: float, delta_time_step: float):
     results = dict()
 
     starts_zero, lengths_zero, values_zero = runlength_encode(power_residual_generation >= 0)
@@ -369,8 +369,8 @@ def calculate_energy_per_phase(power_residual_generation: np.ndarray, power_max_
 
     results['energy_excess_wo_efficiency'] = energy_excess.copy()
     results['energy_deficit_wo_efficiency'] = energy_deficit.copy()
-    energy_excess = charging_efficiency * energy_excess
-    energy_deficit = (1. / discharging_efficiency) * energy_deficit
+    energy_excess = efficiency_charging * energy_excess
+    energy_deficit = (1. / efficiency_discharging) * energy_deficit
     results['energy_excess'] = energy_excess
     results['energy_deficit'] = energy_deficit.copy()
     return results
@@ -536,8 +536,8 @@ def analyse_power_data(power_generation, power_demand, delta_time_step,
         power_residual_generation=data_input.power_residual_generation,
         power_max_discharging=data_input.power_max_discharging,
         power_max_charging=data_input.power_max_charging,
-        discharging_efficiency=data_input.efficiency_discharging,
-        charging_efficiency=data_input.efficiency_charging,
+        efficiency_discharging=data_input.efficiency_discharging,
+        efficiency_charging=data_input.efficiency_charging,
         delta_time_step=data_input.delta_time_step
     ))
 
@@ -551,7 +551,7 @@ def analyse_power_data(power_generation, power_demand, delta_time_step,
 
     analysis_results.update(**compute_battery_arrays_from_phases(
         phases=analysis_results.phases,
-        discharging_efficiency=data_input.efficiency_discharging
+        efficiency_discharging=data_input.efficiency_discharging
     ))
 
     analysis_results.capacity_max = analysis_results.capacity[-1]
