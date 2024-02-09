@@ -44,5 +44,5 @@ The code is provided under the MIT license. If you use the code in your research
 
 If you have any questions, please contact the authors of the paper.
 ```
-E-mail: jonathan.fellerer@fau.de
+<jonathan.fellerer@fau.de>
 ```
