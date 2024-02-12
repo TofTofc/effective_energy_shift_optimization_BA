@@ -39,33 +39,21 @@ def run_power_variation():
 
     print(f'Results of parameter study saved in subfolder {filename}')
     print(f'Creating plots...')
+
+    def finalize_plots(fig, axs):
+        fig.savefig(fname=f'{filename}/{filename}.png', dpi=600, format='png', transparent=True)
+        print(f'Plots saved in subfolder {filename}/{filename}.png')
+        return fig, axs
+
     ctx = efes_plot.create_variation_plot(parameter_study_results,
-                                       height_ratios=(2,1),
                                        cmap_parameter_name='power_max_charging',
-                                       cbar_label=r'$\mathit{P}_{\mathrm{ch,max}}$ and $\mathit{P}_{\mathrm{dch,max}}$ [W]',
-                                       axs_settings=[{'xlim': (0, 15000)}, {'ylim':(0,1.5)}]
+                                       cbar_label='$\mathit{P}_{\mathrm{ch,max}}$ and $\mathit{P}_{\mathrm{dch,max}}$ [W]',
+                                       xlim=[0,15000],
+                                       ylims=[None, [0,1500], [0,1500]],
+                                       final_callback=finalize_plots
                                        )
 
-    reference_capacity = 6000
-    reference_power_max = 2500
 
-    reference_results = efes.perform_effective_energy_shift(
-        power_generation=input_data['power_generation'],
-        power_demand=input_data['power_demand'],
-        delta_time_step=input_data['delta_time_step'],
-        power_max_charging=reference_power_max,
-        power_max_discharging=reference_power_max,
-        efficiency_direct_usage=efficiency_direct_usage,
-        efficiency_discharging=efficiency_discharging,
-        efficiency_charging=efficiency_charging,
-        capacity_target=np.array([reference_capacity]),
-    )
-
-    efes_plot.add_scatter_at_values(ctx, capacity=reference_capacity, energy_additional=reference_results.query_results[0].energy_additional[0], cbar_value=reference_power_max, gain_value=reference_results.query_results[0].gain_per_day[0])
-
-    efes_plot.save_plot(ctx, filename=f'{filename}/{filename}', transparent=True)
-    print(f'Plots saved in subfolder {filename}/{filename}.png')
-    efes_plot.show_plot(ctx)
 
 if __name__ == '__main__':
     run_power_variation()

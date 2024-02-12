@@ -37,6 +37,8 @@ print(result.analysis_results.self_sufficiency)
 print(result.analysis_results.self_consumption)
 ```
 
+![house_example_results.png](examples%2Fhouse_example_results%2Fhouse_example_results.png)
+
 ## License
 
 The code is provided under the MIT license. If you use the code in your research, please cite the paper above.

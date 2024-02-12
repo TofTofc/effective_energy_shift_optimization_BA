@@ -77,17 +77,42 @@ def calculate_additional_energy_from_capacity(capacity, energy_additional_array,
 
 
 def calculate_gain_from_energy_and_capacity(energy_additional: Union[float, np.ndarray], capacity: Union[float, np.ndarray]) -> Union[np.ndarray, float]:
-
-    with np.errstate(divide='ignore', invalid='ignore'):
-        gain = energy_additional / capacity
     try:
-        np.nan_to_num(gain, copy=False, nan=gain[1])
-    except IndexError:
-        pass
+        iterator = iter(capacity)
+    except TypeError:
+        # not iterable
+        capacity = [capacity]
+
+    capacity_copy = np.array(capacity)
+    capacity_copy[capacity_copy == 0] = -1
+
+    gain = energy_additional / capacity_copy
+    gain[capacity_copy == -1] = 0
     return gain
+
+
+def calculate_effectiveness_from_gain(gain: Union[float, np.ndarray], efficiency_discharging: float):
+    return gain / efficiency_discharging
+
+
+def calculate_effectiveness_from_energy_and_capacity(energy_additional: Union[float, np.ndarray], capacity: Union[float, np.ndarray], efficiency_discharging: float) -> Union[np.ndarray, float]:
+    return calculate_effectiveness_from_gain(calculate_gain_from_energy_and_capacity(energy_additional, capacity), efficiency_discharging)
+
+
+def calculate_gain_from_effectiveness(effectiveness: Union[float, np.ndarray], efficiency_discharging: float):
+    return effectiveness * efficiency_discharging
+
 
 def calculate_gain_per_day(gain: Union[float, np.ndarray], time_total: float):
     return 24. * gain / time_total
+
+
+def calculate_gain_per_day_from_effectiveness(effectiveness: Union[float, np.ndarray], efficiency_discharging: float, time_total: float):
+    return calculate_gain_per_day(calculate_gain_from_effectiveness(effectiveness=effectiveness, efficiency_discharging=efficiency_discharging), time_total)
+
+
+def calculate_effectiveness_from_gain_per_day(gain_per_day: Union[float, np.ndarray], time_total: float, efficiency_discharging: float):
+    return calculate_effectiveness_from_gain(gain_per_day * time_total / 24., efficiency_discharging)
 
 def calulate_production_to_demand_ratio(energy_generation: Union[float, np.ndarray], energy_demand: Union[float, np.ndarray]):
     """The production to demand ratio (PDR) is calculated based on the total generated energy relative to the total demanded energy irresprectively to their concurrence.

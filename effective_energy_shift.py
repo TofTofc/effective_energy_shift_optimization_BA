@@ -332,15 +332,15 @@ def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], eff
 
     capacity = np.unique(np.sort(np.array([capacity_phases, capacity_phases + energy_additional_phases]).flatten()))
 
-    effectiveness = np.zeros(len(capacity))
+    effectiveness_local = np.zeros(len(capacity))
     for phase in phases:
         for capacity_lower, capacity_upper in zip(phase.starts_deficit[phase.deficit_balanced], phase.starts_deficit[phase.deficit_balanced] + phase.energy_deficit[phase.deficit_balanced]):
-            effectiveness[(capacity_lower <= capacity) & (capacity < capacity_upper)] += 1
+            effectiveness_local[(capacity_lower <= capacity) & (capacity < capacity_upper)] += 1
 
     delta_capacity = np.diff(capacity)
-    delta_energy_additional = effectiveness[:-1]*delta_capacity
+    delta_energy_additional = effectiveness_local[:-1]*delta_capacity
     energy_additional = efficiency_discharging * np.array([0, *delta_energy_additional.cumsum()])
-    return dict(capacity=capacity, energy_additional=energy_additional, effectiveness=effectiveness)
+    return dict(capacity=capacity, energy_additional=energy_additional, effectiveness_local=effectiveness_local)
 
 
 def calculate_energy_per_phase(power_residual_generation: np.ndarray, power_max_discharging: float, power_max_charging: float, efficiency_discharging: float, efficiency_charging: float, delta_time_step: float):
@@ -375,62 +375,6 @@ def calculate_energy_per_phase(power_residual_generation: np.ndarray, power_max_
     results['energy_deficit'] = energy_deficit.copy()
     return results
 
-
-def get_energy_over_x_arrays(values):
-    sorted_values = np.sort(np.abs(values.astype(float)))
-    sorted_values = sorted_values[sorted_values > 0]
-
-    delta_sorted_values = np.diff(sorted_values, prepend=[0])
-    slope = np.arange(delta_sorted_values.shape[0], 0, -1)
-
-    energy = (slope*delta_sorted_values).cumsum()   # np.tril(slope).dot(delta_sorted_values), but faster
-    mask = delta_sorted_values > 0
-
-    x = np.array([0, *sorted_values[mask]])
-    energy = np.array([0, *energy[mask]])
-    energy_slope = slope[mask]
-    return x, energy, energy_slope
-
-def get_phase_power_data(power_residual_generation: np.ndarray, delta_time_step: float,
-                         starts_phases: np.ndarray, lengths_phases: np.ndarray, values_phases: np.ndarray
-                         ):
-    """
-    This function will analyse each individual excess and deficit phase and produces arrays, that can be later used to
-    dimension the minimum required charging and discharging power of the storage system.
-
-    The relevant data for dimensioning the power levels of each phase are PhaseData::energy_amounts and PhaseData::power.
-    The power dimensioning is done in compute_min_powers_for_capacity
-
-    :param power_residual_generation: The residual generation curve with positive excess and negative deficit values.
-    :param delta_time_step: The fixed time step.
-    :param starts_phases: The start indices of each excess and deficit phase.
-    :param lengths_phases: The length of each excess and deficit phase.
-    :param values_phases: The value of each excess (True) and deficit (False) phase.
-
-    :return: A dict with the following entries:
-        phase_data_deficit (List[PhaseData]): The data and information of the deficit phases.
-        phase_data_excess (List[PhaseData]): The data and information of the excess phases.
-    """
-    starts_deficit = starts_phases[~values_phases]
-    starts_excess = starts_phases[values_phases]
-    lengths_deficit = lengths_phases[~values_phases]
-    lengths_excess = lengths_phases[values_phases]
-
-    def func(start, length):
-        phase_data = efes_dataclasses.PhaseData()
-        power_values = power_residual_generation[np.arange(start, start + length) % power_residual_generation.size]
-        power, energy, energy_slope = get_energy_over_x_arrays(power_values)
-        phase_data.power = power
-        phase_data.energy = delta_time_step * energy
-        phase_data.duration = delta_time_step * energy_slope
-        return phase_data
-
-
-    phase_data_deficit = list(map(lambda arg: func(*arg), zip(starts_deficit, lengths_deficit)))
-    phase_data_excess = list(map(lambda arg: func(*arg), zip(starts_excess, lengths_excess)))
-    return dict(phase_data_deficit=phase_data_deficit, phase_data_excess=phase_data_excess)
-
-
 """MAIN FUNCTIONS"""
 
 def analyse_power_data(power_generation, power_demand, delta_time_step,
@@ -462,7 +406,7 @@ def analyse_power_data(power_generation, power_demand, delta_time_step,
         - the excess energy amounts with and without charging efficiency
         - the deficit energy amounts with and without discharging efficiency
         - the sorted set of all phases containing the excess and deficit packets after performing the algorithm
-        - the effectiveness array
+        - the effectiveness_local array
         - the array for capacity and additional energy
         - the self-sufficiency and self-consumption at those capacity values
         - the gain in total at those capacity values
@@ -557,7 +501,7 @@ def analyse_power_data(power_generation, power_demand, delta_time_step,
     analysis_results.capacity_max = analysis_results.capacity[-1]
     analysis_results.energy_additional_max = analysis_results.energy_additional[-1]
 
-    analysis_results.gain = mes.calculate_gain_from_energy_and_capacity(energy_additional=analysis_results.energy_additional, capacity=analysis_results.capacity)
+    #analysis_results.gain = mes.calculate_gain_from_energy_and_capacity(energy_additional=analysis_results.energy_additional, capacity=analysis_results.capacity)
 
     analysis_results.self_sufficiency = mes.calculate_self_sufficiency_from_additional_energy(
         energy_additional=analysis_results.energy_additional,
@@ -704,10 +648,24 @@ def run_query(analysis_results: efes_dataclasses.AnalysisResults, query_results:
         )
 
 
+    def get_local_effectiveness_for_capacity(capacity_target: float):
+        indices = np.searchsorted(analysis_results.capacity, capacity_target, side='left')-1
+        return analysis_results.effectiveness_local[indices]
+
+
+    # store local effectiveness
+    query_results.effectiveness_local = get_local_effectiveness_for_capacity(capacity_target=query_results.capacity)
+
     # compute gain
     query_results.gain = mes.calculate_gain_from_energy_and_capacity(
         energy_additional=query_results.energy_additional,
         capacity=query_results.capacity
+    )
+
+    # compute effectiveness
+    query_results.effectiveness = mes.calculate_effectiveness_from_gain(
+        gain=query_results.gain,
+        efficiency_discharging=analysis_results.data_input.efficiency_discharging
     )
 
     # compute gain per 24h

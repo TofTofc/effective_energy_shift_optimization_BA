@@ -250,10 +250,6 @@ class DimensioningResults:
     self_consumption: Union[float, np.ndarray] = None
 
     gain: Union[float, np.ndarray] = None
-    power_discharging_min: Union[float, np.ndarray] = None
-    powers_discharging_min: np.ndarray = None
-    power_charging_min: Union[float, np.ndarray] = None
-    powers_charging_min: np.ndarray = None
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
@@ -297,7 +293,7 @@ class AnalysisResults(DimensioningResults):
     debt: np.ndarray = None
     overflow: float = None
 
-    effectiveness: np.ndarray = None
+    effectiveness_local: np.ndarray = None
 
     phases: List[Phase] = None
 
@@ -338,10 +334,9 @@ class AnalysisResults(DimensioningResults):
 class QueryResults(DimensioningResults):
     """Class for additional query results"""
     query_input: QueryInput = None
-    c_rate_charging: np.ndarray = None
-    c_rate_discharging: np.ndarray = None
-    duration_charging: np.ndarray = None
-    duration_discharging: np.ndarray = None
+    effectiveness_local: np.ndarray = None
+    effectiveness: np.ndarray = None
+    gain: np.ndarray = None
     gain_per_day: np.ndarray = None
 
     def __init__(self, **kwargs):
