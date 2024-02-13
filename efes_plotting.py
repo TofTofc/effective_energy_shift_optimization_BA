@@ -196,7 +196,7 @@ def plot_energy_packets(current_step, phases, mask, efficiency_discharging, add_
         plt.show()
 
 
-def run_query_for_continuouse_plots(results: efes_dc.Results, capacity_min=None, capacity_max=None, resolution=500):
+def run_query_for_continuous_plots(results: efes_dc.Results, capacity_min=None, capacity_max=None, resolution=500):
     if capacity_min is None:
         capacity_min = 0.001 * results.analysis_results.capacity[-1]
     if capacity_max is None:
@@ -206,7 +206,7 @@ def run_query_for_continuouse_plots(results: efes_dc.Results, capacity_min=None,
 
 def add_effectiveness_plot_to_axes(ax, results:efes_dc.Results, query_results:efes_dc.QueryResults = None, use_fill=False, capacity_min=None, capacity_max=None, **kwargs):
     if query_results is None:
-        query_results = run_query_for_continuouse_plots(results, capacity_min, capacity_max)
+        query_results = run_query_for_continuous_plots(results, capacity_min, capacity_max)
 
     if not use_fill:
         ax.plot(query_results.capacity, query_results.effectiveness, label='effectiveness $\mu$', **kwargs)
@@ -217,7 +217,7 @@ def add_effectiveness_plot_to_axes(ax, results:efes_dc.Results, query_results:ef
 
 def add_gain_plot_to_axes(ax, results:efes_dc.Results, query_results:efes_dc.QueryResults = None, use_fill=False, capacity_min=None, capacity_max=None, **kwargs):
     if query_results is None:
-        query_results = run_query_for_continuouse_plots(results, capacity_min, capacity_max)
+        query_results = run_query_for_continuous_plots(results, capacity_min, capacity_max)
 
     if not use_fill:
         ax.plot(query_results.capacity, query_results.gain, label='gain $\mathit{G}$', **kwargs)
@@ -228,7 +228,7 @@ def add_gain_plot_to_axes(ax, results:efes_dc.Results, query_results:efes_dc.Que
 
 def add_gain_per_day_plot_to_axes(ax, results:efes_dc.Results, query_results:efes_dc.QueryResults = None, use_fill=False, capacity_min=None, capacity_max=None, **kwargs):
     if query_results is None:
-        query_results = run_query_for_continuouse_plots(results, capacity_min, capacity_max)
+        query_results = run_query_for_continuous_plots(results, capacity_min, capacity_max)
 
     if not use_fill:
         ax.plot(query_results.capacity, query_results.gain_per_day, label='gain $\mathit{G}_{\mathrm{day}}$', **kwargs)
