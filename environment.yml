@@ -8,6 +8,6 @@ dependencies:
   - ipywidgets
   - conda-forge::matplotlib
   - conda-forge::numpy
+  - conda-forge::pyarrow
   - conda-forge::pandas
-  - conda-forge::scienceplots
   

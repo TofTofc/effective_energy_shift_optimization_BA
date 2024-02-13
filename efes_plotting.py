@@ -383,8 +383,8 @@ def plot_results(results: efes_dc.Results,
         text=f'Max: {efes.pretty_print(results.analysis_results.energy_additional[-1], "Wh")}',
         clip_on=False,
         horizontalalignment='left',
-        verticalalignment='bottom' if not max_out_of_bounds else 'top')
-    )
+        verticalalignment='bottom' if not max_out_of_bounds else 'top'
+    ))
 
     axes_x = 1.01
     if add_self_sufficiency_axes:
