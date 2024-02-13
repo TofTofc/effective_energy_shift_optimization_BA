@@ -48,7 +48,7 @@ The interactive visualization available in it is shown below:
 ## Parameter variation
 A parameter variation can be run by using the ```run_parameter_variation(...)``` function. 
 All individual results will be stored in a subfolder and can be loaded indiviually using the ```efes_dataclasses.unpickle(path_to_file)``` function for further analysis.
-The results can be visualized using the 'plot_parameter_variation' function. 
+The results can be visualized using the ```plot_parameter_variation(...)``` function. 
 This applicability of the plots depends on the chosen parameters however.
 An example is shown below:
 ![house_example_results.png](examples%2Fhouse_example_results%2Fhouse_example_results.png)
