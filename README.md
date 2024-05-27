@@ -1,4 +1,4 @@
-## Effective Energy Shift (EfES) algorithm for Electic Energy Storage (EES) analysis
+## Effective Energy Shift (EfES) algorithm for Electric Energy Storage (EES) analysis
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AirborneKiwi/effective_energy_shift.git/HEAD?labpath=demo_notebook.ipynb)
 
