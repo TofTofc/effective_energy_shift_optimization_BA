@@ -334,6 +334,7 @@ def plot_results(results: efes_dc.Results,
                  add_self_sufficiency_axes=True,
                  add_self_consumption_axes=True,
                  add_gain_plot=True,
+                 query_kwargs = {},
                  n_additional_plots=0,
                  xlim=None,
                  ylims=None,
@@ -445,7 +446,7 @@ def plot_results(results: efes_dc.Results,
     axs[0].set(ylabel='$\mathit{E}^{+}$ [Wh]', ylim=ylims[0])
 
     if add_gain_plot:
-        query_result = add_effectiveness_plot_to_axes(axs[1], results)
+        query_result = add_effectiveness_plot_to_axes(axs[1], results, **query_kwargs)
 
         add_gain_plot_to_axes(axs[1], results, query_result, linewidth=2, linestyle='--')
         add_local_effectiveness_plot_to_axes(axs[1], results)
