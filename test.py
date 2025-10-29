@@ -2,9 +2,9 @@ import numpy as np
 import effective_energy_shift as efes
 import cProfile, pstats
 
-array_length = 10
+array_length = 10000
 
-worst_case_scenario = True
+worst_case_scenario = False
 
 if worst_case_scenario:
     power_generation = np.arange(array_length, 0, -1)
@@ -38,6 +38,14 @@ ps.print_callees("remove_excess")
 
 print("input:")
 print(result.analysis_results.data_input)
+print("capacity:")
+print(result.analysis_results.capacity)
+print("energy_additional:")
+print(result.analysis_results.energy_additional)
+print("self_sufficiency:")
+print(result.analysis_results.self_sufficiency)
+print("self_consumption:")
+print(result.analysis_results.self_consumption)
 
 
 
