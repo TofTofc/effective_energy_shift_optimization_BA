@@ -2,7 +2,7 @@ import numpy as np
 import effective_energy_shift as efes
 import cProfile, pstats
 
-array_length = 10000
+array_length = 1000
 
 start_time_phases = np.arange(array_length)
 
