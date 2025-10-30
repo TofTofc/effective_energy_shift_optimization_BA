@@ -216,6 +216,16 @@ class Phase:
         s += f'starts_deficit={self.starts_deficit.__str__()}, energy_deficit={self.energy_deficit.__str__()}, deficit_balanced={self.deficit_balanced.__str__()}\n'
         return s
 
+    def __eq__(self, other):
+        if not isinstance(other, Phase):
+            return NotImplemented
+        return (np.array_equal(self.starts_excess, other.starts_excess) and
+                np.array_equal(self.starts_deficit, other.starts_deficit) and
+                np.array_equal(self.energy_excess, other.energy_excess) and
+                np.array_equal(self.energy_deficit, other.energy_deficit) and
+                np.array_equal(self.excess_balanced, other.excess_balanced) and
+                np.array_equal(self.deficit_balanced, other.deficit_balanced))
+
 
 @dataclass
 class PhaseData:

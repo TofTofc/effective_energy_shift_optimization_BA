@@ -1,80 +1,5 @@
-import os.path
-
 import numpy as np
-from typing import Union, Optional, List
 import efes_dataclasses
-
-#import logging
-#logging.basicConfig(filename='ebd.log', encoding='utf-8', level=logging.ERROR)
-
-"""
-GENERAL FUNCTIONS
-"""
-
-def descr() -> str:
-    s = """
-    This script will run the Effective Energy Shift (EfES) algorithm on a provided generation power array and one for the demand power.
-    """
-    return s
-
-
-def get_scaling(num: Union[np.ndarray, float, int]):
-    try:
-        return list(map(lambda v: get_scaling(v), num))
-    except:
-        pass
-
-    if num == 0:
-        return 0, ''
-    if abs(num) > 1e12:
-        return 1e-12, 'T'
-    if abs(num) > 1e9:
-        return 1e-9, 'G'
-    if abs(num) > 1e6:
-        return 1e-6, 'M'
-    if abs(num) > 1e3:
-        return 1e-3, 'k'
-    if abs(num) < 1e-6:
-        return 1e6, 'u'
-    if abs(num) < 1e-3:
-        return 1e3, 'm'
-    return 1., ''
-
-def get_num_from_str_with_scale_and_unit(num_str: Union[np.array, str], unit:str):
-    if isinstance(num_str, list):
-        return list(map(lambda v: get_num_from_str_with_scale_and_unit(v, unit), num_str))
-
-    num, scale_and_unit = num_str.split(' ')
-
-    decimal_scaling = 10**len(num.split('.')[1])
-    num = float(num)
-    scale_str = scale_and_unit.replace(unit, '')
-    scales = dict(k=1e3, M=1e6, G=1e9, T=1e12, m=1e-3, u=1e-6, n=1e-9)
-    scale = 1. if scale_str == '' else scales[scale_str]
-    num_scaled_back = scale * np.round(num * decimal_scaling) / decimal_scaling
-    return num_scaled_back
-
-def pretty_print(num: Union[np.ndarray, float, int], unit: str, decimals: int = 2):
-    """
-    A function that takes a numeric value or a list of numeric values, a unit string and an optional decimal count.
-    It will use the most suitable scaling to express the number with the unit as a string.
-    Examples:
-        - pretty_print(num=10000, unit='W', decimals=2)  -->  '10.00 kW'
-        - pretty_print(num=0.023568, unit='N', decimals=1)  -->  '23.6 mN'
-        - pretty_print(num=[5, 600, 2300, 3650000], unit='Wh')  -->  ['5.00 Wh', '600.00 Wh', '2.30 kWh', '3.65 MWh']
-
-    :param num: The numeric value or the array of numeric values
-    :param unit: The unit string that should be used as the suffix
-    :param decimals: (optional) The decimal count that should be used for formatting.
-    :return: A formatted string or a list of formatted strings.
-    """
-    try:
-        return list(map(lambda v: pretty_print(v, unit, decimals), num))
-    except:
-        pass
-
-    scaling_factor, scaling_str = get_scaling(num)
-    return f'{num * scaling_factor:.{decimals}f} {scaling_str}{unit}'
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -83,9 +8,7 @@ def process_callback(callback, current_step, phases, mask, **kwargs):
             return stop_algorithm
     return False
 
-
 def balance_phase(phase: efes_dataclasses.Phase):
-    #logging.info(f'Balancing phase {phase.id}')
 
     start_max = max(phase.starts_excess[-1], phase.starts_deficit[-1])
     phase.starts_excess[-1] = start_max
@@ -94,12 +17,12 @@ def balance_phase(phase: efes_dataclasses.Phase):
     phase.excess_balanced[-1] = True
 
     if phase.energy_excess[-1] == phase.energy_deficit[-1]:
-        #logging.info('excess matches deficit -> balance')
+
         phase.deficit_balanced[-1] = True
         return False, False
 
     if phase.energy_excess[-1] > phase.energy_deficit[-1]:
-        #logging.info('more excess than needed -> balance and add new excess')
+
         phase.deficit_balanced[-1] = True
 
         new_start = phase.starts_deficit[-1] + phase.energy_deficit[-1]
@@ -165,7 +88,7 @@ def remove_excess(phase, index_to_remove):
     phase.excess_ids = np.delete(phase.excess_ids, obj=index_to_remove)
 
 def move_overflow(phases, mask, callback_between_steps:callable = None, callback_kwargs={}):
-    #logging.info(f'overflow in {np.nonzero(mask[0])}')
+
     add_virtual_excess_mask = np.roll(mask[0], shift=1)
     next_indices = (np.arange(len(mask[0]))[mask[0]] + 1) % len(mask[0])
 
@@ -177,22 +100,22 @@ def move_overflow(phases, mask, callback_between_steps:callable = None, callback
     # place virtual excess in next phase
     list(map(lambda args: add_excess_to_phase(args[0], *args[1]), zip(phases[next_indices], virtual_excess)))
 
-    #logging.info(f'Excess added to {next_indices}')
+
 
     if process_callback(callback_between_steps, 'shift', phases, mask, **callback_kwargs):
         return phases, mask, True
 
     # remove excess at index -2 where we had excess (mask[0]) and where virtual excess has been added (np.roll(mask[0], shift=1))
     list(map(lambda phase: remove_excess(phase, -2), phases[mask[0] & add_virtual_excess_mask]))
-    #logging.info(f'Excess at -2 removed from {np.nonzero(mask[0] & add_virtual_excess_mask)}')
+
 
     # remove excess at index -1 where we had excess (mask[0]) and no virtual excess has been added (not np.roll(mask[0], shift=1))
     list(map(lambda phase: remove_excess(phase, -1), phases[mask[0] & ~add_virtual_excess_mask]))
-    #logging.info(f'Excess at -1 removed from {np.nonzero(mask[0] & ~add_virtual_excess_mask)}')
+
     # print(phases)
 
     mask[0] = add_virtual_excess_mask
-    #logging.info(f'new excess in {mask[0]}')
+
     if process_callback(callback_between_steps, 'settle', phases, mask, **callback_kwargs):
         return phases, mask, True
 
