@@ -7,6 +7,7 @@ import sys
 import uuid
 import time
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 
 
@@ -147,25 +148,31 @@ def phase_counts_generator(start: int, end: int, factor: float):
 def plot(results, versions, indices):
 
     x_labels = [phase_count for phase_count, _ in results]
-
     x_pos = list(range(len(x_labels)))
+
+    fig, ax = plt.subplots()
 
     for i, m in enumerate(indices):
         y = [runtimes[i] for _, runtimes in results]
-        plt.plot(x_pos, y, marker='x', label=versions[m])
+        ax.plot(x_pos, y, marker='x', label=versions[m])
 
-    plt.xticks(ticks=x_pos, labels=x_labels)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_labels)
 
-    plt.xlabel("Phase Count")
-    plt.ylabel("Runtime (s)")
-    plt.title("Runtimes per Module vs Phase Count")
-    plt.legend()
+    ax.set_yscale('log')
+    ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
+
+    ax.set_xlabel("Phase Count")
+    ax.set_ylabel("Runtime (s)")
+    ax.set_title("Runtimes per Module vs Phase Count")
+    ax.legend()
+    ax.grid(True, which="both", ls="--")
     plt.show()
 
 
 if __name__ == '__main__':
     start_count = 10
-    end_count = 1000
+    end_count = 4000
     factor = 1.2
 
     phase_counts = phase_counts_generator(start_count, end_count, factor)
@@ -174,7 +181,7 @@ if __name__ == '__main__':
         [
             "append_improved", "original", "original_simplified"
         ]
-    indices = [0, 1, 2]
+    indices = [0, 2]
     submethod_analysis = False
     repetition_count = 10
     seed = 123
