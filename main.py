@@ -172,7 +172,7 @@ def plot(results, versions, indices):
 
 if __name__ == '__main__':
     start_count = 10
-    end_count = 4000
+    end_count = 100
     factor = 1.2
 
     phase_counts = phase_counts_generator(start_count, end_count, factor)
