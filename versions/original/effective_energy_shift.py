@@ -1,9 +1,9 @@
 import os.path
 
 import numpy as np
-from versions.base_case import runlength as rl
+from versions.original import runlength as rl
 from typing import Union, Optional, List
-from versions.base_case import math_energy_systems as mes
+from versions.original import math_energy_systems as mes
 import efes_dataclasses
 
 #import logging

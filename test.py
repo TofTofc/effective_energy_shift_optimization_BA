@@ -1,12 +1,15 @@
-import pstats
-import numpy as np
-from versions.base_case import effective_energy_shift as efes_base_case
-from versions.base_case_simple import effective_energy_shift as efes_base_case_simple
 import cProfile
+import importlib
+import importlib.util
+import os
+import pstats
+import sys
+import uuid
+import time
 
+import numpy as np
 
 def dicts_equal(a: dict, b:dict) -> bool:
-
     for k in a.keys():
         v_a = a.get(k)
         v_b = b.get(k)
@@ -14,52 +17,114 @@ def dicts_equal(a: dict, b:dict) -> bool:
             return False
     return True
 
+def test_result(dicts: list[dict]):
 
-array_length = 1000
+    first = dicts[0]
+    for i, d in enumerate(dicts[1:], start=1):
+        if not dicts_equal(first, d):
+            sys.exit(f"Dictionaries at index 0 and {i} are not equal")
+    print("------------------------")
+    print("All results equal!")
+    print("------------------------")
 
-start_time_phases = np.arange(array_length)
+def import_module(folder_name: str):
 
-worst_case_scenario = False
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_path, "versions", folder_name, "effective_energy_shift.py")
 
-if worst_case_scenario:
-    energy_excess = np.arange(array_length, 0, -1)
-    energy_deficit = np.arange(1, array_length+1)
+    module_name = f"effective_energy_shift_{folder_name}_{uuid.uuid4().hex}"
 
-else:
-    seed = 12345
-    rng = np.random.default_rng(seed)
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
 
-    energy_excess = rng.integers(0, 10, array_length)
-    energy_deficit = rng.integers(0, 10, array_length)
+    return module
 
-# Run the algorithm
+def init(worst_case_scenario: bool, seed: int, phase_count):
 
-prof_base_case_simple = cProfile.Profile()
-prof_base_case = cProfile.Profile()
+    start_time_phases = np.arange(phase_count)
 
-result_dict = prof_base_case_simple.runcall(efes_base_case_simple.process_phases,energy_excess, energy_deficit, start_time_phases)
-result_dict_base_case = prof_base_case.runcall(efes_base_case.process_phases,energy_excess, energy_deficit, start_time_phases)
+    if worst_case_scenario:
+        energy_excess = np.arange(phase_count, 0, -1)
+        energy_deficit = np.arange(1, phase_count + 1)
 
-print("Base case simple:")
-ps = pstats.Stats(prof_base_case_simple).sort_stats("cumtime")
-ps.sort_stats("cumtime")
-ps.print_stats("effective_energy_shift_optimization_BA")
+    else:
+        rng = np.random.default_rng(seed)
 
-print("________________________________________________________________________________________________________________")
+        energy_excess = rng.integers(0, 10, phase_count)
+        energy_deficit = rng.integers(0, 10, phase_count)
 
-print("Base case:")
-ps = pstats.Stats(prof_base_case).sort_stats("cumtime")
-ps.sort_stats("cumtime")
-ps.print_stats("effective_energy_shift_optimization_BA")
+    return energy_excess, energy_deficit, start_time_phases
 
-print("________________________________________________________________________________________________________________")
+def get_modules(indices: list[int], versions):
 
-print("Dicts are equal:")
-print(dicts_equal(result_dict, result_dict_base_case))
+    for i in indices:
+        if i < 0 or i >= len(versions):
+            sys.exit(f"Indices not suitable")
 
-"""
-ps.print_callees("process_phases")
-ps.print_callees("move_overflow")
-ps.print_callees("add_excess_to_phase")
-ps.print_callees("remove_excess")
-"""
+    modules = [import_module(versions[i]) for i in indices]
+    return modules
+
+def output_runtime(module, total_runtime):
+    full_name = module.__name__
+    short_name = full_name[len("effective_energy_shift_"):]
+    short_name = "_".join(short_name.split("_")[:-1])
+
+    print(f"Module: {short_name}, Avg runtime: {total_runtime / repetition_count:.6f}s")
+def execution_and_analysis(modules,energy_excess, energy_deficit, start_time_phases, repetition_count):
+
+    result_dicts = []
+    runtimes = []
+
+    for m in modules:
+        if submethod_analysis:
+            profile = cProfile.Profile()
+            result_dict = profile.runcall(m.process_phases, energy_excess, energy_deficit, start_time_phases)
+            result_dicts.append(result_dict)
+            ps = pstats.Stats(profile).sort_stats("cumtime")
+            ps.sort_stats("cumtime")
+            ps.print_stats("effective_energy_shift_optimization_BA")
+            ps.print_stats()
+        else:
+            total_runtime = 0
+
+            for i in range(repetition_count):
+
+                start = time.perf_counter()
+                result_dict = m.process_phases(energy_excess, energy_deficit, start_time_phases)
+                end = time.perf_counter()
+
+                total_runtime += end - start
+
+                if i == 0:
+                    result_dicts.append(result_dict)
+
+            runtimes.append(total_runtime / repetition_count)
+            output_runtime(m, total_runtime)
+
+    return result_dicts, runtimes
+
+
+def main(phase_count, versions, indices, submethod_analysis, repetition_count):
+
+    energy_excess, energy_deficit, start_time_phases = init(False, 123456789, phase_count)
+
+    modules = get_modules(indices, versions)
+
+    result_dicts, runtimes = execution_and_analysis(modules,energy_excess, energy_deficit, start_time_phases, repetition_count)
+
+    test_result(result_dicts)
+
+
+if __name__ == '__main__':
+
+    phase_count = 1000
+    versions = \
+        [
+            "append_improved", "original", "original_simplified"
+        ]
+    indices = [0, 1, 2]
+    submethod_analysis = False
+    repetition_count = 10
+
+    main(phase_count, versions, indices, submethod_analysis, repetition_count)
