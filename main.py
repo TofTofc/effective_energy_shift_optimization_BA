@@ -114,11 +114,25 @@ def execution_and_analysis(modules: list, energy_excess, energy_deficit, start_t
     return result_dicts, runtimes
 
 
-def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int, seed, phase_count_for_submethod_analysis = 4000):
+def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
+         seed, time_limit_hours, time_limit_minutes, time_limit_seconds, phase_count_for_submethod_analysis = 4000):
+
     modules = get_modules(indices, versions)
     results = []
 
+    time_limit = time_limit_hours * 3600 + time_limit_minutes * 60 + time_limit_seconds
+
+    start_time = time.perf_counter()
+
     for phase_count in phase_counts:
+
+        elapsed = time.perf_counter() - start_time
+        if elapsed >= time_limit:
+            print(
+                "-------------------------------------------------------------------------------------------------------")
+            print(
+                  f"Time limit reached before starting phase_count={phase_count} (elapsed {elapsed:.1f}s). Stopping.")
+            break
 
         if not submethod_analysis:
             print("-------------------------------------------------------------------------------------------------------")
@@ -177,8 +191,11 @@ def plot(results, versions, indices):
 
 if __name__ == '__main__':
     start_count = 10
-    end_count = 20000
+    end_count = 100000000
     factor = 1.2
+    time_limit_hours = 4
+    time_limit_minutes = 0
+    time_limit_seconds = 0
 
     phase_counts = phase_counts_generator(start_count, end_count, factor)
 
@@ -188,9 +205,9 @@ if __name__ == '__main__':
         ]
     indices = [0, 1]
     submethod_analysis = False
-    repetition_count = 10
+    repetition_count = 5
     seed = 123
 
-    results = main(phase_counts, versions, indices, submethod_analysis, repetition_count, seed)
+    results = main(phase_counts, versions, indices, submethod_analysis, repetition_count, seed, time_limit_hours, time_limit_minutes, time_limit_seconds)
     if not submethod_analysis:
         plot(results, versions, indices)
