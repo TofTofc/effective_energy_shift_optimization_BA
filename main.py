@@ -176,7 +176,7 @@ def plot(results, versions, indices):
     fig.savefig("Runtimes.png")
 
 if __name__ == '__main__':
-    start_count = 1
+    start_count = 10
     end_count = 20000
     factor = 1.2
 
