@@ -9,6 +9,7 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+from pathlib import Path
 
 def dicts_equal(a: dict, b: dict) -> bool:
     for k in a.keys():
@@ -172,11 +173,11 @@ def plot(results, versions, indices):
     ax.legend()
     ax.grid(True, which="both", ls="--")
     plt.show()
-
+    fig.savefig("Runtimes.png")
 
 if __name__ == '__main__':
-    start_count = 10
-    end_count = 10000
+    start_count = 1
+    end_count = 20000
     factor = 1.2
 
     phase_counts = phase_counts_generator(start_count, end_count, factor)
