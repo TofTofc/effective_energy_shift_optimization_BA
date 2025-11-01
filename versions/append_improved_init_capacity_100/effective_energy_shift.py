@@ -1,5 +1,5 @@
 import numpy as np
-from versions.append_improved import efes_dataclasses
+from versions.append_improved_init_capacity_100 import efes_dataclasses
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:

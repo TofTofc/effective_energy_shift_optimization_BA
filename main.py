@@ -126,6 +126,7 @@ def execution_and_analysis(
 
 def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
          seed, time_limit, phase_count_for_submethod_analysis=4000):
+
     modules = get_modules(indices, versions)
     results = []
 

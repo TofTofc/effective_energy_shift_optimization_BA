@@ -1,5 +1,6 @@
 import numpy as np
 from dataclasses import dataclass
+
 @dataclass
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""

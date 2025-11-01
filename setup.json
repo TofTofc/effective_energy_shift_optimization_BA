@@ -2,15 +2,15 @@
     "submethod_analysis": false,
 
     "start_phase_count": 10,
-    "end_phase_count": 5000,
+    "end_phase_count": 1000,
     "growth_factor": 1.15,
 
     "time_limit_hours": 0,
     "time_limit_minutes": 0,
     "time_limit_seconds": 0,
 
-    "versions": ["original_simplified", "append_improved"],
-    "indices": [0,1],
+    "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10","append_improved_init_capacity_100"],
+    "indices": [0,1,2,3],
 
     "repetition_count": 5,
     "seed": 123
