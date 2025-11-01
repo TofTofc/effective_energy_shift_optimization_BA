@@ -1,0 +1,17 @@
+{
+    "submethod_analysis": false,
+
+    "start_phase_count": 10,
+    "end_phase_count": 500,
+    "growth_factor": 1.15,
+
+    "time_limit_hours": 10,
+    "time_limit_minutes": 0,
+    "time_limit_seconds": 0,
+
+    "versions": ["original_simplified", "append_improved"],
+    "indices": [0,1],
+
+    "repetition_count": 5,
+    "seed": 123
+}
