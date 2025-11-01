@@ -128,10 +128,14 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
         elapsed = time.perf_counter() - start_time
         if elapsed >= time_limit:
+            elapsed_hours, rem = divmod(elapsed, 3600)
+            elapsed_minutes, elapsed_seconds = divmod(rem, 60)
             print(
                 "-------------------------------------------------------------------------------------------------------")
             print(
-                  f"Time limit reached before starting phase_count={phase_count} (elapsed {elapsed:.1f}s). Stopping.")
+                f"Time limit reached before starting phase_count={phase_count} "
+                f"(elapsed {int(elapsed_hours)}h {int(elapsed_minutes)}m {int(elapsed_seconds)}s). Stopping."
+            )
             break
 
         if not submethod_analysis:
@@ -192,8 +196,8 @@ def plot(results, versions, indices):
 if __name__ == '__main__':
     start_count = 10
     end_count = 100000000
-    factor = 1.2
-    time_limit_hours = 4
+    factor = 1.15
+    time_limit_hours = 5
     time_limit_minutes = 0
     time_limit_seconds = 0
 
