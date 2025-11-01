@@ -51,7 +51,6 @@ def balance_phase(phase: efes_dataclasses.Phase):
     phase.deficit_balanced = np.append(phase.deficit_balanced, False)
     return False, True
 
-
 def balance_phases(phases, mask):
     if mask is None:
         mask = np.ones((2, len(phases)), dtype=bool)
@@ -60,7 +59,6 @@ def balance_phases(phases, mask):
 
     mask[:, potential_balance] = np.array(list(map(balance_phase, phases[potential_balance]))).transpose()
     return phases, mask
-
 
 def calculate_virtual_excess(current_phase, next_phase):
     overflow_content = current_phase.energy_excess[-1]
@@ -80,7 +78,6 @@ def add_excess_to_phase(phase, excess_start, excess_content, excess_id):
     phase.energy_excess = np.append(phase.energy_excess, excess_content)
     phase.excess_balanced = np.append(phase.excess_balanced, False)
     phase.excess_ids = np.append(phase.excess_ids, excess_id)
-
 
 def remove_excess(phase, index_to_remove):
     phase.energy_excess = np.delete(phase.energy_excess, obj=index_to_remove)
@@ -121,7 +118,6 @@ def move_overflow(phases, mask, callback_between_steps:callable = None, callback
         return phases, mask, True
 
     return phases, mask, False
-
 
 def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,
                    verbose:bool = False,
