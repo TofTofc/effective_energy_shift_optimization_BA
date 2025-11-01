@@ -1,5 +1,5 @@
 import numpy as np
-import efes_dataclasses
+from versions.append_improved import efes_dataclasses
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -10,44 +10,52 @@ def process_callback(callback, current_step, phases, mask, **kwargs):
 
 def balance_phase(phase: efes_dataclasses.Phase):
 
-    start_max = max(phase.starts_excess[-1], phase.starts_deficit[-1])
-    phase.starts_excess[-1] = start_max
-    phase.starts_deficit[-1] = start_max
+    start_max = max(phase.starts_excess[phase.size_excess - 1], phase.starts_deficit[phase.size_deficit - 1])
 
-    phase.excess_balanced[-1] = True
+    phase.starts_excess[phase.size_excess - 1] = start_max
+    phase.starts_deficit[phase.size_deficit - 1] = start_max
 
-    if phase.energy_excess[-1] == phase.energy_deficit[-1]:
+    phase.excess_balanced[phase.size_excess - 1] = True
 
-        phase.deficit_balanced[-1] = True
+    if phase.energy_excess[phase.size_excess - 1] == phase.energy_deficit[phase.size_deficit - 1]:
+
+        phase.deficit_balanced[phase.size_deficit - 1] = True
         return False, False
 
-    if phase.energy_excess[-1] > phase.energy_deficit[-1]:
+    if phase.energy_excess[phase.size_excess - 1] > phase.energy_deficit[phase.size_deficit - 1]:
 
-        phase.deficit_balanced[-1] = True
+        phase.deficit_balanced[phase.size_deficit - 1] = True
 
-        new_start = phase.starts_deficit[-1] + phase.energy_deficit[-1]
-        energy_remaining = phase.energy_excess[-1] - phase.energy_deficit[-1]
+        new_start = phase.starts_deficit[phase.size_deficit - 1] + phase.energy_deficit[phase.size_deficit - 1]
+        energy_remaining = phase.energy_excess[phase.size_excess - 1] - phase.energy_deficit[phase.size_deficit - 1]
 
-        phase.energy_excess[-1] = phase.energy_deficit[-1]
+        phase.energy_excess[phase.size_excess - 1] = phase.energy_deficit[phase.size_deficit - 1]
 
-        phase.starts_excess = np.append(phase.starts_excess, new_start)
-        phase.energy_excess = np.append(phase.energy_excess, energy_remaining)
-        phase.excess_balanced = np.append(phase.excess_balanced, False)
-        phase.excess_ids = np.append(phase.excess_ids, phase.excess_ids[-1])
+        #phase.starts_excess = np.append(phase.starts_excess, new_start)
+        #phase.energy_excess = np.append(phase.energy_excess, energy_remaining)
+        #phase.excess_balanced = np.append(phase.excess_balanced, False)
+        #phase.excess_ids = np.append(phase.excess_ids, phase.excess_ids[phase.size_excess - 1])
+
+        phase.append_excess(new_start, energy_remaining, False, phase.excess_ids[phase.size_excess - 1])
+
+
         return True, False
 
-    # phase.energy_excess[-1] < phase.energy_deficit[-1]
+    # phase.energy_excess[current_phase.size - 1] < phase.energy_deficit[current_phase.size - 1]
     # debug('not enough excess -> balance and add new deficit')
 
-    new_start = phase.starts_excess[-1] + phase.energy_excess[-1]
-    energy_remaining = phase.energy_deficit[-1] - phase.energy_excess[-1]
+    new_start = phase.starts_excess[phase.size_excess - 1] + phase.energy_excess[phase.size_excess - 1]
+    energy_remaining = phase.energy_deficit[phase.size_deficit - 1] - phase.energy_excess[phase.size_excess - 1]
 
-    phase.energy_deficit[-1] = phase.energy_excess[-1]
-    phase.deficit_balanced[-1] = True
+    phase.energy_deficit[phase.size_deficit - 1] = phase.energy_excess[phase.size_excess - 1]
+    phase.deficit_balanced[phase.size_deficit - 1] = True
 
-    phase.starts_deficit = np.append(phase.starts_deficit, new_start)
-    phase.energy_deficit = np.append(phase.energy_deficit, energy_remaining)
-    phase.deficit_balanced = np.append(phase.deficit_balanced, False)
+    #phase.starts_deficit = np.append(phase.starts_deficit, new_start)
+    #phase.energy_deficit = np.append(phase.energy_deficit, energy_remaining)
+    #phase.deficit_balanced = np.append(phase.deficit_balanced, False)
+
+    phase.append_deficit(new_start, energy_remaining, False)
+
     return False, True
 
 
@@ -62,30 +70,36 @@ def balance_phases(phases, mask):
 
 
 def calculate_virtual_excess(current_phase, next_phase):
-    overflow_content = current_phase.energy_excess[-1]
-    overflow_start = current_phase.starts_excess[-1]
+    overflow_content = current_phase.energy_excess[current_phase.size_excess - 1]
+    overflow_start = current_phase.starts_excess[current_phase.size_excess - 1]
 
-    blocking_excess_content = next_phase.energy_excess[-1]
-    blocking_excess_start = next_phase.starts_excess[-1]
+    blocking_excess_content = next_phase.energy_excess[next_phase.size_excess - 1]
+
+    blocking_excess_start = next_phase.starts_excess[next_phase.size_excess - 1]
 
     virtual_excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
     virtual_excess_content = overflow_content
-    virtual_excess_id = current_phase.excess_ids[-1]
+    virtual_excess_id = current_phase.excess_ids[current_phase.size_excess - 1]
 
     return virtual_excess_start, virtual_excess_content, virtual_excess_id
 
 def add_excess_to_phase(phase, excess_start, excess_content, excess_id):
-    phase.starts_excess = np.append(phase.starts_excess, excess_start)
-    phase.energy_excess = np.append(phase.energy_excess, excess_content)
-    phase.excess_balanced = np.append(phase.excess_balanced, False)
-    phase.excess_ids = np.append(phase.excess_ids, excess_id)
+    #phase.starts_excess = np.append(phase.starts_excess, excess_start)
+    #phase.energy_excess = np.append(phase.energy_excess, excess_content)
+    #phase.excess_balanced = np.append(phase.excess_balanced, False)
+    #phase.excess_ids = np.append(phase.excess_ids, excess_id)
+    phase.append_excess(excess_start, excess_content, False, excess_id)
+
 
 
 def remove_excess(phase, index_to_remove):
-    phase.energy_excess = np.delete(phase.energy_excess, obj=index_to_remove)
-    phase.starts_excess = np.delete(phase.starts_excess, obj=index_to_remove)
-    phase.excess_balanced = np.delete(phase.excess_balanced, obj=index_to_remove)
-    phase.excess_ids = np.delete(phase.excess_ids, obj=index_to_remove)
+    #phase.energy_excess = np.delete(phase.energy_excess, obj=index_to_remove)
+    #phase.starts_excess = np.delete(phase.starts_excess, obj=index_to_remove)
+    #phase.excess_balanced = np.delete(phase.excess_balanced, obj=index_to_remove)
+    #phase.excess_ids = np.delete(phase.excess_ids, obj=index_to_remove)
+    phase.remove_excess(index_to_remove)
+
+
 
 def move_overflow(phases, mask, callback_between_steps:callable = None, callback_kwargs={}):
 
@@ -131,7 +145,6 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
     phases = np.array([efes_dataclasses.Phase(excess, deficit, id=start_time_phase) for (excess, deficit, start_time_phase) in zip(energy_excess, energy_deficit, start_time_phases)])
     n_phases = len(phases)
     mask = None
-
 
     if process_callback(callback_between_steps, 'init', phases, mask, **callback_kwargs):
         return dict(phases=phases, mask=mask)

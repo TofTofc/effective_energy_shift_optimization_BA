@@ -1,5 +1,5 @@
 import numpy as np
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 @dataclass
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
@@ -14,16 +14,6 @@ class Phase:
         self.deficit_balanced = np.array([False])
 
         self.excess_ids = np.array([self.id])
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        s = f'Phase {self.id}:\n'
-        s += f'starts_excess={self.starts_excess.__str__()}, energy_excess={self.energy_excess.__str__()}, excess_balanced={self.excess_balanced.__str__()}, excess_ids={self.excess_ids.__str__()}\n'
-        s += f'starts_deficit={self.starts_deficit.__str__()}, energy_deficit={self.energy_deficit.__str__()}, deficit_balanced={self.deficit_balanced.__str__()}\n'
-        return s
-
     def __eq__(self, other):
         if not isinstance(other, Phase):
             return NotImplemented
@@ -34,3 +24,11 @@ class Phase:
                 np.array_equal(self.excess_balanced, other.excess_balanced) and
                 np.array_equal(self.deficit_balanced, other.deficit_balanced))
 
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        s = f'Phase {self.id}:\n'
+        s += f'starts_excess={self.starts_excess.__str__()}, energy_excess={self.energy_excess.__str__()}, excess_balanced={self.excess_balanced.__str__()}, excess_ids={self.excess_ids.__str__()}\n'
+        s += f'starts_deficit={self.starts_deficit.__str__()}, energy_deficit={self.energy_deficit.__str__()}, deficit_balanced={self.deficit_balanced.__str__()}\n'
+        return s

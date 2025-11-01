@@ -1,5 +1,5 @@
 import numpy as np
-import efes_dataclasses
+from versions.original_simplified import efes_dataclasses
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -11,6 +11,7 @@ def process_callback(callback, current_step, phases, mask, **kwargs):
 def balance_phase(phase: efes_dataclasses.Phase):
 
     start_max = max(phase.starts_excess[-1], phase.starts_deficit[-1])
+
     phase.starts_excess[-1] = start_max
     phase.starts_deficit[-1] = start_max
 

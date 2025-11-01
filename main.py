@@ -10,11 +10,15 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
-
 def dicts_equal(a: dict, b: dict) -> bool:
     for k in a.keys():
         v_a = a.get(k)
         v_b = b.get(k)
+
+        #print(v_a)
+        #print("-----------")
+        #print(v_b)
+
         if not (v_a == v_b).all():
             return False
     return True
@@ -109,7 +113,7 @@ def execution_and_analysis(modules: list, energy_excess, energy_deficit, start_t
     return result_dicts, runtimes
 
 
-def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int, seed, phase_count_for_submethod_analysis = 1000):
+def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int, seed, phase_count_for_submethod_analysis = 4000):
     modules = get_modules(indices, versions)
     results = []
 
@@ -172,19 +176,20 @@ def plot(results, versions, indices):
 
 if __name__ == '__main__':
     start_count = 10
-    end_count = 100
+    end_count = 10000
     factor = 1.2
 
     phase_counts = phase_counts_generator(start_count, end_count, factor)
 
     versions = \
         [
-            "append_improved", "original", "original_simplified"
+            "original_simplified", "append_improved"
         ]
-    indices = [0, 2]
+    indices = [0, 1]
     submethod_analysis = False
     repetition_count = 10
     seed = 123
 
     results = main(phase_counts, versions, indices, submethod_analysis, repetition_count, seed)
-    plot(results, versions, indices)
+    if not submethod_analysis:
+        plot(results, versions, indices)
