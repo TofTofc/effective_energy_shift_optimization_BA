@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 from dataclasses import dataclass
 @dataclass
@@ -67,21 +69,31 @@ class Phase:
 
         if index_to_remove < 0:
             index_to_remove += self.size_excess
-
         if not (0 <= index_to_remove < self.size_excess):
             raise IndexError(f"Index {index_to_remove} out of valid range (0 to {self.size_excess - 1}).")
 
-        if index_to_remove < self.size_excess - 1:
-            self.energy_excess[index_to_remove:-1] = self.energy_excess[index_to_remove + 1: self.size_excess]
-            self.starts_excess[index_to_remove:-1] = self.starts_excess[index_to_remove + 1: self.size_excess]
-            self.excess_balanced[index_to_remove:-1] = self.excess_balanced[index_to_remove + 1: self.size_excess]
-            self.excess_ids[index_to_remove:-1] = self.excess_ids[index_to_remove + 1: self.size_excess]
+        last_idx = self.size_excess - 1
 
-        self.energy_excess[self.size_excess - 1] = invalid_value
-        self.starts_excess[self.size_excess - 1] = invalid_value
-        self.excess_balanced[self.size_excess - 1] = invalid_value
+        if index_to_remove == last_idx - 1:
+            self.energy_excess[index_to_remove] = self.energy_excess[last_idx]
+            self.starts_excess[index_to_remove] = self.starts_excess[last_idx]
+            self.excess_balanced[index_to_remove] = self.excess_balanced[last_idx]
+            self.excess_ids[index_to_remove] = self.excess_ids[last_idx]
 
-        self.excess_ids[self.size_excess - 1] = invalid_value
+        self.energy_excess[last_idx] = invalid_value
+        self.starts_excess[last_idx] = invalid_value
+        self.excess_balanced[last_idx] = invalid_value
+        self.excess_ids[last_idx] = invalid_value
+
+        #else:
+            #self.energy_excess[index_to_remove:-1] = self.energy_excess[index_to_remove + 1:self.size_excess]
+            #self.starts_excess[index_to_remove:-1] = self.starts_excess[index_to_remove + 1:self.size_excess]
+            #self.excess_balanced[index_to_remove:-1] = self.excess_balanced[index_to_remove + 1:self.size_excess]
+            #self.excess_ids[index_to_remove:-1] = self.excess_ids[index_to_remove + 1:self.size_excess]
+            #self.energy_excess[last_idx] = invalid_value
+            #self.starts_excess[last_idx] = invalid_value
+            #self.excess_balanced[last_idx] = invalid_value
+            #self.excess_ids[last_idx] = invalid_value
 
         self.size_excess -= 1
 

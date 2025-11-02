@@ -31,11 +31,6 @@ def balance_phase(phase: efes_dataclasses.Phase):
 
         phase.energy_excess[phase.size_excess - 1] = phase.energy_deficit[phase.size_deficit - 1]
 
-        #phase.starts_excess = np.append(phase.starts_excess, new_start)
-        #phase.energy_excess = np.append(phase.energy_excess, energy_remaining)
-        #phase.excess_balanced = np.append(phase.excess_balanced, False)
-        #phase.excess_ids = np.append(phase.excess_ids, phase.excess_ids[phase.size_excess - 1])
-
         phase.append_excess(new_start, energy_remaining, False, phase.excess_ids[phase.size_excess - 1])
 
 
@@ -49,10 +44,6 @@ def balance_phase(phase: efes_dataclasses.Phase):
 
     phase.energy_deficit[phase.size_deficit - 1] = phase.energy_excess[phase.size_excess - 1]
     phase.deficit_balanced[phase.size_deficit - 1] = True
-
-    #phase.starts_deficit = np.append(phase.starts_deficit, new_start)
-    #phase.energy_deficit = np.append(phase.energy_deficit, energy_remaining)
-    #phase.deficit_balanced = np.append(phase.deficit_balanced, False)
 
     phase.append_deficit(new_start, energy_remaining, False)
 
@@ -83,23 +74,6 @@ def calculate_virtual_excess(current_phase, next_phase):
 
     return virtual_excess_start, virtual_excess_content, virtual_excess_id
 
-def add_excess_to_phase(phase, excess_start, excess_content, excess_id):
-    #phase.starts_excess = np.append(phase.starts_excess, excess_start)
-    #phase.energy_excess = np.append(phase.energy_excess, excess_content)
-    #phase.excess_balanced = np.append(phase.excess_balanced, False)
-    #phase.excess_ids = np.append(phase.excess_ids, excess_id)
-    phase.append_excess(excess_start, excess_content, False, excess_id)
-
-
-
-def remove_excess(phase, index_to_remove):
-    #phase.energy_excess = np.delete(phase.energy_excess, obj=index_to_remove)
-    #phase.starts_excess = np.delete(phase.starts_excess, obj=index_to_remove)
-    #phase.excess_balanced = np.delete(phase.excess_balanced, obj=index_to_remove)
-    #phase.excess_ids = np.delete(phase.excess_ids, obj=index_to_remove)
-    phase.remove_excess(index_to_remove)
-
-
 
 def move_overflow(phases, mask, callback_between_steps:callable = None, callback_kwargs={}):
 
@@ -112,19 +86,20 @@ def move_overflow(phases, mask, callback_between_steps:callable = None, callback
     virtual_excess = list(map(lambda args: calculate_virtual_excess(*args), zip(current_phases, next_phases)))
 
     # place virtual excess in next phase
-    list(map(lambda args: add_excess_to_phase(args[0], *args[1]), zip(phases[next_indices], virtual_excess)))
 
+    list(map(lambda args: args[0].append_excess(args[1][0], args[1][1], False, args[1][2]),
+             zip(phases[next_indices], virtual_excess)))
 
 
     if process_callback(callback_between_steps, 'shift', phases, mask, **callback_kwargs):
         return phases, mask, True
 
     # remove excess at index -2 where we had excess (mask[0]) and where virtual excess has been added (np.roll(mask[0], shift=1))
-    list(map(lambda phase: remove_excess(phase, -2), phases[mask[0] & add_virtual_excess_mask]))
+    list(map(lambda phase:  phase.remove_excess(-2), phases[mask[0] & add_virtual_excess_mask]))
 
 
     # remove excess at index -1 where we had excess (mask[0]) and no virtual excess has been added (not np.roll(mask[0], shift=1))
-    list(map(lambda phase: remove_excess(phase, -1), phases[mask[0] & ~add_virtual_excess_mask]))
+    list(map(lambda phase: phase.remove_excess(-1), phases[mask[0] & ~add_virtual_excess_mask]))
 
     # print(phases)
 
