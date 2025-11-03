@@ -1,9 +1,10 @@
 import numpy as np
 from dataclasses import dataclass
+
 @dataclass
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
-    def __init__(self, energy_excess: float, energy_deficit: float, id: int = None,  initial_capacity=10):
+    def __init__(self, energy_excess: float, energy_deficit: float, id: int,  initial_capacity=10):
         self.id = id
 
         self.capacity_excess = initial_capacity

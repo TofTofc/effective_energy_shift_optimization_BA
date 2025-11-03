@@ -1,6 +1,6 @@
 import numpy as np
+
 from versions.append_improved_init_capacity_10 import efes_dataclasses
-import ppft
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -121,13 +121,13 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
     n_phases = len(phases)
     mask = None
 
-    if process_callback(callback_between_steps, 'init', phases, mask, **callback_kwargs):
-        return dict(phases=phases, mask=mask)
+    #if process_callback(callback_between_steps, 'init', phases, mask, **callback_kwargs):
+        #return dict(phases=phases, mask=mask)
 
     while True:
         phases, mask = balance_phases(phases, mask)
-        if process_callback(callback_between_steps, 'balance', phases, mask, **callback_kwargs):
-            return dict(phases=phases, mask=mask)
+        #if process_callback(callback_between_steps, 'balance', phases, mask, **callback_kwargs):
+            #return dict(phases=phases, mask=mask)
 
         if verbose:
             print(f'{n_phases - np.count_nonzero(mask, axis=1)} of {n_phases} done.')
