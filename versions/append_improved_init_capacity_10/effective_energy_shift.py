@@ -87,19 +87,24 @@ def move_overflow(phases, mask, callback_between_steps:callable = None, callback
 
     # place virtual excess in next phase
 
-    list(map(lambda args: args[0].append_excess(args[1][0], args[1][1], False, args[1][2]),
-             zip(phases[next_indices], virtual_excess)))
+    for phase, (a, b, c) in zip(phases[next_indices], virtual_excess):
+        phase.append_excess(a, b, False, c)
 
 
     if process_callback(callback_between_steps, 'shift', phases, mask, **callback_kwargs):
         return phases, mask, True
 
     # remove excess at index -2 where we had excess (mask[0]) and where virtual excess has been added (np.roll(mask[0], shift=1))
-    list(map(lambda phase:  phase.remove_excess(-2), phases[mask[0] & add_virtual_excess_mask]))
+    #list(map(lambda phase:  phase.remove_excess(-2), phases[mask[0] & add_virtual_excess_mask]))
 
+    for phase in phases[mask[0] & add_virtual_excess_mask]:
+        phase.remove_excess(-2)
 
     # remove excess at index -1 where we had excess (mask[0]) and no virtual excess has been added (not np.roll(mask[0], shift=1))
-    list(map(lambda phase: phase.remove_excess(-1), phases[mask[0] & ~add_virtual_excess_mask]))
+    #list(map(lambda phase: phase.remove_excess(-1), phases[mask[0] & ~add_virtual_excess_mask]))
+
+    for phase in phases[mask[0] & ~add_virtual_excess_mask]:
+        phase.remove_excess(-1)
 
     # print(phases)
 

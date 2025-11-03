@@ -76,7 +76,7 @@ def output_runtime(module, total_runtime: float, repetition_count):
     short_name = full_name[len("effective_energy_shift_"):]
     short_name = "_".join(short_name.split("_")[:-1])
 
-    print(f"Module: {short_name}, Avg runtime: {total_runtime / repetition_count:.8f}s")
+    print(f"Module: {short_name}, Mean runtime: {total_runtime / repetition_count:.8f}s")
 
 
 def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phases, result_dicts):
@@ -92,21 +92,22 @@ def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phas
 
 def do_normal_mode(module, energy_excess, energy_deficit, start_time_phases, result_dicts, runtimes, repetition_count):
 
-    total_runtime = 0
+    runtimes_single = []
 
     for i in range(repetition_count):
-
         start = time.perf_counter()
         result_dict = module.process_phases(energy_excess, energy_deficit, start_time_phases)
         end = time.perf_counter()
 
-        total_runtime += end - start
+        runtimes_single.append(end - start)
 
         if i == 0:
             result_dicts.append(result_dict)
 
-    runtimes.append(total_runtime / repetition_count)
-    output_runtime(module, total_runtime, repetition_count)
+    median_runtime = np.median(runtimes_single)
+    runtimes.append(median_runtime)
+
+    output_runtime(module, median_runtime, repetition_count)
 
 
 def execution_and_analysis(
