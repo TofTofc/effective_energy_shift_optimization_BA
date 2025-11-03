@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 from dataclasses import dataclass
 @dataclass
@@ -7,15 +5,6 @@ class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
     def __init__(self, energy_excess: float, energy_deficit: float, id: int = None,  initial_capacity=10):
         self.id = id
-
-        #self.starts_excess = np.array([0.])
-        #self.starts_deficit = np.array([0.])
-        #self.energy_excess = np.array([energy_excess])
-        #self.energy_deficit = np.array([energy_deficit])
-        #self.excess_balanced = np.array([False])
-        #self.deficit_balanced = np.array([False])
-
-        #self.excess_ids = np.array([self.id])
 
         self.capacity_excess = initial_capacity
         self.capacity_deficit = initial_capacity
@@ -86,16 +75,6 @@ class Phase:
         self.starts_excess[last_idx] = invalid_value
         self.excess_balanced[last_idx] = invalid_value
         self.excess_ids[last_idx] = invalid_value
-
-        #else:
-            #self.energy_excess[index_to_remove:-1] = self.energy_excess[index_to_remove + 1:self.size_excess]
-            #self.starts_excess[index_to_remove:-1] = self.starts_excess[index_to_remove + 1:self.size_excess]
-            #self.excess_balanced[index_to_remove:-1] = self.excess_balanced[index_to_remove + 1:self.size_excess]
-            #self.excess_ids[index_to_remove:-1] = self.excess_ids[index_to_remove + 1:self.size_excess]
-            #self.energy_excess[last_idx] = invalid_value
-            #self.starts_excess[last_idx] = invalid_value
-            #self.excess_balanced[last_idx] = invalid_value
-            #self.excess_ids[last_idx] = invalid_value
 
         self.size_excess -= 1
 
