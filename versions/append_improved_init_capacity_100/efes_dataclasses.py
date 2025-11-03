@@ -22,13 +22,13 @@ class Phase:
         self.size_excess = 1
         self.size_deficit = 1
 
-        self.starts_excess = np.zeros(initial_capacity, dtype=type(0.))
-        self.starts_deficit = np.zeros(initial_capacity, dtype=type(0.))
-        self.energy_excess = np.zeros(initial_capacity, dtype=type(energy_excess))
-        self.energy_deficit = np.zeros(initial_capacity, dtype=type(energy_deficit))
-        self.excess_balanced = np.zeros(initial_capacity, dtype=bool)
-        self.deficit_balanced = np.zeros(initial_capacity, dtype=bool)
-        self.excess_ids = np.zeros(initial_capacity, dtype=type(id))
+        self.starts_excess = np.empty(initial_capacity, dtype=type(0.))
+        self.starts_deficit = np.empty(initial_capacity, dtype=type(0.))
+        self.energy_excess = np.empty(initial_capacity, dtype=type(energy_excess))
+        self.energy_deficit = np.empty(initial_capacity, dtype=type(energy_deficit))
+        self.excess_balanced = np.empty(initial_capacity, dtype=bool)
+        self.deficit_balanced = np.empty(initial_capacity, dtype=bool)
+        self.excess_ids = np.empty(initial_capacity, dtype=type(id))
 
         self.starts_excess[0] = 0.
         self.starts_deficit[0] = 0.

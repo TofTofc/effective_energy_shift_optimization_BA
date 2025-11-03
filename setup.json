@@ -12,6 +12,6 @@
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10","append_improved_init_capacity_100"],
     "indices": [0,1,2,3],
 
-    "repetition_count": 100,
+    "repetition_count": 10,
     "seed": 123
 }
