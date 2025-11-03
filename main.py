@@ -127,7 +127,7 @@ def execution_and_analysis(
 
 
 def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
-         seed, time_limit, phase_count_for_submethod_analysis=20000):
+         seed, time_limit, worst_case_scenario, phase_count_for_submethod_analysis=20000):
 
     modules = get_modules(indices, versions)
     results = []
@@ -156,12 +156,12 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
             print(
                 "-------------------------------------------------------------------------------------------------------")
             print("Current Phase Count: ", phase_count)
-            energy_excess, energy_deficit, start_time_phases = init(False, seed, phase_count)
+            energy_excess, energy_deficit, start_time_phases = init(worst_case_scenario, seed, phase_count)
             result_dicts, runtimes = execution_and_analysis(modules, energy_excess, energy_deficit, start_time_phases,
                                                             repetition_count, submethod_analysis)
         else:
             print("Current Phase Count: ", phase_count_for_submethod_analysis)
-            energy_excess, energy_deficit, start_time_phases = init(False, seed, phase_count_for_submethod_analysis)
+            energy_excess, energy_deficit, start_time_phases = init(worst_case_scenario, seed, phase_count_for_submethod_analysis)
             result_dicts, runtimes = execution_and_analysis(modules, energy_excess, energy_deficit, start_time_phases,
                                                             1, submethod_analysis)
             test_result(result_dicts)
@@ -248,7 +248,8 @@ if __name__ == '__main__':
         cfg["submethod_analysis"],
         cfg["repetition_count"],
         cfg["seed"],
-        time_limit
+        time_limit,
+        cfg["worst_case_scenario"]
     )
 
     if not cfg["submethod_analysis"]:

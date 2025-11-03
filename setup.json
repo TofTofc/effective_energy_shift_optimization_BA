@@ -1,12 +1,13 @@
 {
     "submethod_analysis": false,
+    "worst_case_scenario": true,
 
     "start_phase_count": 10,
     "end_phase_count": 20000,
     "growth_factor": 1.15,
 
-    "time_limit_hours": 1,
-    "time_limit_minutes": 0,
+    "time_limit_hours": 0,
+    "time_limit_minutes": 30,
     "time_limit_seconds": 0,
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba"],
