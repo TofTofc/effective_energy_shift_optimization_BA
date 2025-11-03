@@ -100,21 +100,27 @@ class Phase:
         self.size_excess -= 1
 
     def __eq__(self, other):
-        if self.size_excess != len(other.starts_excess):
-            return False
 
-        if self.size_deficit != len(other.starts_deficit):
-            return False
-
-        return (
-                np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess) and
-                np.array_equal(self.starts_deficit[:self.size_deficit], other.starts_deficit) and
-                np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess) and
-                np.array_equal(self.energy_deficit[:self.size_deficit], other.energy_deficit) and
-                np.array_equal(self.excess_balanced[:self.size_excess], other.excess_balanced) and
-                np.array_equal(self.deficit_balanced[:self.size_deficit], other.deficit_balanced) and
-                np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids)
-        )
+        if hasattr(other, "size_excess"):
+            return (
+                    np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess[:self.size_excess]) and
+                    np.array_equal(self.starts_deficit[:self.size_deficit], other.starts_deficit[:self.size_deficit]) and
+                    np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess[:self.size_excess]) and
+                    np.array_equal(self.energy_deficit[:self.size_deficit], other.energy_deficit[:self.size_deficit]) and
+                    np.array_equal(self.excess_balanced[:self.size_excess], other.excess_balanced[:self.size_excess]) and
+                    np.array_equal(self.deficit_balanced[:self.size_deficit], other.deficit_balanced[:self.size_deficit]) and
+                    np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids[:self.size_excess])
+            )
+        else:
+            return (
+                    np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess) and
+                    np.array_equal(self.starts_deficit[:self.size_deficit], other.starts_deficit) and
+                    np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess) and
+                    np.array_equal(self.energy_deficit[:self.size_deficit], other.energy_deficit) and
+                    np.array_equal(self.excess_balanced[:self.size_excess], other.excess_balanced) and
+                    np.array_equal(self.deficit_balanced[:self.size_deficit], other.deficit_balanced) and
+                    np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids)
+            )
 
     def __str__(self):
         s = f'Phase {self.id}:\n'

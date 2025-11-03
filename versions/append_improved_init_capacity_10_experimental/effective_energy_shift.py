@@ -1,5 +1,5 @@
 import numpy as np
-from versions.append_improved_init_capacity_100 import efes_dataclasses
+from versions.append_improved_init_capacity_10_experimental import efes_dataclasses
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -95,11 +95,11 @@ def move_overflow(phases, mask, callback_between_steps:callable = None, callback
         return phases, mask, True
 
     # remove excess at index -2 where we had excess (mask[0]) and where virtual excess has been added (np.roll(mask[0], shift=1))
-    list(map(lambda phase:  phase.remove_excess(-2), phases[mask[0] & add_virtual_excess_mask]))
+    list(map(lambda phase:  phase.remove_last_or_second_last_excess(True), phases[mask[0] & add_virtual_excess_mask]))
 
 
     # remove excess at index -1 where we had excess (mask[0]) and no virtual excess has been added (not np.roll(mask[0], shift=1))
-    list(map(lambda phase: phase.remove_excess(-1), phases[mask[0] & ~add_virtual_excess_mask]))
+    list(map(lambda phase: phase.remove_last_or_second_last_excess(False), phases[mask[0] & ~add_virtual_excess_mask]))
 
     # print(phases)
 

@@ -1,21 +1,10 @@
-import sys
-
 import numpy as np
 from dataclasses import dataclass
 @dataclass
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
-    def __init__(self, energy_excess: float, energy_deficit: float, id: int = None,  initial_capacity=100):
+    def __init__(self, energy_excess: float, energy_deficit: float, id: int = None,  initial_capacity=10):
         self.id = id
-
-        #self.starts_excess = np.array([0.])
-        #self.starts_deficit = np.array([0.])
-        #self.energy_excess = np.array([energy_excess])
-        #self.energy_deficit = np.array([energy_deficit])
-        #self.excess_balanced = np.array([False])
-        #self.deficit_balanced = np.array([False])
-
-        #self.excess_ids = np.array([self.id])
 
         self.capacity_excess = initial_capacity
         self.capacity_deficit = initial_capacity
@@ -39,6 +28,7 @@ class Phase:
         self.excess_ids[0] = self.id
 
     def append_excess(self, excess_start, excess_content, excess_balanced, excess_id):
+
         if self.size_excess >= self.capacity_excess:
             self.capacity_excess *= 2
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
@@ -46,75 +36,69 @@ class Phase:
             self.excess_balanced = np.resize(self.excess_balanced, self.capacity_excess)
             self.excess_ids = np.resize(self.excess_ids, self.capacity_excess)
 
-        self.starts_excess[self.size_excess] = excess_start
-        self.energy_excess[self.size_excess] = excess_content
-        self.excess_balanced[self.size_excess] = excess_balanced
+        i = self.size_excess
+        self.starts_excess[i] = excess_start
+        self.energy_excess[i] = excess_content
+        self.excess_balanced[i] = excess_balanced
 
-        self.excess_ids[self.size_excess] = excess_id
+        self.excess_ids[i] = excess_id
         self.size_excess += 1
 
     def append_deficit(self, new_start, energy_remaining, balanced):
-        if self.size_deficit >= self.capacity_deficit:
+
+        sd = self.size_deficit
+
+        if sd >= self.capacity_deficit:
             self.capacity_deficit *= 2
             self.starts_deficit = np.resize(self.starts_deficit, self.capacity_deficit)
             self.energy_deficit = np.resize(self.energy_deficit, self.capacity_deficit)
             self.deficit_balanced = np.resize(self.deficit_balanced, self.capacity_deficit)
 
-        self.starts_deficit[self.size_deficit] = new_start
-        self.energy_deficit[self.size_deficit] = energy_remaining
-        self.deficit_balanced[self.size_deficit] = balanced
+        self.starts_deficit[sd] = new_start
+        self.energy_deficit[sd] = energy_remaining
+        self.deficit_balanced[sd] = balanced
         self.size_deficit += 1
 
-    def remove_excess(self, index_to_remove, invalid_value=0):
+    def remove_last_or_second_last_excess(self, remove_second_last, invalid_value=0):
 
-        if index_to_remove < 0:
-            index_to_remove += self.size_excess
-        if index_to_remove not in (self.size_excess - 1, self.size_excess - 2):
-            raise IndexError(
-                f"Index {index_to_remove} out of valid range (only last and second-last are allowed)."
-            )
-
+        s = self.size_excess-2
         last_idx = self.size_excess - 1
 
-        if index_to_remove == last_idx - 1:
-            self.energy_excess[index_to_remove] = self.energy_excess[last_idx]
-            self.starts_excess[index_to_remove] = self.starts_excess[last_idx]
-            self.excess_balanced[index_to_remove] = self.excess_balanced[last_idx]
-            self.excess_ids[index_to_remove] = self.excess_ids[last_idx]
+        if remove_second_last:
+            self.energy_excess[s] = self.energy_excess[last_idx]
+            self.starts_excess[s] = self.starts_excess[last_idx]
+            self.excess_balanced[s] = self.excess_balanced[last_idx]
+            self.excess_ids[s] = self.excess_ids[last_idx]
 
         self.energy_excess[last_idx] = invalid_value
         self.starts_excess[last_idx] = invalid_value
         self.excess_balanced[last_idx] = invalid_value
         self.excess_ids[last_idx] = invalid_value
 
-        #else:
-            #self.energy_excess[index_to_remove:-1] = self.energy_excess[index_to_remove + 1:self.size_excess]
-            #self.starts_excess[index_to_remove:-1] = self.starts_excess[index_to_remove + 1:self.size_excess]
-            #self.excess_balanced[index_to_remove:-1] = self.excess_balanced[index_to_remove + 1:self.size_excess]
-            #self.excess_ids[index_to_remove:-1] = self.excess_ids[index_to_remove + 1:self.size_excess]
-            #self.energy_excess[last_idx] = invalid_value
-            #self.starts_excess[last_idx] = invalid_value
-            #self.excess_balanced[last_idx] = invalid_value
-            #self.excess_ids[last_idx] = invalid_value
-
         self.size_excess -= 1
 
     def __eq__(self, other):
-        if self.size_excess != len(other.starts_excess):
-            return False
 
-        if self.size_deficit != len(other.starts_deficit):
-            return False
-
-        return (
-                np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess) and
-                np.array_equal(self.starts_deficit[:self.size_deficit], other.starts_deficit) and
-                np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess) and
-                np.array_equal(self.energy_deficit[:self.size_deficit], other.energy_deficit) and
-                np.array_equal(self.excess_balanced[:self.size_excess], other.excess_balanced) and
-                np.array_equal(self.deficit_balanced[:self.size_deficit], other.deficit_balanced) and
-                np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids)
-        )
+        if hasattr(other, "size_excess"):
+            return (
+                    np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess[:self.size_excess]) and
+                    np.array_equal(self.starts_deficit[:self.size_deficit],other.starts_deficit[:self.size_deficit]) and
+                    np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess[:self.size_excess]) and
+                    np.array_equal(self.energy_deficit[:self.size_deficit],other.energy_deficit[:self.size_deficit]) and
+                    np.array_equal(self.excess_balanced[:self.size_excess],other.excess_balanced[:self.size_excess]) and
+                    np.array_equal(self.deficit_balanced[:self.size_deficit],other.deficit_balanced[:self.size_deficit]) and
+                    np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids[:self.size_excess])
+            )
+        else:
+            return (
+                    np.array_equal(self.starts_excess[:self.size_excess], other.starts_excess) and
+                    np.array_equal(self.starts_deficit[:self.size_deficit], other.starts_deficit) and
+                    np.array_equal(self.energy_excess[:self.size_excess], other.energy_excess) and
+                    np.array_equal(self.energy_deficit[:self.size_deficit], other.energy_deficit) and
+                    np.array_equal(self.excess_balanced[:self.size_excess], other.excess_balanced) and
+                    np.array_equal(self.deficit_balanced[:self.size_deficit], other.deficit_balanced) and
+                    np.array_equal(self.excess_ids[:self.size_excess], other.excess_ids)
+            )
 
     def __str__(self):
         s = f'Phase {self.id}:\n'
