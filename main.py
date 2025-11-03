@@ -86,7 +86,8 @@ def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phas
     result_dicts.append(result_dict)
     ps = pstats.Stats(profile).sort_stats("cumtime")
     ps.sort_stats("cumtime")
-    ps.print_stats("effective_energy_shift_optimization_BA")
+    #ps.print_stats("effective_energy_shift_optimization_BA")
+    ps.print_stats()
 
 
 def do_normal_mode(module, energy_excess, energy_deficit, start_time_phases, result_dicts, runtimes, repetition_count):
@@ -125,7 +126,7 @@ def execution_and_analysis(
 
 
 def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
-         seed, time_limit, phase_count_for_submethod_analysis=4000):
+         seed, time_limit, phase_count_for_submethod_analysis=20000):
 
     modules = get_modules(indices, versions)
     results = []

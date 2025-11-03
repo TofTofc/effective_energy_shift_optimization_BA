@@ -69,8 +69,10 @@ class Phase:
 
         if index_to_remove < 0:
             index_to_remove += self.size_excess
-        if not (0 <= index_to_remove < self.size_excess):
-            raise IndexError(f"Index {index_to_remove} out of valid range (0 to {self.size_excess - 1}).")
+        if index_to_remove not in (self.size_excess - 1, self.size_excess - 2):
+            raise IndexError(
+                f"Index {index_to_remove} out of valid range (only last and second-last are allowed)."
+            )
 
         last_idx = self.size_excess - 1
 
