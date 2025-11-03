@@ -1,5 +1,6 @@
 import numpy as np
 from versions.append_improved_init_capacity_10 import efes_dataclasses
+from concurrent.futures import ProcessPoolExecutor
 
 def process_callback(callback, current_step, phases, mask, **kwargs):
     if callback is not None:
@@ -58,6 +59,23 @@ def balance_phases(phases, mask):
 
     mask[:, potential_balance] = np.array(list(map(balance_phase, phases[potential_balance]))).transpose()
     return phases, mask
+
+"""
+def balance_phases(phases, mask):
+    if mask is None:
+        mask = np.ones((2, len(phases)), dtype=bool)
+
+    potential_balance = mask[0] & mask[1]
+    indices = np.where(potential_balance)[0]
+
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(balance_phase, phases[indices]))
+
+    # Update mask
+    results_arr = np.array(results).T
+    mask[:, indices] = results_arr
+    return phases, mask
+"""
 
 
 def calculate_virtual_excess(current_phase, next_phase):
