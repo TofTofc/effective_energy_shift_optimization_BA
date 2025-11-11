@@ -5,7 +5,7 @@
 
     "start_phase_count": 10,
     "end_phase_count": 20000,
-    "number_of_data_points": 1000,
+    "number_of_data_points": 400,
 
     "time_limit_hours": 0,
     "time_limit_minutes": 0,
