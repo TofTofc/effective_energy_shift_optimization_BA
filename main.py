@@ -6,18 +6,19 @@ import pstats
 import sys
 import uuid
 import time
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 import numpy as np
-from pathlib import Path
-import json
+from matplotlib import pyplot as plt
+
+from helper.json_methodes import save_to_json, load_config
+from helper.plot_methodes import plot_current_run, plot_from_json
+
+delim = ("-------------------------------------------------------------------------------------------------------")
 
 
 def dicts_equal(a: dict, b: dict) -> bool:
     for k in a.keys():
         v_a = a.get(k)
         v_b = b.get(k)
-
         if not (v_a == v_b).all():
             return False
     return True
@@ -43,25 +44,28 @@ def import_module(folder_name: str):
     return module
 
 
-def init(worst_case_scenario: bool, seed: int, phase_count: int):
-
+def init(worst_case_scenario: bool, seed_list: int(), phase_count: int):
     start_time_phases = np.arange(phase_count)
 
-    if worst_case_scenario:
-        energy_excess = np.arange(phase_count, 0, -1)
-        energy_deficit = np.arange(1, phase_count + 1)
+    energy_excess_list = []
+    energy_deficit_list = []
 
-    else:
-        rng = np.random.default_rng(seed)
+    for seed in seed_list:
 
-        energy_excess = rng.integers(0, 10, phase_count)
-        energy_deficit = rng.integers(0, 10, phase_count)
+        if worst_case_scenario:
+            energy_excess_list.append(np.arange(phase_count, 0, -1))
+            energy_deficit_list.append(np.arange(1, phase_count + 1))
 
-    return energy_excess, energy_deficit, start_time_phases
+        else:
+            rng = np.random.default_rng(seed)
+
+            energy_excess_list.append(rng.integers(0, 10, phase_count))
+            energy_deficit_list.append(rng.integers(0, 10, phase_count))
+
+    return energy_excess_list, energy_deficit_list, start_time_phases
 
 
 def get_modules(indices: list[int], versions: list):
-
     for i in indices:
         if i < 0 or i >= len(versions):
             sys.exit(f"Indices not suitable")
@@ -71,7 +75,6 @@ def get_modules(indices: list[int], versions: list):
 
 
 def output_runtime(module, total_runtime: float, repetition_count):
-
     full_name = module.__name__
     short_name = full_name[len("effective_energy_shift_"):]
     short_name = "_".join(short_name.split("_")[:-1])
@@ -80,7 +83,6 @@ def output_runtime(module, total_runtime: float, repetition_count):
 
 
 def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phases, result_dicts):
-
     profile = cProfile.Profile()
     result_dict = profile.runcall(module.process_phases, energy_excess, energy_deficit, start_time_phases)
     result_dicts.append(result_dict)
@@ -90,19 +92,20 @@ def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phas
     ps.print_stats()
 
 
-def do_normal_mode(module, energy_excess, energy_deficit, start_time_phases, result_dicts, runtimes, repetition_count):
-
+def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count):
     runtimes_single = []
 
-    for i in range(repetition_count):
-        start = time.perf_counter()
-        result_dict = module.process_phases(energy_excess, energy_deficit, start_time_phases)
-        end = time.perf_counter()
+    for j in range(len(energy_excess_list)):
 
-        runtimes_single.append(end - start)
+        for i in range(repetition_count):
+            start = time.perf_counter()
+            result_dict = module.process_phases(energy_excess_list[j], energy_deficit_list[j], start_time_phases)
+            end = time.perf_counter()
 
-        if i == 0:
-            result_dicts.append(result_dict)
+            runtimes_single.append(end - start)
+
+            if i == 0 and j == 0:
+                result_dicts.append(result_dict)
 
     median_runtime = np.median(runtimes_single)
     runtimes.append(median_runtime)
@@ -111,24 +114,40 @@ def do_normal_mode(module, energy_excess, energy_deficit, start_time_phases, res
 
 
 def execution_and_analysis(
-        modules: list, energy_excess, energy_deficit, start_time_phases,repetition_count: int, submethod_analysis: bool):
-
+        modules: list, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count: int, submethod_analysis: bool):
     result_dicts = []
     runtimes = []
 
     for m in modules:
         if submethod_analysis:
-            do_submethod_analysis(m, energy_excess, energy_deficit, start_time_phases, result_dicts)
+            do_submethod_analysis(m, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts)
         else:
-            do_normal_mode(m, energy_excess, energy_deficit, start_time_phases, result_dicts, runtimes,
-                           repetition_count)
+            do_normal_mode(m, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count)
 
     return result_dicts, runtimes
 
 
-def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
-         seed, time_limit, worst_case_scenario, phase_count_for_submethod_analysis=20000):
+def has_program_run_long_enough(start_time, phase_count, time_limit):
+    if time_limit is None:
+        return False
 
+    elapsed = time.perf_counter() - start_time
+
+    if elapsed >= time_limit:
+        elapsed_hours, rem = divmod(elapsed, 3600)
+        elapsed_minutes, elapsed_seconds = divmod(rem, 60)
+        print(delim)
+
+        print(
+            f"Time limit reached before starting phase_count = {phase_count} "
+            f"(elapsed {int(elapsed_hours)}h {int(elapsed_minutes)}m {int(elapsed_seconds)}s). Stopping."
+        )
+        return True
+    return False
+
+
+def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
+         seed_list, time_limit, worst_case_scenario, phase_count_for_submethod_analysis=20000):
     modules = get_modules(indices, versions)
     results = []
 
@@ -136,92 +155,44 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
     for phase_count in phase_counts:
 
-        elapsed = -2
-        #Time Limit enabled
-        if not time_limit == -1:
-            elapsed = time.perf_counter() - start_time
+        print(delim)
+        print("Current Phase Count: ", phase_count)
 
-        if elapsed >= time_limit:
-            elapsed_hours, rem = divmod(elapsed, 3600)
-            elapsed_minutes, elapsed_seconds = divmod(rem, 60)
-            print(
-                "-------------------------------------------------------------------------------------------------------")
-            print(
-                f"Time limit reached before starting phase_count={phase_count} "
-                f"(elapsed {int(elapsed_hours)}h {int(elapsed_minutes)}m {int(elapsed_seconds)}s). Stopping."
-            )
+        if has_program_run_long_enough(start_time, phase_count, time_limit):
             break
 
-        if not submethod_analysis:
-            print(
-                "-------------------------------------------------------------------------------------------------------")
-            print("Current Phase Count: ", phase_count)
-            energy_excess, energy_deficit, start_time_phases = init(worst_case_scenario, seed, phase_count)
-            result_dicts, runtimes = execution_and_analysis(modules, energy_excess, energy_deficit, start_time_phases,
-                                                            repetition_count, submethod_analysis)
-        else:
-            print("Current Phase Count: ", phase_count_for_submethod_analysis)
-            energy_excess, energy_deficit, start_time_phases = init(worst_case_scenario, seed, phase_count_for_submethod_analysis)
-            result_dicts, runtimes = execution_and_analysis(modules, energy_excess, energy_deficit, start_time_phases,
-                                                            1, submethod_analysis)
+        if submethod_analysis:
+
+            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, seed_list, phase_count_for_submethod_analysis)
+
+            result_dicts, runtimes = (execution_and_analysis
+                                      (modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis))
             test_result(result_dicts)
             break
 
-        test_result(result_dicts)
+        else:
 
-        results.append((phase_count, runtimes))
+            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, seed_list, phase_count)
+
+            result_dicts, runtimes = (execution_and_analysis
+                                      (modules, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, submethod_analysis))
+
+            test_result(result_dicts)
+            results.append((phase_count, runtimes))
 
     return results
 
 
-def phase_counts_generator(start: int, end: int, factor: float):
-    phase_counts = []
-    value = start
-
-    while value <= end:
-        phase_counts.append(int(value))
-        value *= factor
-
-    return phase_counts
-
-
-def plot(results, versions, indices):
-    x_labels = [phase_count for phase_count, _ in results]
-    x_vals = [float(x) for x in x_labels]
-
-    fig, ax = plt.subplots()
-
-    for i, m in enumerate(indices):
-        y = [runtimes[i] for _, runtimes in results]
-        ax.plot(x_vals, y, label=versions[m])
-
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-
-    ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
-    ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
-
-    ax.set_xlabel("Phase Count (log scale)")
-    ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title("Runtimes per Module vs Phase Count")
-    ax.legend()
-    ax.grid(True, which="both", ls="--")
-
-    fig.savefig("Runtimes.png", dpi=300, bbox_inches="tight")
-    plt.show()
-
-
-def load_config(filename="setup.json"):
-    path = Path(__file__).parent / filename
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
+def phase_counts_generator(start: int, end: int, number_of_data_points: int):
+    phase_counts = np.logspace(np.log10(start), np.log10(end), num=number_of_data_points)
+    phase_counts = [int(x) for x in phase_counts]
+    return sorted(list(set(phase_counts)))
 
 def calculate_time_limit(time_limit_hours, time_limit_minutes, time_limit_seconds):
     time_limit = time_limit_hours * 3600 + time_limit_minutes * 60 + time_limit_seconds
 
     if time_limit_hours == 0 and time_limit_minutes == 0 and time_limit_seconds == 0:
-        time_limit = -1
+        time_limit = None
 
     return time_limit
 
@@ -233,7 +204,7 @@ if __name__ == '__main__':
     phase_counts = phase_counts_generator(
         cfg["start_phase_count"],
         cfg["end_phase_count"],
-        cfg["growth_factor"]
+        cfg["number_of_data_points"]
     )
     time_limit = calculate_time_limit(
         cfg["time_limit_hours"],
@@ -247,10 +218,17 @@ if __name__ == '__main__':
         cfg["indices"],
         cfg["submethod_analysis"],
         cfg["repetition_count"],
-        cfg["seed"],
+        cfg["seed_list"],
         time_limit,
         cfg["worst_case_scenario"]
     )
 
+    if not len(cfg["indices_to_save"]) == 0:
+        save_to_json(cfg, results)
+
     if not cfg["submethod_analysis"]:
-        plot(results, cfg["versions"], cfg["indices"])
+        plot_current_run(cfg, results)
+
+    plot_from_json(cfg, cfg["end_phase_count"])
+
+    plt.show()
