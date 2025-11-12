@@ -4,18 +4,18 @@
     "save_copy_of_visuals": true,
 
     "start_phase_count": 10,
-    "end_phase_count": 5000,
-    "number_of_data_points": 100,
+    "end_phase_count": 100000,
+    "number_of_data_points": 1000,
 
-    "time_limit_hours": 0,
+    "time_limit_hours": 6,
     "time_limit_minutes": 0,
     "time_limit_seconds": 0,
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba"],
     "indices": [2,0,1,3],
-    "indices_to_save": [0,1,2,3],
+    "indices_to_save": [],
 
-    "repetition_count": 10,
+    "repetition_count": 5,
     "seed_list": [48327, 15984, 72640, 30215, 91873]
 }
 
