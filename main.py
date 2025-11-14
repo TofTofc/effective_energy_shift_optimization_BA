@@ -82,12 +82,12 @@ def output_runtime(module, total_runtime: float, repetition_count):
     print(f"Module: {short_name}, Mean runtime: {total_runtime / repetition_count:.8f}s")
 
 
-def do_submethod_analysis(module, energy_excess, energy_deficit, start_time_phases, result_dicts):
+def do_submethod_analysis(module, energy_excess_list, energy_deficit_list, start_time_phases):
     profile = cProfile.Profile()
-    result_dict = profile.runcall(module.process_phases, energy_excess, energy_deficit, start_time_phases)
-    result_dicts.append(result_dict)
+    profile.runcall(module.process_phases, energy_excess_list[0], energy_deficit_list[0], start_time_phases)
+
     ps = pstats.Stats(profile).sort_stats("cumtime")
-    ps.sort_stats("cumtime")
+    ps.sort_stats("tottime")
     #ps.print_stats("effective_energy_shift_optimization_BA")
     ps.print_stats()
 
@@ -120,7 +120,8 @@ def execution_and_analysis(
 
     for m in modules:
         if submethod_analysis:
-            do_submethod_analysis(m, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts)
+            do_submethod_analysis(m, energy_excess_list, energy_deficit_list, start_time_phases)
+            break
         else:
             do_normal_mode(m, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count)
 
@@ -155,8 +156,9 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
     for phase_count in phase_counts:
 
-        print(delim)
-        print("Current Phase Count: ", phase_count)
+        if not submethod_analysis:
+            print(delim)
+            print("Current Phase Count: ", phase_count)
 
         if has_program_run_long_enough(start_time, phase_count, time_limit):
             break
@@ -165,9 +167,7 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
             energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, seed_list, phase_count_for_submethod_analysis)
 
-            result_dicts, runtimes = (execution_and_analysis
-                                      (modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis))
-            test_result(result_dicts)
+            execution_and_analysis(modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis)
             break
 
         else:
@@ -223,12 +223,13 @@ if __name__ == '__main__':
         cfg["worst_case_scenario"]
     )
 
-    if not len(cfg["indices_to_save"]) == 0:
-        save_to_json(cfg, results)
-
     if not cfg["submethod_analysis"]:
+
+        if not len(cfg["indices_to_save"]) == 0:
+            save_to_json(cfg, results)
+
         plot_current_run(cfg, results)
 
-    plot_from_json(cfg, cfg["end_phase_count"])
+        plot_from_json(cfg, cfg["end_phase_count"])
 
-    plt.show()
+        plt.show()

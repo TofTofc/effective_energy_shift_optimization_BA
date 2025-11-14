@@ -8570,5 +8570,216 @@
                 "runtime": 0.2554355000029318
             }
         ]
+    },
+    "ai_ic10_numba_clean": {
+        "seed_list": [
+            48327,
+            15984,
+            72640,
+            30215,
+            91873
+        ],
+        "repetition_count": 5,
+        "start_phase_count": 10,
+        "end_phase_count": 500,
+        "number_of_data_points": 50,
+        "results": [
+            {
+                "phase_count": 10,
+                "runtime": 0.00019190000602975488
+            },
+            {
+                "phase_count": 11,
+                "runtime": 0.0002001000102609396
+            },
+            {
+                "phase_count": 12,
+                "runtime": 0.0001805999781936407
+            },
+            {
+                "phase_count": 13,
+                "runtime": 0.00020310000400058925
+            },
+            {
+                "phase_count": 14,
+                "runtime": 0.0002470000181347132
+            },
+            {
+                "phase_count": 16,
+                "runtime": 0.00025129999266937375
+            },
+            {
+                "phase_count": 17,
+                "runtime": 0.00025770001229830086
+            },
+            {
+                "phase_count": 18,
+                "runtime": 0.0002610000083222985
+            },
+            {
+                "phase_count": 20,
+                "runtime": 0.00034050000249408185
+            },
+            {
+                "phase_count": 22,
+                "runtime": 0.00031120001222006977
+            },
+            {
+                "phase_count": 24,
+                "runtime": 0.0003334999782964587
+            },
+            {
+                "phase_count": 26,
+                "runtime": 0.00035979997483082116
+            },
+            {
+                "phase_count": 28,
+                "runtime": 0.00038720000884495676
+            },
+            {
+                "phase_count": 30,
+                "runtime": 0.0004214000073261559
+            },
+            {
+                "phase_count": 33,
+                "runtime": 0.0004481000069063157
+            },
+            {
+                "phase_count": 35,
+                "runtime": 0.0004856000014115125
+            },
+            {
+                "phase_count": 38,
+                "runtime": 0.0005186999915167689
+            },
+            {
+                "phase_count": 42,
+                "runtime": 0.0005850000015925616
+            },
+            {
+                "phase_count": 45,
+                "runtime": 0.0006374999938998371
+            },
+            {
+                "phase_count": 49,
+                "runtime": 0.0007361999887507409
+            },
+            {
+                "phase_count": 53,
+                "runtime": 0.0007277000113390386
+            },
+            {
+                "phase_count": 57,
+                "runtime": 0.0007893999863881618
+            },
+            {
+                "phase_count": 62,
+                "runtime": 0.0008585000177845359
+            },
+            {
+                "phase_count": 67,
+                "runtime": 0.000919299985980615
+            },
+            {
+                "phase_count": 73,
+                "runtime": 0.0010994999902322888
+            },
+            {
+                "phase_count": 79,
+                "runtime": 0.0011513999779708683
+            },
+            {
+                "phase_count": 86,
+                "runtime": 0.001185900007840246
+            },
+            {
+                "phase_count": 93,
+                "runtime": 0.0012943000183440745
+            },
+            {
+                "phase_count": 101,
+                "runtime": 0.0013743999879807234
+            },
+            {
+                "phase_count": 109,
+                "runtime": 0.001504900021245703
+            },
+            {
+                "phase_count": 118,
+                "runtime": 0.0016089999990072101
+            },
+            {
+                "phase_count": 128,
+                "runtime": 0.0017592000076547265
+            },
+            {
+                "phase_count": 139,
+                "runtime": 0.0018336999928578734
+            },
+            {
+                "phase_count": 150,
+                "runtime": 0.002077599987387657
+            },
+            {
+                "phase_count": 163,
+                "runtime": 0.0022191999887581915
+            },
+            {
+                "phase_count": 177,
+                "runtime": 0.0025217000220436603
+            },
+            {
+                "phase_count": 191,
+                "runtime": 0.0027282000228296965
+            },
+            {
+                "phase_count": 207,
+                "runtime": 0.0030069000204093754
+            },
+            {
+                "phase_count": 225,
+                "runtime": 0.0031829999934416264
+            },
+            {
+                "phase_count": 243,
+                "runtime": 0.0036477000103332102
+            },
+            {
+                "phase_count": 263,
+                "runtime": 0.00379879999672994
+            },
+            {
+                "phase_count": 285,
+                "runtime": 0.004017500003101304
+            },
+            {
+                "phase_count": 309,
+                "runtime": 0.004592600016621873
+            },
+            {
+                "phase_count": 335,
+                "runtime": 0.005294999980833381
+            },
+            {
+                "phase_count": 363,
+                "runtime": 0.005791500007035211
+            },
+            {
+                "phase_count": 393,
+                "runtime": 0.006273300008615479
+            },
+            {
+                "phase_count": 426,
+                "runtime": 0.00709100000676699
+            },
+            {
+                "phase_count": 461,
+                "runtime": 0.007128600002033636
+            },
+            {
+                "phase_count": 499,
+                "runtime": 0.00793409999459982
+            }
+        ]
     }
 }
