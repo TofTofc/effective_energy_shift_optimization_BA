@@ -96,24 +96,31 @@ def balance_phases_njit(phases, is_unbalanced_array):
 
 
 @njit
-def calculate_virtual_excess(current_phase, next_phase):
+def calculate_virtual_excess(current_phases, next_phases):
     """
-    Erzeugt einen Virtual Excess
+    Erzeugt einen Virtual Excess pro current_phases + next_phases Paar
     Starthöhe ist max aus eigener Excess Starthöhe und Excess Endhöhe der nächsten Phase
     """
 
-    overflow_content = current_phase.energy_excess[current_phase.size_excess - 1]
-    overflow_start = current_phase.starts_excess[current_phase.size_excess - 1]
+    m = len(current_phases)
+    virtual_excess_starts = np.empty(m, dtype=np.float64)
+    virtual_excess_contents = np.empty(m, dtype=np.float64)
+    virtual_excess_ids = np.empty(m, dtype=np.int64)
 
-    blocking_excess_content = next_phase.energy_excess[next_phase.size_excess - 1]
-    blocking_excess_start = next_phase.starts_excess[next_phase.size_excess - 1]
-    blocking_excess_end = blocking_excess_start + blocking_excess_content
+    for i in range(m):
 
-    virtual_excess_start = max(overflow_start, blocking_excess_end)
-    virtual_excess_content = overflow_content
-    virtual_excess_id = current_phase.excess_ids[current_phase.size_excess - 1]
+        overflow_content = current_phases[i].energy_excess[current_phases[i].size_excess - 1]
+        overflow_start = current_phases[i].starts_excess[current_phases[i].size_excess - 1]
 
-    return virtual_excess_start, virtual_excess_content, virtual_excess_id
+        blocking_excess_content = next_phases[i].energy_excess[next_phases[i].size_excess - 1]
+        blocking_excess_start = next_phases[i].starts_excess[next_phases[i].size_excess - 1]
+        blocking_excess_end = blocking_excess_start + blocking_excess_content
+
+        virtual_excess_starts[i] = max(overflow_start, blocking_excess_end)
+        virtual_excess_contents[i] = overflow_content
+        virtual_excess_ids[i] = current_phases[i].excess_ids[current_phases[i].size_excess - 1]
+
+    return virtual_excess_starts, virtual_excess_contents, virtual_excess_ids
 
 
 @njit
@@ -147,34 +154,30 @@ def move_overflow_njit(phases, is_unbalanced_array):
         if is_unbalanced_array[0, i]:
             current_phases.append(phases[i])
 
-    #Speichert die Nachfolger aller unbalanced Excess Einträge in next_phases
+    # Speichert die Nachfolger aller unbalanced Excess Einträge in next_phases
     next_phases = List()
     for k in range(len(next_indices)):
         idx = next_indices[k]
         next_phases.append(phases[idx])
 
+    # Erstellt Listen aller Virtuellen Excess
     m = len(current_phases)
-    v_e_start_arr = np.empty(m, dtype=np.float64)
-    v_e_content_arr = np.empty(m, dtype=np.float64)
-    v_e_id_arr = np.empty(m, dtype=np.int64)
+    v_e_start_arr, v_e_content_arr, v_e_id_arr = calculate_virtual_excess(current_phases, next_phases)
 
-    for i in range(m):
-        v_e_start, v_e_content, v_e_id = calculate_virtual_excess(current_phases[i], next_phases[i])
-        v_e_start_arr[i] = v_e_start
-        v_e_content_arr[i] = v_e_content
-        v_e_id_arr[i] = v_e_id
-
+    # Füge die Überschüsse der aktuellen Phasen in den nächsten Phasen ein
     for i in range(m):
         next_phases[i].append_excess(v_e_start_arr[i], v_e_content_arr[i], False, v_e_id_arr[i])
 
+    # Lösche alte Excess Pakete die durch neue Excess Pakete in der nächsten Phase ersetzt wurden
     for i in range(n):
-        if is_unbalanced_array[0, i] and is_unbalanced_array_shifted [i]:
+        if is_unbalanced_array[0, i] and is_unbalanced_array_shifted[i]:
             phases[i].remove_excess(-2)
-        elif is_unbalanced_array[0, i] and not is_unbalanced_array_shifted [i]:
+        elif is_unbalanced_array[0, i] and not is_unbalanced_array_shifted[i]:
             phases[i].remove_excess(-1)
 
+    # Passe Maske an auf die neuen Werte
     for i in range(n):
-        is_unbalanced_array[0, i] = is_unbalanced_array_shifted [i]
+        is_unbalanced_array[0, i] = is_unbalanced_array_shifted[i]
 
     return phases, is_unbalanced_array
 
