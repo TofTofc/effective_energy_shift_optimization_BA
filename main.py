@@ -24,11 +24,15 @@ def dicts_equal(a: dict, b: dict) -> bool:
     return True
 
 
-def test_result(dicts: list[dict]):
-    first = dicts[0]
-    for i, d in enumerate(dicts[1:], start=1):
-        if not dicts_equal(first, d):
-            sys.exit(f"Dictionaries at index 0 and {i} are not equal")
+def test_result(all_result_lists: list[list[dict]]):
+
+    repetition_count = len(all_result_lists[0])
+
+    for i in range(repetition_count):
+        first_dict = all_result_lists[0][i]
+        for j, module_results in enumerate(all_result_lists[1:], start=1):
+            if not dicts_equal(first_dict, module_results[i]):
+                sys.exit(f"Dictionaries at repetition {i} of module 0 and module {j} are not equal")
 
 
 def import_module(folder_name: str):
@@ -96,8 +100,10 @@ def do_submethod_analysis(module, energy_excess_list, energy_deficit_list, start
     ps.print_stats()
 
 
-def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count):
+def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count):
+
     runtimes_single = []
+    module_results = []
 
     for i in range(repetition_count):
         start = time.perf_counter()
@@ -105,30 +111,30 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
         end = time.perf_counter()
 
         runtimes_single.append(end - start)
-
-        if i == 0:
-            result_dicts.append(result_dict)
+        module_results.append(result_dict)
 
     median_runtime = np.median(runtimes_single)
-    runtimes.append(median_runtime)
 
     output_runtime(module, median_runtime, repetition_count)
 
+    return module_results, median_runtime
 
 def execution_and_analysis(
         modules: list, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count: int, submethod_analysis: bool):
 
-    result_dicts = []
+    all_result_lists = []
     runtimes = []
-    
+
     for m in modules:
         if submethod_analysis:
             do_submethod_analysis(m, energy_excess_list, energy_deficit_list, start_time_phases)
             break
         else:
-            do_normal_mode(m, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count)
+            module_results, median_runtime = do_normal_mode(m, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count)
+            all_result_lists.append(module_results)
+            runtimes.append(median_runtime)
 
-    return result_dicts, runtimes
+    return all_result_lists, runtimes
 
 
 def has_program_run_long_enough(start_time, phase_count, time_limit):
