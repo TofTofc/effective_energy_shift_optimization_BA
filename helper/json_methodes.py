@@ -5,6 +5,7 @@ from pathlib import Path
 
 delim = ("-------------------------------------------------------------------------------------------------------")
 
+
 def load_config(filename="setup.json"):
 
     path = Path(sys.modules['__main__'].__file__).parent / filename
@@ -25,7 +26,7 @@ def save_to_json(cfg, results):
     for save_idx in cfg["indices_to_save"]:
         version_name = cfg["versions"][save_idx]
         output_json[version_name] = {
-            "seed_list": cfg["seed_list"],
+            "master_seed": cfg["master_seed"],
             "repetition_count": cfg["repetition_count"],
             "start_phase_count": cfg["start_phase_count"],
             "end_phase_count": cfg["end_phase_count"],

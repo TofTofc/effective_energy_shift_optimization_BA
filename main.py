@@ -44,23 +44,27 @@ def import_module(folder_name: str):
     return module
 
 
-def init(worst_case_scenario: bool, seed_list: int(), phase_count: int):
+def init(worst_case_scenario: bool, master_seed: int, phase_count: int, repetition_count: int):
+
     start_time_phases = np.arange(phase_count)
 
     energy_excess_list = []
     energy_deficit_list = []
 
-    for seed in seed_list:
+    for rep_index in range(repetition_count):
+
+        current_seed = master_seed + rep_index
+        rng = np.random.default_rng(current_seed)
 
         if worst_case_scenario:
-            energy_excess_list.append(np.arange(phase_count, 0, -1))
-            energy_deficit_list.append(np.arange(1, phase_count + 1))
-
+            energy_excess = np.arange(phase_count, 0, -1)
+            energy_deficit = np.arange(1, phase_count + 1)
         else:
-            rng = np.random.default_rng(seed)
+            energy_excess = rng.integers(0, 10, phase_count)
+            energy_deficit = rng.integers(0, 10, phase_count)
 
-            energy_excess_list.append(rng.integers(0, 10, phase_count))
-            energy_deficit_list.append(rng.integers(0, 10, phase_count))
+        energy_excess_list.append(energy_excess)
+        energy_deficit_list.append(energy_deficit)
 
     return energy_excess_list, energy_deficit_list, start_time_phases
 
@@ -95,17 +99,15 @@ def do_submethod_analysis(module, energy_excess_list, energy_deficit_list, start
 def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, result_dicts, runtimes, repetition_count):
     runtimes_single = []
 
-    for j in range(len(energy_excess_list)):
+    for i in range(repetition_count):
+        start = time.perf_counter()
+        result_dict = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
+        end = time.perf_counter()
 
-        for i in range(repetition_count):
-            start = time.perf_counter()
-            result_dict = module.process_phases(energy_excess_list[j], energy_deficit_list[j], start_time_phases)
-            end = time.perf_counter()
+        runtimes_single.append(end - start)
 
-            runtimes_single.append(end - start)
-
-            if i == 0 and j == 0:
-                result_dicts.append(result_dict)
+        if i == 0:
+            result_dicts.append(result_dict)
 
     median_runtime = np.median(runtimes_single)
     runtimes.append(median_runtime)
@@ -115,9 +117,10 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
 
 def execution_and_analysis(
         modules: list, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count: int, submethod_analysis: bool):
+
     result_dicts = []
     runtimes = []
-
+    
     for m in modules:
         if submethod_analysis:
             do_submethod_analysis(m, energy_excess_list, energy_deficit_list, start_time_phases)
@@ -148,7 +151,7 @@ def has_program_run_long_enough(start_time, phase_count, time_limit):
 
 
 def main(phase_counts: list, versions: list, indices: list, submethod_analysis: bool, repetition_count: int,
-         seed_list, time_limit, worst_case_scenario, phase_count_for_submethod_analysis=20000):
+         master_seed, time_limit, worst_case_scenario, phase_count_for_submethod_analysis=20000):
     modules = get_modules(indices, versions)
     results = []
 
@@ -165,14 +168,14 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
         if submethod_analysis:
 
-            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, seed_list, phase_count_for_submethod_analysis)
+            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, master_seed, phase_count_for_submethod_analysis, repetition_count)
 
             execution_and_analysis(modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis)
             break
 
         else:
 
-            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, seed_list, phase_count)
+            energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, master_seed, phase_count, repetition_count)
 
             result_dicts, runtimes = (execution_and_analysis
                                       (modules, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, submethod_analysis))
@@ -218,7 +221,7 @@ if __name__ == '__main__':
         cfg["indices"],
         cfg["submethod_analysis"],
         cfg["repetition_count"],
-        cfg["seed_list"],
+        cfg["master_seed"],
         time_limit,
         cfg["worst_case_scenario"]
     )

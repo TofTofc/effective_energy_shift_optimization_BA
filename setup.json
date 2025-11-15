@@ -13,9 +13,9 @@
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba", "ai_ic10_numba_clean"],
     "indices": [2,4],
-    "indices_to_save": [4],
+    "indices_to_save": [],
 
-    "repetition_count": 5,
-    "seed_list": [48327, 15984, 72640, 30215, 91873]
+    "repetition_count": 10,
+    "master_seed": 125
 }
 
