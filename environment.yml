@@ -3,11 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11
-  - jupyterlab
-  - ipywidgets
+  - python=3.13
+  - conda-forge::numba
   - conda-forge::matplotlib
   - conda-forge::numpy
-  - conda-forge::pyarrow
   - conda-forge::pandas
-  
+
