@@ -11,29 +11,9 @@ from matplotlib import pyplot as plt
 
 from helper.json_methodes import save_to_json, load_config
 from helper.plot_methodes import plot_current_run, plot_from_json
+from helper.compare_methodes import test_result
 
 delim = ("-------------------------------------------------------------------------------------------------------")
-
-
-def dicts_equal(a: dict, b: dict) -> bool:
-    for k in a.keys():
-        v_a = a.get(k)
-        v_b = b.get(k)
-        if not (v_a == v_b).all():
-            return False
-    return True
-
-
-def test_result(all_result_lists: list[list[dict]]):
-
-    repetition_count = len(all_result_lists[0])
-
-    for i in range(repetition_count):
-        first_dict = all_result_lists[0][i]
-        for j, module_results in enumerate(all_result_lists[1:], start=1):
-            if not dicts_equal(first_dict, module_results[i]):
-                sys.exit(f"Dictionaries at repetition {i} of module 0 and module {j} are not equal")
-
 
 def import_module(folder_name: str):
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -239,6 +219,7 @@ if __name__ == '__main__':
 
         plot_current_run(cfg, results)
 
-        plot_from_json(cfg, cfg["end_phase_count"])
+        if not len(cfg["indices_to_save"]) == 0:
+            plot_from_json(cfg, cfg["end_phase_count"])
 
         plt.show()

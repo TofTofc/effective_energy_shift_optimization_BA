@@ -70,6 +70,7 @@ def balance_phase(phase: efes_dataclasses.Phase):
         phase.deficit_balanced[last_d] = True
 
         phase.append_deficit(new_start, energy_deficit, False)
+
         return False, True
 
 
