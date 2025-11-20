@@ -3,8 +3,8 @@
     "worst_case_scenario": false,
     "save_copy_of_visuals": false,
 
-    "start_phase_count": 10,
-    "end_phase_count": 2000,
+    "start_phase_count": 100,
+    "end_phase_count": 200000,
     "number_of_data_points": 100,
 
     "time_limit_hours": 0,
@@ -12,8 +12,8 @@
     "time_limit_seconds": 0,
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba", "ai_ic10_numba_clean"],
-    "indices": [0],
-    "indices_to_save": [],
+    "indices": [3],
+    "indices_to_save": [3],
 
     "repetition_count": 5,
     "master_seed": 125

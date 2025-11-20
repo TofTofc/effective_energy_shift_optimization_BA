@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from helper.json_methodes import save_to_json, load_config
 from helper.plot_methodes import plot_current_run, plot_from_json
 from helper.compare_methodes import test_result
-from helper.runtime_fitting_methodes import fit_results_and_print
+from helper.runtime_fitting_methodes import test
 
 delim = "-"*100
 
@@ -223,6 +223,6 @@ if __name__ == '__main__':
         if not len(cfg["indices_to_save"]) == 0:
             plot_from_json(cfg, cfg["end_phase_count"])
 
-        fit_results_and_print(results)
+        test(cfg, results)
 
         plt.show()
