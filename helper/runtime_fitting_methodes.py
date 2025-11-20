@@ -27,7 +27,7 @@ def plot_powerlaw_fit(x, y, a, b, version_name):
     plt.show()
 
 
-def test(cfg, results):
+def log_log_linear_regression(cfg, results):
 
     version_to_index = {cfg["versions"][idx]: pos for pos, idx in enumerate(cfg["indices"])}
 

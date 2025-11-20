@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from helper.json_methodes import save_to_json, load_config
 from helper.plot_methodes import plot_current_run, plot_from_json
 from helper.compare_methodes import test_result
-from helper.runtime_fitting_methodes import test
+from helper.runtime_fitting_methodes import log_log_linear_regression
 
 delim = "-"*100
 
@@ -68,7 +68,7 @@ def output_runtime(module, total_runtime: float, repetition_count):
     short_name = full_name[len("effective_energy_shift_"):]
     short_name = "_".join(short_name.split("_")[:-1])
 
-    print(f"Module: {short_name}, Mean runtime: {total_runtime / repetition_count:.8f}s")
+    print(f"Module: {short_name}, Mean runtime: {total_runtime:.8f}s")
 
 
 def do_submethod_analysis(module, energy_excess_list, energy_deficit_list, start_time_phases):
@@ -101,10 +101,15 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
     return module_results, median_runtime
 
 def execution_and_analysis(
-        modules: list, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count: int, submethod_analysis: bool):
+        modules: list, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count: int, submethod_analysis: bool, fake_run:bool):
 
     all_result_lists = []
     runtimes = []
+
+    if fake_run:
+        for m in modules:
+            do_normal_mode(m, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count=1)
+        return
 
     for m in modules:
         if submethod_analysis:
@@ -144,6 +149,10 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
     start_time = time.perf_counter()
 
+    # One Fake Run to compile all versions if needed
+    energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, master_seed, 1, repetition_count)
+    execution_and_analysis(modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis, True)
+
     for phase_count in phase_counts:
 
         if not submethod_analysis:
@@ -157,7 +166,7 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
 
             energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, master_seed, phase_count_for_submethod_analysis, repetition_count)
 
-            execution_and_analysis(modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis)
+            execution_and_analysis(modules, energy_excess_list, energy_deficit_list, start_time_phases, 1, submethod_analysis, False)
             break
 
         else:
@@ -165,7 +174,7 @@ def main(phase_counts: list, versions: list, indices: list, submethod_analysis: 
             energy_excess_list, energy_deficit_list, start_time_phases = init(worst_case_scenario, master_seed, phase_count, repetition_count)
 
             result_dicts, runtimes = (execution_and_analysis
-                                      (modules, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, submethod_analysis))
+                                      (modules, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, submethod_analysis, False))
 
             test_result(result_dicts)
             results.append((phase_count, runtimes))
@@ -223,6 +232,6 @@ if __name__ == '__main__':
         if not len(cfg["indices_to_save"]) == 0:
             plot_from_json(cfg, cfg["end_phase_count"])
 
-        test(cfg, results)
+        log_log_linear_regression(cfg, results)
 
         plt.show()

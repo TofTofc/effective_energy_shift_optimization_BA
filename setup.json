@@ -3,8 +3,8 @@
     "worst_case_scenario": false,
     "save_copy_of_visuals": false,
 
-    "start_phase_count": 100,
-    "end_phase_count": 200000,
+    "start_phase_count": 10000,
+    "end_phase_count": 400000,
     "number_of_data_points": 100,
 
     "time_limit_hours": 0,
