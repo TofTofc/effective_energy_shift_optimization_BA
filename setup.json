@@ -3,6 +3,8 @@
     "worst_case_scenario": false,
     "save_copy_of_visuals": false,
 
+    "only_data_fitting" : true,
+
     "start_phase_count": 10000,
     "end_phase_count": 400000,
     "number_of_data_points": 100,

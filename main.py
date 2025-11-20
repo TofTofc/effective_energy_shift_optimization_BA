@@ -200,6 +200,10 @@ if __name__ == '__main__':
 
     cfg = load_config()
 
+    if cfg["only_data_fitting"]:
+        log_log_linear_regression(cfg)
+        sys.exit()
+
     phase_counts = phase_counts_generator(
         cfg["start_phase_count"],
         cfg["end_phase_count"],
