@@ -201,6 +201,7 @@ if __name__ == '__main__':
     cfg = load_config()
 
     create_result_folders_and_init_json(cfg)
+    sys.exit()
 
     if cfg["only_data_fitting"]:
         log_log_linear_regression(cfg)

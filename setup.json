@@ -6,7 +6,7 @@
     "only_data_fitting" : false,
 
     "start_phase_count": 1000,
-    "end_phase_count": 1000000,
+    "end_phase_count": 1000000000,
     "number_of_data_points": 200,
 
     "time_limit_hours": 0,
