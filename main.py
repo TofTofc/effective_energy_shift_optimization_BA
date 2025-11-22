@@ -9,7 +9,7 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 
-from helper.json_methodes import save_to_json, load_config
+from helper.json_methodes import save_to_json, load_config, create_result_folders_and_init_json
 from helper.plot_methodes import plot_current_run, plot_from_json
 from helper.compare_methodes import test_result
 from helper.runtime_fitting_methodes import log_log_linear_regression
@@ -199,6 +199,8 @@ def calculate_time_limit(time_limit_hours, time_limit_minutes, time_limit_second
 if __name__ == '__main__':
 
     cfg = load_config()
+
+    create_result_folders_and_init_json(cfg)
 
     if cfg["only_data_fitting"]:
         log_log_linear_regression(cfg)

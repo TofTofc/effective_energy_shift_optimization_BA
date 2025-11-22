@@ -13,11 +13,11 @@
     "time_limit_minutes": 0,
     "time_limit_seconds": 0,
 
-    "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba", "ai_ic10_numba_test"],
+    "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba"],
     "indices": [],
     "indices_to_save": [],
 
-    "repetition_count": 1,
+    "repetition_count": 5,
     "master_seed": 125
 }
 
