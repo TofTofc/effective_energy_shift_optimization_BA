@@ -1,23 +1,23 @@
 {
     "submethod_analysis": false,
-    "worst_case_scenario": false,
+    "worst_case_scenario": true,
     "save_copy_of_visuals": false,
 
-    "only_data_fitting" : true,
+    "only_data_fitting" : false,
 
-    "start_phase_count": 10000,
-    "end_phase_count": 400000,
-    "number_of_data_points": 100,
+    "start_phase_count": 1000,
+    "end_phase_count": 1000000,
+    "number_of_data_points": 200,
 
     "time_limit_hours": 0,
     "time_limit_minutes": 0,
     "time_limit_seconds": 0,
 
-    "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba", "ai_ic10_numba_clean"],
-    "indices": [3],
-    "indices_to_save": [3],
+    "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba", "ai_ic10_numba_test"],
+    "indices": [],
+    "indices_to_save": [],
 
-    "repetition_count": 5,
+    "repetition_count": 1,
     "master_seed": 125
 }
 

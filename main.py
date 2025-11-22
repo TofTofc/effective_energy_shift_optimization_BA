@@ -236,6 +236,6 @@ if __name__ == '__main__':
         if not len(cfg["indices_to_save"]) == 0:
             plot_from_json(cfg, cfg["end_phase_count"])
 
-        log_log_linear_regression(cfg, results)
+        #log_log_linear_regression(cfg)
 
         plt.show()

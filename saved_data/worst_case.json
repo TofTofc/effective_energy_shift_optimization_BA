@@ -1041,349 +1041,411 @@
         ]
     },
     "append_improved_init_capacity_10_numba": {
-        "seed_list": [
-            48327,
-            15984,
-            72640,
-            30215,
-            91873
-        ],
-        "repetition_count": 10,
-        "start_phase_count": 10,
-        "end_phase_count": 200,
+        "master_seed": 125,
+        "repetition_count": 5,
+        "start_phase_count": 1000,
+        "end_phase_count": 10000,
         "number_of_data_points": 100,
         "results": [
             {
-                "phase_count": 10,
-                "runtime": 0.00015854998491704464
+                "phase_count": 1000,
+                "runtime": 0.05454700000700541
             },
             {
-                "phase_count": 11,
-                "runtime": 0.00017025001579895616
+                "phase_count": 1023,
+                "runtime": 0.05646140000317246
             },
             {
-                "phase_count": 12,
-                "runtime": 0.00018309999722987413
+                "phase_count": 1047,
+                "runtime": 0.05942059999506455
             },
             {
-                "phase_count": 13,
-                "runtime": 0.00019339995924383402
+                "phase_count": 1072,
+                "runtime": 0.06053799999790499
             },
             {
-                "phase_count": 14,
-                "runtime": 0.00020574999507516623
+                "phase_count": 1097,
+                "runtime": 0.06323240000347141
             },
             {
-                "phase_count": 15,
-                "runtime": 0.000221800000872463
+                "phase_count": 1123,
+                "runtime": 0.06623769999714568
             },
             {
-                "phase_count": 16,
-                "runtime": 0.00023384997621178627
+                "phase_count": 1149,
+                "runtime": 0.06931810000241967
             },
             {
-                "phase_count": 17,
-                "runtime": 0.0002504499861970544
+                "phase_count": 1176,
+                "runtime": 0.07139749999623746
             },
             {
-                "phase_count": 18,
-                "runtime": 0.00025805001496337354
+                "phase_count": 1204,
+                "runtime": 0.07461880000482779
             },
             {
-                "phase_count": 19,
-                "runtime": 0.00027814999339170754
+                "phase_count": 1232,
+                "runtime": 0.07872649999626447
             },
             {
-                "phase_count": 20,
-                "runtime": 0.00029180001001805067
+                "phase_count": 1261,
+                "runtime": 0.08316960000229301
             },
             {
-                "phase_count": 21,
-                "runtime": 0.00030789998709224164
+                "phase_count": 1291,
+                "runtime": 0.08631199999945238
             },
             {
-                "phase_count": 22,
-                "runtime": 0.0003129999968223274
+                "phase_count": 1321,
+                "runtime": 0.09020779999991646
             },
             {
-                "phase_count": 23,
-                "runtime": 0.00032920000376179814
+                "phase_count": 1353,
+                "runtime": 0.09451090000220574
             },
             {
-                "phase_count": 24,
-                "runtime": 0.0003647499834187329
+                "phase_count": 1384,
+                "runtime": 0.09851329999946756
             },
             {
-                "phase_count": 25,
-                "runtime": 0.0003722999827004969
+                "phase_count": 1417,
+                "runtime": 0.10404959999868879
             },
             {
-                "phase_count": 26,
-                "runtime": 0.000377649994334206
+                "phase_count": 1450,
+                "runtime": 0.10614519999944605
             },
             {
-                "phase_count": 27,
-                "runtime": 0.00039545001345686615
+                "phase_count": 1484,
+                "runtime": 0.11216859999694861
             },
             {
-                "phase_count": 28,
-                "runtime": 0.0004020999767817557
+                "phase_count": 1519,
+                "runtime": 0.11801689999992959
             },
             {
-                "phase_count": 29,
-                "runtime": 0.00043810001807287335
+                "phase_count": 1555,
+                "runtime": 0.12133970000286354
             },
             {
-                "phase_count": 30,
-                "runtime": 0.0004274499951861799
+                "phase_count": 1592,
+                "runtime": 0.12651780000305735
             },
             {
-                "phase_count": 31,
-                "runtime": 0.0004806499637197703
+                "phase_count": 1629,
+                "runtime": 0.13111319999734405
             },
             {
-                "phase_count": 32,
-                "runtime": 0.0004895000020042062
+                "phase_count": 1668,
+                "runtime": 0.139494700000796
             },
             {
-                "phase_count": 33,
-                "runtime": 0.0004731499939225614
+                "phase_count": 1707,
+                "runtime": 0.14438240000163205
             },
             {
-                "phase_count": 34,
-                "runtime": 0.0004927499685436487
+                "phase_count": 1747,
+                "runtime": 0.15180220000183908
             },
             {
-                "phase_count": 35,
-                "runtime": 0.0005021000397391617
+                "phase_count": 1788,
+                "runtime": 0.15757049999956507
             },
             {
-                "phase_count": 36,
-                "runtime": 0.0005341999931260943
+                "phase_count": 1830,
+                "runtime": 0.16692119999788702
             },
             {
-                "phase_count": 37,
-                "runtime": 0.0005795499891974032
+                "phase_count": 1873,
+                "runtime": 0.1739302999994834
             },
             {
-                "phase_count": 39,
-                "runtime": 0.0005629000079352409
+                "phase_count": 1917,
+                "runtime": 0.180673900002148
             },
             {
-                "phase_count": 40,
-                "runtime": 0.0006004000315442681
+                "phase_count": 1963,
+                "runtime": 0.19117890000052284
             },
             {
-                "phase_count": 41,
-                "runtime": 0.0005889999738428742
+                "phase_count": 2009,
+                "runtime": 0.19771419999597128
             },
             {
-                "phase_count": 42,
-                "runtime": 0.0006341999978758395
+                "phase_count": 2056,
+                "runtime": 0.20652510000218172
             },
             {
-                "phase_count": 44,
-                "runtime": 0.0007031000277493149
+                "phase_count": 2104,
+                "runtime": 0.21441849999973783
             },
             {
-                "phase_count": 45,
-                "runtime": 0.0006691999733448029
+                "phase_count": 2154,
+                "runtime": 0.22615489999589045
             },
             {
-                "phase_count": 46,
-                "runtime": 0.000668649998260662
+                "phase_count": 2205,
+                "runtime": 0.23544170000241138
             },
             {
-                "phase_count": 48,
-                "runtime": 0.0006932500109542161
+                "phase_count": 2257,
+                "runtime": 0.24623779999819817
             },
             {
-                "phase_count": 49,
-                "runtime": 0.0007108999998308718
+                "phase_count": 2310,
+                "runtime": 0.25998279999475926
             },
             {
-                "phase_count": 51,
-                "runtime": 0.0007876500021666288
+                "phase_count": 2364,
+                "runtime": 0.27307959999598097
             },
             {
-                "phase_count": 52,
-                "runtime": 0.0007549500151071697
+                "phase_count": 2420,
+                "runtime": 0.2884237000034773
             },
             {
-                "phase_count": 54,
-                "runtime": 0.000818900007288903
+                "phase_count": 2477,
+                "runtime": 0.2954325000027893
             },
             {
-                "phase_count": 56,
-                "runtime": 0.0008747999963816255
+                "phase_count": 2535,
+                "runtime": 0.3100189000033424
             },
             {
-                "phase_count": 57,
-                "runtime": 0.0008674499986227602
+                "phase_count": 2595,
+                "runtime": 0.32715640000242274
             },
             {
-                "phase_count": 59,
-                "runtime": 0.0009382500138599426
+                "phase_count": 2656,
+                "runtime": 0.34226469999703113
             },
             {
-                "phase_count": 61,
-                "runtime": 0.0009230999858118594
+                "phase_count": 2718,
+                "runtime": 0.3587363999977242
             },
             {
-                "phase_count": 63,
-                "runtime": 0.0010496499889995903
+                "phase_count": 2782,
+                "runtime": 0.371932599999127
             },
             {
-                "phase_count": 65,
-                "runtime": 0.0009763999842107296
+                "phase_count": 2848,
+                "runtime": 0.38618750000023283
             },
             {
-                "phase_count": 67,
-                "runtime": 0.0009989500103984028
+                "phase_count": 2915,
+                "runtime": 0.4009421999944607
             },
             {
-                "phase_count": 69,
-                "runtime": 0.0010378000151831657
+                "phase_count": 2983,
+                "runtime": 0.42486270000517834
             },
             {
-                "phase_count": 71,
-                "runtime": 0.0010636499791871756
+                "phase_count": 3053,
+                "runtime": 0.4451245999953244
             },
             {
-                "phase_count": 73,
-                "runtime": 0.0011335500166751444
+                "phase_count": 3125,
+                "runtime": 0.46491389999573585
             },
             {
-                "phase_count": 75,
-                "runtime": 0.0011703000054694712
+                "phase_count": 3199,
+                "runtime": 0.48241050000069663
             },
             {
-                "phase_count": 78,
-                "runtime": 0.0012145499931648374
+                "phase_count": 3274,
+                "runtime": 0.5052181999999448
             },
             {
-                "phase_count": 80,
-                "runtime": 0.0012478999851737171
+                "phase_count": 3351,
+                "runtime": 0.5316893000053824
             },
             {
-                "phase_count": 83,
-                "runtime": 0.0012777000374626368
+                "phase_count": 3430,
+                "runtime": 0.5547882999962894
             },
             {
-                "phase_count": 85,
-                "runtime": 0.0013388500083237886
+                "phase_count": 3511,
+                "runtime": 0.5799512000012328
             },
             {
-                "phase_count": 88,
-                "runtime": 0.0014107500028330833
+                "phase_count": 3593,
+                "runtime": 0.6011199999993551
             },
             {
-                "phase_count": 91,
-                "runtime": 0.0014722500054631382
+                "phase_count": 3678,
+                "runtime": 0.6343209999977262
             },
             {
-                "phase_count": 93,
-                "runtime": 0.0014830000000074506
+                "phase_count": 3764,
+                "runtime": 0.6663326999987476
             },
             {
-                "phase_count": 96,
-                "runtime": 0.0015309499867726117
+                "phase_count": 3853,
+                "runtime": 0.6955340999993496
             },
             {
-                "phase_count": 99,
-                "runtime": 0.001576300011947751
+                "phase_count": 3944,
+                "runtime": 0.7289380000001984
             },
             {
-                "phase_count": 102,
-                "runtime": 0.0016974500031210482
+                "phase_count": 4037,
+                "runtime": 0.765417200003867
             },
             {
-                "phase_count": 105,
-                "runtime": 0.0017118500254582614
+                "phase_count": 4132,
+                "runtime": 0.7953765999991447
             },
             {
-                "phase_count": 109,
-                "runtime": 0.001838450029026717
+                "phase_count": 4229,
+                "runtime": 0.8362673000010545
             },
             {
-                "phase_count": 112,
-                "runtime": 0.0018939999863505363
+                "phase_count": 4328,
+                "runtime": 0.868327499993029
             },
             {
-                "phase_count": 116,
-                "runtime": 0.001991200027987361
+                "phase_count": 4430,
+                "runtime": 0.9782055000032415
             },
             {
-                "phase_count": 119,
-                "runtime": 0.002000549982767552
+                "phase_count": 4534,
+                "runtime": 0.9745316999978968
             },
             {
-                "phase_count": 123,
-                "runtime": 0.002110850007738918
+                "phase_count": 4641,
+                "runtime": 1.008636500002467
             },
             {
-                "phase_count": 127,
-                "runtime": 0.0022512499999720603
+                "phase_count": 4750,
+                "runtime": 1.058051499996509
             },
             {
-                "phase_count": 130,
-                "runtime": 0.0022482500062324107
+                "phase_count": 4862,
+                "runtime": 1.1015324999971199
             },
             {
-                "phase_count": 134,
-                "runtime": 0.002383299986831844
+                "phase_count": 4977,
+                "runtime": 1.1455384000000777
             },
             {
-                "phase_count": 139,
-                "runtime": 0.0024670000129844993
+                "phase_count": 5094,
+                "runtime": 1.2059930000032182
             },
             {
-                "phase_count": 143,
-                "runtime": 0.002529799996409565
+                "phase_count": 5214,
+                "runtime": 1.2590157000013278
             },
             {
-                "phase_count": 147,
-                "runtime": 0.0026647500053513795
+                "phase_count": 5336,
+                "runtime": 1.3291183999972418
             },
             {
-                "phase_count": 152,
-                "runtime": 0.002880850021028891
+                "phase_count": 5462,
+                "runtime": 1.3832365999987815
             },
             {
-                "phase_count": 156,
-                "runtime": 0.0028892499685753137
+                "phase_count": 5590,
+                "runtime": 1.4493855999971856
             },
             {
-                "phase_count": 161,
-                "runtime": 0.0029599999834317714
+                "phase_count": 5722,
+                "runtime": 1.5161948000022676
             },
             {
-                "phase_count": 166,
-                "runtime": 0.003153750003548339
+                "phase_count": 5857,
+                "runtime": 1.5795174000013503
             },
             {
-                "phase_count": 171,
-                "runtime": 0.003204049979103729
+                "phase_count": 5994,
+                "runtime": 1.654812699998729
             },
             {
-                "phase_count": 177,
-                "runtime": 0.003411700017750263
+                "phase_count": 6135,
+                "runtime": 1.733086899999762
             },
             {
-                "phase_count": 182,
-                "runtime": 0.0035050000296905637
+                "phase_count": 6280,
+                "runtime": 1.8063394000055268
             },
             {
-                "phase_count": 188,
-                "runtime": 0.003662100003566593
+                "phase_count": 6428,
+                "runtime": 1.8994160999936867
             },
             {
-                "phase_count": 194,
-                "runtime": 0.003855650022160262
+                "phase_count": 6579,
+                "runtime": 1.985168799998064
             },
             {
-                "phase_count": 200,
-                "runtime": 0.004006699979072437
+                "phase_count": 6734,
+                "runtime": 2.0833482000016375
+            },
+            {
+                "phase_count": 6892,
+                "runtime": 2.175692999997409
+            },
+            {
+                "phase_count": 7054,
+                "runtime": 2.2851549000042723
+            },
+            {
+                "phase_count": 7220,
+                "runtime": 2.3795898000025772
+            },
+            {
+                "phase_count": 7390,
+                "runtime": 2.508381499996176
+            },
+            {
+                "phase_count": 7564,
+                "runtime": 2.61956089999876
+            },
+            {
+                "phase_count": 7742,
+                "runtime": 2.750857899998664
+            },
+            {
+                "phase_count": 7924,
+                "runtime": 2.8620021999959135
+            },
+            {
+                "phase_count": 8111,
+                "runtime": 3.001100800000131
+            },
+            {
+                "phase_count": 8302,
+                "runtime": 3.1403725999989547
+            },
+            {
+                "phase_count": 8497,
+                "runtime": 3.291268699998909
+            },
+            {
+                "phase_count": 8697,
+                "runtime": 3.438743999999133
+            },
+            {
+                "phase_count": 8902,
+                "runtime": 3.608935800002655
+            },
+            {
+                "phase_count": 9111,
+                "runtime": 3.7701505000004545
+            },
+            {
+                "phase_count": 9326,
+                "runtime": 3.9645711000048323
+            },
+            {
+                "phase_count": 9545,
+                "runtime": 4.144244700000854
+            },
+            {
+                "phase_count": 9770,
+                "runtime": 4.375056900003983
+            },
+            {
+                "phase_count": 10000,
+                "runtime": 4.590172000003804
             }
         ]
     }

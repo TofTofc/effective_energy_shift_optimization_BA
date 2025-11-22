@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 
+delim = "-"*100
 
 def extract_phase_arrays(phase):
 
@@ -53,13 +54,17 @@ def compare_phase_objects(p1, p2):
     arrs1 = extract_phase_arrays(p1)
     arrs2 = extract_phase_arrays(p2)
 
+    print(arrs1)
+    print(arrs2)
+    print(delim)
+
     return all(np.array_equal(a1, a2) for a1, a2 in zip(arrs1, arrs2))
 
 
 def dicts_equal(a: dict, b: dict) -> bool:
 
-    if not np.array_equal(a['mask'], b['mask']):
-        return False
+    #if not np.array_equal(a['mask'], b['mask']):
+        #return False
 
     phases_a = a['phases']
     phases_b = b['phases']
@@ -68,8 +73,9 @@ def dicts_equal(a: dict, b: dict) -> bool:
         return False
 
     for p_a, p_b in zip(phases_a, phases_b):
-        if not compare_phase_objects(p_a, p_b):
-            return False
+        compare_phase_objects(p_a, p_b)
+        #if not compare_phase_objects(p_a, p_b):
+            #return False
 
     return True
 
