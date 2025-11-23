@@ -29,7 +29,44 @@ def import_module(folder_name: str):
     return module
 
 
-def init(worst_case_scenario: bool, master_seed: int, phase_count: int, repetition_count: int):
+def init(worst_case_scenario: bool,
+         master_seed: int,
+         phase_count: int,
+         repetition_count: int) \
+         -> tuple[list[np.ndarray], list[np.ndarray], np.ndarray]:
+    """
+    Initialize energy excess/deficit arrays and starting time of the phases.
+
+    Notes
+    -----
+    Worst-case scenario:
+    - Excess from phase_count to 1
+    - Deficit from 1 to phase_count
+
+    Average-case scenario:
+    - Excess and deficit values are randomly generated (0 - 100, integers) and independent
+    - Seeds are unique for each (phase_count, repetition_index) combination
+
+    Parameters
+    ----------
+    worst_case_scenario : bool
+        True: deterministic worst case False: random average case.
+    master_seed : int
+        Base seed used.
+    phase_count : int
+        Length of each generated array (Number of Phases).
+    repetition_count : int
+        Number of repetitions: one excess/deficit pair per repetition.
+
+    Returns
+    -------
+    energy_excess_list : list[np.ndarray]
+        List of initial energy excess arrays, one array per repetition.
+    energy_deficit_list : list[np.ndarray]
+        List of initial energy deficit arrays, one array per repetition.
+    start_time_phases : np.ndarray
+        Array of phase start times (0,...,phase_count-1).
+    """
 
     start_time_phases = np.arange(phase_count)
 
@@ -38,15 +75,21 @@ def init(worst_case_scenario: bool, master_seed: int, phase_count: int, repetiti
 
     for rep_index in range(repetition_count):
 
-        current_seed = master_seed + rep_index
-        rng = np.random.default_rng(current_seed)
-
         if worst_case_scenario:
             energy_excess = np.arange(phase_count, 0, -1)
             energy_deficit = np.arange(1, phase_count + 1)
         else:
-            energy_excess = rng.integers(0, 10, phase_count)
-            energy_deficit = rng.integers(0, 10, phase_count)
+
+            # Unique for combination of master seed, phase count and repetition index
+            # Different for Excess (added 0) and Deficit (added 1)
+            ss_excess = np.random.SeedSequence([master_seed, phase_count, rep_index, 0])
+            ss_deficit = np.random.SeedSequence([master_seed, phase_count, rep_index, 1])
+
+            rng_excess = np.random.default_rng(ss_excess)
+            rng_deficit = np.random.default_rng(ss_deficit)
+
+            energy_excess = rng_excess.integers(0, 100, phase_count)
+            energy_deficit = rng_deficit.integers(0, 100, phase_count)
 
         energy_excess_list.append(energy_excess)
         energy_deficit_list.append(energy_deficit)
