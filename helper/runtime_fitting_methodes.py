@@ -6,10 +6,12 @@ import matplotlib.ticker as mticker
 from scipy import stats
 delim = "-"*100
 
+def clear_console():
+    print("\n" * 200)
+
 def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=None):
 
     runtimes_folder = os.path.join("results", "runtimes")
-
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
     if version_name is not None:
@@ -18,7 +20,6 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
         candidate = []
         for f in os.scandir(runtimes_folder):
             json_path = os.path.join(f.path, case_file)
-
             with open(json_path, "r", encoding="utf-8") as fh:
                 j = json.load(fh)
             results_list = j.get("results", [])
@@ -35,37 +36,51 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
 
         version_label = json_data.get("version", os.path.basename(vfolder))
         entries = json_data.get("results", [])
+
         phase_counts = []
         runtimes = []
         for entry in entries:
             phase_count = int(entry["phase_count"])
             runtime = float(entry["runtime"])
+
             if runtime > 0 and (max_phase_count is None or phase_count <= max_phase_count):
                 phase_counts.append(phase_count)
                 runtimes.append(runtime)
 
-        x = np.array(phase_counts)
-        y = np.array(runtimes)
-
         print(delim)
         print(f"Version: {version_label}")
 
-        x_log = np.log10(x)
-        y_log = np.log10(y)
+        n = len(phase_counts)
+        for k in range(1, 11):
 
-        deg = 1
-        p = np.polyfit(x_log, y_log, deg)
-        b = p[0]
-        log_a = p[1]
-        a = 10 ** log_a
+            fraction = k / 10.0
+            m = int(np.ceil(n * fraction))
 
-        print("log10(y) = log10(a) + b*log10(x)")
-        print(f"log10(y) = {log_a:.5f} + {b:.5f} * log10(x)")
-        print(f"y = {a:.5e} * x^{b:.5f}")
-        print(delim)
+            subset_x = phase_counts[:m]
+            subset_y = runtimes[:m]
 
-        calculate_and_print_regression_stats(x_log, y_log, p)
-        plot_powerlaw_fit(x, y, a, b, version_label)
+            x_log = np.log10(subset_x)
+            y_log = np.log10(subset_y)
+
+            deg = 1
+            p = np.polyfit(x_log, y_log, deg)
+            b = p[0]
+            log_a = p[1]
+            a = 10 ** log_a
+
+            fraction_label = f"first {k}/10"
+            print(f"Fitting {fraction_label} ({m}/{n} points) for version {version_label}")
+            print("log10(y) = log10(a) + b*log10(x)")
+            print(f"log10(y) = {log_a:.5f} + {b:.5f} * log10(x)")
+            print(f"y = {a:.5e} * x^{b:.5f}")
+            print(delim)
+
+            # externe Funktionen aufrufen (wie gewünscht)
+            calculate_and_print_regression_stats(x_log, y_log, p)
+            plot_powerlaw_fit(subset_x, subset_y, a, b, f"{version_label} ({fraction_label})")
+
+            clear_console()
+
 
 
 def calculate_and_print_regression_stats(x_log, y_log, p):
