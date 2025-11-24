@@ -6,6 +6,11 @@ import numpy as np
 
 delim = "-"*100
 
+def phase_counts_generator(start: int, end: int, number_of_data_points: int):
+
+    phase_counts = np.logspace(np.log10(start), np.log10(end), num=number_of_data_points)
+    phase_counts = [int(x) for x in phase_counts]
+    return sorted(list(set(phase_counts)))
 
 def load_config(filename="setup.json"):
 
@@ -13,53 +18,43 @@ def load_config(filename="setup.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
-def save_to_json(cfg, results, results_folder="results"):
+def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder="results"):
 
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
-    for idx in cfg["indices"]:
-        version_name = cfg["versions"][idx]
-        subfolder = Path(results_folder) / version_name
-        json_path = subfolder / case_file
+    subfolder = Path(results_folder) / "runtimes" / version_name
+    json_path = subfolder / case_file
 
-        if not json_path.exists():
-            raise FileNotFoundError(f"{json_path} existiert nicht!")
+    with json_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
 
-        # JSON laden
-        with json_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
+    phase_count_to_index = {entry["phase_count"]: i for i, entry in enumerate(data["results"])}
 
-        # Map phase_count -> index im JSON results
-        phase_count_to_index = {entry["phase_count"]: i for i, entry in enumerate(data["results"])}
+    if phase_count in phase_count_to_index:
+        entry_index = phase_count_to_index[phase_count]
+        current_runtime = data["results"][entry_index]["runtime"]
+        if current_runtime == -1:
+            data["results"][entry_index]["runtime"] = median_runtime
 
-        # Für alle neuen Messungen den runtime-Wert aktualisieren, falls -1
-        pos_in_results = cfg["indices"].index(idx)  # Position im results-Array
-        for phase_count, runtimes_array in results:
-            if phase_count not in phase_count_to_index:
-                continue  # Phase_count existiert nicht in JSON, ignorieren
-            entry_index = phase_count_to_index[phase_count]
-            current_runtime = data["results"][entry_index]["runtime"]
-            if current_runtime == -1:
-                measured_runtime = runtimes_array[pos_in_results]
-                data["results"][entry_index]["runtime"] = measured_runtime
-
-        # JSON zurückschreiben
-        with json_path.open("w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
+    with json_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
-def phase_counts_generator(start: int, end: int, number_of_data_points: int):
-    phase_counts = np.logspace(np.log10(start), np.log10(end), num=number_of_data_points)
-    phase_counts = [int(x) for x in phase_counts]
-    return sorted(list(set(phase_counts)))
-
-def create_result_folders_and_init_json(cfg: dict, parent_folder: str = "results"):
+def init_results_folders(cfg: dict, parent_folder: str = "results"):
 
     parent = Path(parent_folder)
     parent.mkdir(parents=True, exist_ok=True)
 
-    versions = cfg.get("versions")
+    runtimes_folder = parent / "runtimes"
+    visuals_folder = parent / "visuals"
+    average_folder = visuals_folder / "average_case"
+    worst_folder = visuals_folder / "worst_case"
+    copies_folder = visuals_folder / "copies"
+
+    for folder in (runtimes_folder, average_folder, worst_folder, copies_folder):
+        folder.mkdir(parents=True, exist_ok=True)
+
+    versions = cfg.get("versions", [])
 
     repetition_count = cfg["repetition_count"]
     master_seed = cfg["master_seed"]
@@ -67,17 +62,19 @@ def create_result_folders_and_init_json(cfg: dict, parent_folder: str = "results
     end_phase_count = cfg["end_phase_count"]
     number_of_data_points = cfg["number_of_data_points"]
 
-    phase_counts = phase_counts_generator(start_phase_count, end_phase_count, number_of_data_points)
+    phase_counts = phase_counts_generator(
+        start_phase_count,
+        end_phase_count,
+        number_of_data_points
+    )
 
     for version in versions:
-        subpath = parent / version
+        subpath = runtimes_folder / version
         subpath.mkdir(parents=True, exist_ok=True)
 
-        # Zwei JSON-Dateien erzeugen: average_case und worst_case
         for case_name, worst_flag in (("average_case.json", False), ("worst_case.json", True)):
             json_path = subpath / case_name
             if not json_path.exists():
-                # Metadaten
                 meta = {
                     "version": version,
                     "worst_case": worst_flag,
@@ -86,9 +83,61 @@ def create_result_folders_and_init_json(cfg: dict, parent_folder: str = "results
                     "end_phase_count": end_phase_count,
                     "repetition_count": repetition_count,
                     "master_seed": master_seed,
-                    "results": [{"phase_count": int(pc), "runtime": -1} for pc in phase_counts]
+                    "results": [
+                        {"phase_count": int(pc), "runtime": -1}
+                        for pc in phase_counts
+                    ],
                 }
-
                 with json_path.open("w", encoding="utf-8") as f:
                     json.dump(meta, f, indent=2, ensure_ascii=False)
 
+def get_run_info_from_json(cfg: dict):
+
+    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+    runtimes_folder = os.path.join("results", "runtimes")
+
+    index_list = cfg.get("index_to_use")
+    if len(index_list) != 0:
+        idx = index_list[0]
+        version_name = cfg["versions"][idx]
+    else:
+        version_name = None
+
+    version_folders = []
+    if version_name is None:
+        for f in os.scandir(runtimes_folder):
+            if f.is_dir():
+                json_path = os.path.join(f.path, case_file)
+                if os.path.exists(json_path):
+                    with open(json_path, "r", encoding="utf-8") as f_json:
+                        data = json.load(f_json)
+                        # prüfen, ob es noch ungemessene runtimes gibt
+                        if any(entry["runtime"] == -1 for entry in data.get("results", [])):
+                            version_name = data.get("version", os.path.basename(f.path))
+                            version_folders = [f.path]
+                            break
+    else:
+        version_folders = [os.path.join(runtimes_folder, version_name)]
+
+    json_path = os.path.join(version_folders[0], case_file)
+    with open(json_path, "r", encoding="utf-8") as f_json:
+        data = json.load(f_json)
+
+    results_list = data.get("results")
+
+    pending_phase_counts = []
+    max_entries = 10
+    count = 0
+
+    for entry in results_list:
+        if entry["runtime"] == -1:
+            if count < max_entries:
+                pending_phase_counts.append(int(entry["phase_count"]))
+                count += 1
+            elif count >= max_entries:
+                break
+    repetition_count = data.get("repetition_count")
+    master_seed = data.get("master_seed")
+    worst_case_scenario = data.get("worst_case")
+
+    return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario

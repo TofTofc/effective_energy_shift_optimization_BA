@@ -4,31 +4,42 @@ import os
 from matplotlib import pyplot as plt
 import matplotlib.ticker as mticker
 
+def plot_from_json(cfg: dict, max_phase_count=None):
 
-def plot_from_json(cfg,  max_phase_count=None):
+    case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
 
-    filename = "saved_data/worst_case.json" if cfg["worst_case_scenario"] else "saved_data/average_case.json"
+    base_folder = "results"
+    runtimes_folder = os.path.join(base_folder, "runtimes")
+    visuals_folder = os.path.join(base_folder, "visuals")
 
-    if not os.path.exists(filename):
-        raise FileNotFoundError(f"{filename} does not exist")
+    average_folder = os.path.join(visuals_folder, "average_case")
+    worst_folder = os.path.join(visuals_folder, "worst_case")
+    copies_folder = os.path.join(visuals_folder, "copies")
 
-    with open(filename, "r") as f:
-        json_data = json.load(f)
+    out_dir = average_folder if case_type == "average_case" else worst_folder
+
+    version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    for version_name, data in json_data.items():
+    for version_folder in version_folders:
+        json_file = os.path.join(version_folder, f"{case_type}.json")
+        if not os.path.exists(json_file):
+            continue
+        with open(json_file, "r", encoding="utf-8") as f:
+            json_data = json.load(f)
+
         phase_counts = []
         runtimes = []
-        for entry in data["results"]:
+        for entry in json_data["results"]:
             phase_count = int(entry["phase_count"])
             runtime = float(entry["runtime"])
-            if max_phase_count is None or phase_count <= max_phase_count:
+            if runtime > 0 and (max_phase_count is None or phase_count <= max_phase_count):
                 phase_counts.append(phase_count)
                 runtimes.append(runtime)
 
         if phase_counts:
-            ax.plot(phase_counts, runtimes, label=version_name)
+            ax.plot(phase_counts, runtimes, label=json_data.get("version", os.path.basename(version_folder)))
 
     ax.set_xscale('log')
     ax.set_yscale('log')
@@ -36,67 +47,18 @@ def plot_from_json(cfg,  max_phase_count=None):
     ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
     ax.set_xlabel("Phase Count (log scale)")
     ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title("Runtimes per Module vs Phase Count (From JSON Saved Data)")
+    ax.set_title("Runtimes per Module vs Phase Count")
     ax.legend()
     ax.grid(True, which="both", ls="--")
 
-    if cfg["worst_case_scenario"]:
+    output_path = os.path.join(out_dir, "Runtimes_from_json.png")
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
 
-        os.makedirs("visuals_worst_case", exist_ok=True)
+    if cfg.get("save_copy_of_visuals"):
+        copy_path = os.path.join(copies_folder, "Runtimes_from_json_copy.png")
+        fig.savefig(copy_path, dpi=300, bbox_inches="tight")
 
-        fig.savefig("visuals_worst_case/Runtimes_from_json.png", dpi=300, bbox_inches="tight")
-
-        if cfg["save_copy_of_visuals"]:
-            fig.savefig("visuals_worst_case/Runtimes_from_json_copy.png", dpi=300, bbox_inches="tight")
-
-    else:
-        os.makedirs("visuals_average_case", exist_ok=True)
-
-        fig.savefig("visuals_average_case/Runtimes_from_json.png", dpi=300, bbox_inches="tight")
-
-        if cfg["save_copy_of_visuals"]:
-            fig.savefig("visuals_average_case/Runtimes_from_json_copy.png", dpi=300, bbox_inches="tight")
-
-
-
-def plot_current_run(cfg, results):
-    version_to_index = {cfg["versions"][idx]: pos for pos, idx in enumerate(cfg["indices"])}
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    x_labels = [phase_count for phase_count, _ in results]
-    x_vals = [float(x) for x in x_labels]
-
-    for version_name in cfg["versions"]:
-        if version_name in version_to_index:
-            pos = version_to_index[version_name]
-            y = [runtimes[pos] for _, runtimes in results]
-            ax.plot(x_vals, y, label=version_name)
-
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
-    ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
-
-    ax.set_xlabel("Phase Count (log scale)")
-    ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title("Runtimes per Module vs Phase Count (From current run)")
-    ax.legend()
-    ax.grid(True, which="both", ls="--")
-
-    if cfg["worst_case_scenario"]:
-
-        os.makedirs("visuals_worst_case", exist_ok=True)
-
-        fig.savefig("visuals_worst_case/Runtimes_current_run.png", dpi=300, bbox_inches="tight")
-
-        if cfg["save_copy_of_visuals"]:
-            fig.savefig("visuals_worst_case/Runtimes_current_run_copy.png", dpi=300, bbox_inches="tight")
-
-    else:
-        os.makedirs("visuals_average_case", exist_ok=True)
-
-        fig.savefig("visuals_average_case/Runtimes_current_run.png", dpi=300, bbox_inches="tight")
-
-        if cfg["save_copy_of_visuals"]:
-            fig.savefig("visuals_average_case/Runtimes_current_run_copy.png", dpi=300, bbox_inches="tight")
+    plt.show()
+    plt.close(fig)
+    return output_path
 

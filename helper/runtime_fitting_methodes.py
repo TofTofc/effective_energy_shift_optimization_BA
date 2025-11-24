@@ -7,42 +7,25 @@ import matplotlib.ticker as mticker
 from scipy import stats
 delim = "-"*100
 
-def plot_powerlaw_fit(x, y, a, b, version_name):
+def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=None):
 
-    fig, ax = plt.subplots(figsize=(7,5))
+    runtimes_folder = os.path.join("results", "runtimes")
 
-    ax.scatter(x, y, color='gray', edgecolors='k', s=20, label='Data')
+    if version_name is not None:
+        version_folders = [os.path.join(runtimes_folder, version_name)]
+    else:
+        version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
 
-    x_fit = np.linspace(np.min(x), np.max(x), 100)
-    y_fit = a * x_fit**b
-    ax.plot(x_fit, y_fit, color='blue', lw=2, label=f'Fit: y = {a:.3e} * x^{b:.3f}')
+    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
-    ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
+    for vfolder in version_folders:
+        json_path = os.path.join(vfolder, case_file)
 
-    ax.set_xlabel("Phase Count (log scale)")
-    ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title(f"Runtimes vs Phase Count - Version {version_name}")
-    ax.legend()
-    ax.grid(True, which="both", ls="--")
+        with open(json_path, "r", encoding="utf-8") as f:
+            json_data = json.load(f)
 
-    plt.show()
-
-
-def log_log_linear_regression(cfg, max_phase_count=None):
-
-    filename = "saved_data/worst_case.json" if cfg.get("worst_case_scenario") else "saved_data/average_case.json"
-
-    if not os.path.exists(filename):
-        raise FileNotFoundError(f"{filename} does not exist")
-
-    with open(filename, "r") as f:
-        json_data = json.load(f)
-
-    for version_name, data in json_data.items():
-        entries = data.get("results", [])
+        version_label = json_data.get("version", os.path.basename(vfolder))
+        entries = json_data.get("results", [])
         phase_counts = []
         runtimes = []
         for entry in entries:
@@ -56,7 +39,7 @@ def log_log_linear_regression(cfg, max_phase_count=None):
         y = np.array(runtimes)
 
         print(delim)
-        print(f"Version: {version_name}")
+        print(f"Version: {version_label}")
 
         x_log = np.log10(x)
         y_log = np.log10(y)
@@ -70,12 +53,11 @@ def log_log_linear_regression(cfg, max_phase_count=None):
         print("log10(y) = log10(a) + b*log10(x)")
         print(f"log10(y) = {log_a:.5f} + {b:.5f} * log10(x)")
         print(f"y = {a:.5e} * x^{b:.5f}")
-
         print(delim)
 
         calculate_and_print_regression_stats(x_log, y_log, p)
+        plot_powerlaw_fit(x, y, a, b, version_label)
 
-        plot_powerlaw_fit(x, y, a, b, version_name)
 
 def calculate_and_print_regression_stats(x_log, y_log, p):
 
@@ -108,5 +90,28 @@ def calculate_and_print_regression_stats(x_log, y_log, p):
     print(f"  Chi-squared:                                          {chi2: .6f}")
     print(f"  Reduced chi-squared:                                  {chi2_red: .6f}")
     print(f"  Standard deviation of the error:                      {std_err_orig: .6f}")
+
+def plot_powerlaw_fit(x, y, a, b, version_name):
+
+    fig, ax = plt.subplots(figsize=(7,5))
+
+    ax.scatter(x, y, color='gray', edgecolors='k', s=20, label='Data')
+
+    x_fit = np.linspace(np.min(x), np.max(x), 100)
+    y_fit = a * x_fit**b
+    ax.plot(x_fit, y_fit, color='blue', lw=2, label=f'Fit: y = {a:.3e} * x^{b:.3f}')
+
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
+    ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
+
+    ax.set_xlabel("Phase Count (log scale)")
+    ax.set_ylabel("Runtime (s, log scale)")
+    ax.set_title(f"Runtimes vs Phase Count - Version {version_name}")
+    ax.legend()
+    ax.grid(True, which="both", ls="--")
+
+    plt.show()
 
 
