@@ -1,6 +1,5 @@
 import json
 import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -11,12 +10,22 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
 
     runtimes_folder = os.path.join("results", "runtimes")
 
+    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+
     if version_name is not None:
         version_folders = [os.path.join(runtimes_folder, version_name)]
     else:
-        version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
+        candidate = []
+        for f in os.scandir(runtimes_folder):
+            json_path = os.path.join(f.path, case_file)
 
-    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+            with open(json_path, "r", encoding="utf-8") as fh:
+                j = json.load(fh)
+            results_list = j.get("results", [])
+            first_runtime = results_list[0].get("runtime", None)
+            if first_runtime != -1:
+                candidate.append(f.path)
+        version_folders = candidate
 
     for vfolder in version_folders:
         json_path = os.path.join(vfolder, case_file)
@@ -31,7 +40,7 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
         for entry in entries:
             phase_count = int(entry["phase_count"])
             runtime = float(entry["runtime"])
-            if (max_phase_count is None) or (phase_count <= max_phase_count):
+            if runtime > 0 and (max_phase_count is None or phase_count <= max_phase_count):
                 phase_counts.append(phase_count)
                 runtimes.append(runtime)
 

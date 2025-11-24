@@ -12,7 +12,8 @@ from helper.runtime_fitting_methodes import log_log_linear_regression
 
 delim = "-"*100
 
-def import_module(folder_name: str):
+def import_version(folder_name: str):
+
     base_path = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_path, "versions", folder_name, "effective_energy_shift.py")
 
@@ -30,39 +31,7 @@ def init(worst_case_scenario: bool,
          phase_count: int,
          repetition_count: int) \
          -> tuple[list[np.ndarray], list[np.ndarray], np.ndarray]:
-    """
-    Initialize energy excess/deficit arrays and starting time of the phases.
-
-    Notes
-    -----
-    Worst-case scenario:
-    - Excess from phase_count to 1
-    - Deficit from 1 to phase_count
-
-    Average-case scenario:
-    - Excess and deficit values are randomly generated (0 - 100, integers) and independent
-    - Seeds are unique for each (phase_count, repetition_index) combination
-
-    Parameters
-    ----------
-    worst_case_scenario : bool
-        True: deterministic worst case False: random average case.
-    master_seed : int
-        Base seed used.
-    phase_count : int
-        Length of each generated array (Number of Phases).
-    repetition_count : int
-        Number of repetitions: one excess/deficit pair per repetition.
-
-    Returns
-    -------
-    energy_excess_list : list[np.ndarray]
-        List of initial energy excess arrays, one array per repetition.
-    energy_deficit_list : list[np.ndarray]
-        List of initial energy deficit arrays, one array per repetition.
-    start_time_phases : np.ndarray
-        Array of phase start times (0,...,phase_count-1).
-    """
+    """Initialize energy excess/deficit arrays and starting time of the phases."""
 
     start_time_phases = np.arange(phase_count)
 
@@ -102,6 +71,7 @@ def output_runtime(module, total_runtime: float, repetition_count):
 
 
 def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, fake_run):
+    """Runs the given version repetition_count times and measures median runtime"""
 
     runtimes_single = []
     module_results = []
@@ -129,16 +99,17 @@ def main():
 
     while True:
 
+        # Load needed info like repetition_count or current phase counts from the results folder
         version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario = get_run_info_from_json(cfg)
 
         if not pending_phase_counts:
             print("Job done. Everything was measured")
             break
 
-        module = import_module(version_name)
+        module = import_version(version_name)
 
         # Fake run for numba compiling
-        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 1,repetition_count)
+        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 100,repetition_count)
         do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count=1, fake_run=True)
 
         print(f"{delim}\n{delim}")

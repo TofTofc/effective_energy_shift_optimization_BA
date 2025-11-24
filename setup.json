@@ -10,6 +10,6 @@
     "master_seed": 125,
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba"],
-    "index_to_use": []
+    "index_to_use": [0]
 }
 

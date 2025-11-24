@@ -111,7 +111,6 @@ def get_run_info_from_json(cfg: dict):
                 if os.path.exists(json_path):
                     with open(json_path, "r", encoding="utf-8") as f_json:
                         data = json.load(f_json)
-                        # prüfen, ob es noch ungemessene runtimes gibt
                         if any(entry["runtime"] == -1 for entry in data.get("results", [])):
                             version_name = data.get("version", os.path.basename(f.path))
                             version_folders = [f.path]
