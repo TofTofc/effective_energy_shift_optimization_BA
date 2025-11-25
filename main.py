@@ -1,6 +1,7 @@
 import importlib
 import importlib.util
 import os
+import sys
 import uuid
 import time
 import numpy as np
@@ -125,10 +126,9 @@ def main():
 
             module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count, fake_run=False)
 
-            # TODO: Redo TESTS OF RESULTS
             #test_result(module_results)
 
-            save_to_json(cfg, phase_count, median_runtime, version_name)
+            save_to_json(cfg, phase_count, median_runtime, version_name, module_results)
 
 
 if __name__ == '__main__':
@@ -137,8 +137,8 @@ if __name__ == '__main__':
 
     init_results_folders(cfg)
 
-    #main()
+    main()
 
     #plot_from_json(cfg)
 
-    log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")
+    #log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")

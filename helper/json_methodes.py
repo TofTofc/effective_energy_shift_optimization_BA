@@ -18,7 +18,7 @@ def load_config(filename="setup.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder="results"):
+def save_to_json(cfg, phase_count, median_runtime, version_name, module_results, results_folder="results"):
 
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
@@ -50,8 +50,9 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
     average_folder = visuals_folder / "average_case"
     worst_folder = visuals_folder / "worst_case"
     copies_folder = visuals_folder / "copies"
+    output_folder = parent / "output"
 
-    for folder in (runtimes_folder, average_folder, worst_folder, copies_folder):
+    for folder in (runtimes_folder, visuals_folder, average_folder, worst_folder, copies_folder, output_folder):
         folder.mkdir(parents=True, exist_ok=True)
 
     versions = cfg.get("versions", [])
@@ -67,7 +68,6 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
         end_phase_count,
         number_of_data_points
     )
-
     for version in versions:
         subpath = runtimes_folder / version
         subpath.mkdir(parents=True, exist_ok=True)
@@ -140,3 +140,5 @@ def get_run_info_from_json(cfg: dict):
     worst_case_scenario = data.get("worst_case")
 
     return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario
+
+

@@ -48,7 +48,7 @@ def extract_phase_arrays(phase):
         excess_ids
     )
 
-
+"""
 def compare_phase_objects(p1, p2):
 
     arrs1 = extract_phase_arrays(p1)
@@ -89,3 +89,46 @@ def test_result(all_result_lists: list[list[dict]]):
         for j, module_results in enumerate(all_result_lists[1:], start=1):
             if not dicts_equal(first_dict, module_results[i]):
                 sys.exit(f"Dictionaries at repetition {i} of module 0 and module {j} are not equal")
+"""
+
+
+def test_result(all_result_dicts: list[dict]):
+
+    for idx, result_dict in enumerate(all_result_dicts):
+
+        phases = result_dict["phases"]
+
+        battery_dict = compute_battery_arrays_from_phases(phases)
+
+        print("\n--- Ergebnis für Dict", idx, "---")
+        print("capacity:", battery_dict["capacity"])
+        print("energy_additional:", battery_dict["energy_additional"])
+        print("effectiveness_local:", battery_dict["effectiveness_local"])
+        print("--------------------------------\n")
+
+    sys.exit()
+
+def compute_battery_arrays_from_phases(phases, efficiency_discharging = 1):
+
+    capacity_phases = []
+    energy_additional_phases = []
+
+    for phase in phases:
+        capacity_phases.extend(phase.starts_deficit[phase.deficit_balanced])
+        energy_additional_phases.extend(phase.energy_deficit[phase.deficit_balanced])
+
+    capacity_phases = np.array(capacity_phases)
+    energy_additional_phases = np.array(energy_additional_phases)
+
+    capacity = np.unique(np.sort(np.array([capacity_phases, capacity_phases + energy_additional_phases]).flatten()))
+
+    effectiveness_local = np.zeros(len(capacity))
+    for phase in phases:
+        for capacity_lower, capacity_upper in zip(phase.starts_deficit[phase.deficit_balanced], phase.starts_deficit[phase.deficit_balanced] + phase.energy_deficit[phase.deficit_balanced]):
+            effectiveness_local[(capacity_lower <= capacity) & (capacity < capacity_upper)] += 1
+
+    delta_capacity = np.diff(capacity)
+    delta_energy_additional = effectiveness_local[:-1]*delta_capacity
+    energy_additional = efficiency_discharging * np.array([0, *delta_energy_additional.cumsum()])
+
+    return dict(capacity=capacity, energy_additional=energy_additional, effectiveness_local=effectiveness_local)
