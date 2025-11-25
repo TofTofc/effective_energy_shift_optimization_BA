@@ -6,10 +6,9 @@ import uuid
 import time
 import numpy as np
 
-from helper.hdf5_methodes import save_simulation_results
+from helper.hdf5_methodes import save_simulation_results, compare_simulation_results
 from helper.json_methodes import save_to_json, load_config, init_results_folders, get_run_info_from_json, change_cfg
 from helper.plot_methodes import  plot_from_json
-from helper.compare_methodes import test_result
 from helper.runtime_fitting_methodes import log_log_linear_regression
 
 delim = "-"*100
@@ -144,24 +143,24 @@ def main():
                 print("saving data")
                 save_simulation_results(all_results, phase_counts_done, cfg)
                 print("saved data")
-                sys.exit()
+                return
 
             phase_counts_done.append(phase_count)
             all_results.append(module_results)
-
-            #test_result(module_results)
 
             save_to_json(cfg, phase_count, median_runtime, version_name)
 
 
 if __name__ == '__main__':
 
-    #change_cfg("abort", False)
+    change_cfg("abort", False)
     cfg = load_config()
 
     init_results_folders(cfg)
 
     main()
+
+    #compare_simulation_results("original_simplified", "append_improved_init_capacity_10_numba", cfg)
 
     #plot_from_json(cfg)
 

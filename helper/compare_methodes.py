@@ -89,7 +89,6 @@ def test_result(all_result_lists: list[list[dict]]):
         for j, module_results in enumerate(all_result_lists[1:], start=1):
             if not dicts_equal(first_dict, module_results[i]):
                 sys.exit(f"Dictionaries at repetition {i} of module 0 and module {j} are not equal")
-"""
 
 
 def test_result(all_result_dicts: list[dict]):
@@ -132,3 +131,5 @@ def compute_battery_arrays_from_phases(phases, efficiency_discharging = 1):
     energy_additional = efficiency_discharging * np.array([0, *delta_energy_additional.cumsum()])
 
     return dict(capacity=capacity, energy_additional=energy_additional, effectiveness_local=effectiveness_local)
+    
+"""
