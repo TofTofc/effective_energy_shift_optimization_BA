@@ -6,12 +6,14 @@ import uuid
 import time
 import numpy as np
 
-from helper.json_methodes import save_to_json, load_config, init_results_folders, get_run_info_from_json
+from helper.hdf5_methodes import save_simulation_results
+from helper.json_methodes import save_to_json, load_config, init_results_folders, get_run_info_from_json, change_cfg
 from helper.plot_methodes import  plot_from_json
 from helper.compare_methodes import test_result
 from helper.runtime_fitting_methodes import log_log_linear_regression
 
 delim = "-"*100
+abort = False
 
 def import_version(folder_name: str):
 
@@ -74,10 +76,17 @@ def output_runtime(module, total_runtime: float, repetition_count):
 def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, fake_run):
     """Runs the given version repetition_count times and measures median runtime"""
 
+    global abort
+
     runtimes_single = []
     module_results = []
 
     for i in range(repetition_count):
+
+        # Terminates the run
+        cfg = load_config()
+        if cfg["abort"]:
+            abort = True
 
         start = time.perf_counter()
         result_dict = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
@@ -96,7 +105,12 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
 
 def main():
 
+    global abort
+
     cfg = load_config()
+
+    phase_counts_done = []
+    all_results = []
 
     while True:
 
@@ -126,13 +140,23 @@ def main():
 
             module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count, fake_run=False)
 
+            if abort:
+                print("saving data")
+                save_simulation_results(all_results, phase_counts_done, cfg)
+                print("saved data")
+                sys.exit()
+
+            phase_counts_done.append(phase_count)
+            all_results.append(module_results)
+
             #test_result(module_results)
 
-            save_to_json(cfg, phase_count, median_runtime, version_name, module_results)
+            save_to_json(cfg, phase_count, median_runtime, version_name)
 
 
 if __name__ == '__main__':
 
+    #change_cfg("abort", False)
     cfg = load_config()
 
     init_results_folders(cfg)

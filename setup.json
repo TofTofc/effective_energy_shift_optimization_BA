@@ -1,6 +1,5 @@
 {
-    "worst_case_scenario": true,
-
+    "worst_case_scenario": false,
     "save_copy_of_visuals": false,
 
     "start_phase_count": 1000,
@@ -10,6 +9,7 @@
     "master_seed": 125,
 
     "versions": ["original_simplified", "append_improved_init_capacity_1", "append_improved_init_capacity_10", "append_improved_init_capacity_10_numba"],
-    "index_to_use": [3]
-}
+    "index_to_use": [1],
 
+    "abort": false
+}

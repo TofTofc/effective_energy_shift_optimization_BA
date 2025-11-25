@@ -1,0 +1,5 @@
+1. Ergebnisse der Durchläufe in einer geeigneten Form speichern
+2. Funktion aus dem original Code suchen mit der man die Ergebnisse validieren kann und diese Ergebnisse dann Speichern
+3. test funktion schreiben, die erstmal nix misst etc sondern nur die Ergebnisse von einer neuen Variante mit dem original vergleicht
+4. Diverse kleinere Ideen für fixen Speedup testen
+5. Implementierung der Einteilung in Blöcke Idee (für besseres 0() verhalten) siehe Block

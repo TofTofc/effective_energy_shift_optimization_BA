@@ -18,7 +18,7 @@ def load_config(filename="setup.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_to_json(cfg, phase_count, median_runtime, version_name, module_results, results_folder="results"):
+def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder="results"):
 
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
@@ -69,11 +69,15 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
         number_of_data_points
     )
     for version in versions:
-        subpath = runtimes_folder / version
-        subpath.mkdir(parents=True, exist_ok=True)
+        runtimes_subpath = runtimes_folder / version
+        runtimes_subpath.mkdir(parents=True, exist_ok=True)
+
+        hdf5_subpath = output_folder / version
+        hdf5_subpath.mkdir(parents=True, exist_ok=True)
 
         for case_name, worst_flag in (("average_case.json", False), ("worst_case.json", True)):
-            json_path = subpath / case_name
+            json_path = runtimes_subpath / case_name
+
             if not json_path.exists():
                 meta = {
                     "version": version,
@@ -141,4 +145,15 @@ def get_run_info_from_json(cfg: dict):
 
     return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario
 
+
+def change_cfg(key, new_value):
+    file = Path("setup.json")
+
+    with open(file, 'r') as f:
+        data = json.load(f)
+
+    data[key] = new_value
+
+    with open(file, 'w') as f:
+        json.dump(data, f, indent=4)
 
