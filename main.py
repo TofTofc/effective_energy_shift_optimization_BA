@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
     init_results_folders(cfg)
 
-    main()
+    #main()
 
     #compare_simulation_results("original_simplified", "append_improved_init_capacity_10_numba", cfg)
 
