@@ -22,6 +22,6 @@ if __name__ == '__main__':
 
     #log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")
 
-    submethod_analysis("append_improved_init_capacity_10")
+    submethod_analysis("append_improved_init_capacity_10_numba")
 
     #test_versions("original", "append_improved_init_capacity_10_numba")
