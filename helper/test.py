@@ -1,6 +1,5 @@
 import cProfile
 import pstats
-
 from helper.compare_methodes import test_results
 from main import init, import_version
 
