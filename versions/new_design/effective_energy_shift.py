@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.append_improved_init_capacity_10_numba import efes_dataclasses
+from versions.new_design import efes_dataclasses
 
 
 @njit

@@ -88,11 +88,11 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
             abort = True
 
         start = time.perf_counter()
-        result_dict = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
+        phases_list = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
         end = time.perf_counter()
 
         runtimes_single.append(end - start)
-        module_results.append(result_dict)
+        module_results.append(phases_list)
 
     median_runtime = np.median(runtimes_single)
 
@@ -123,7 +123,7 @@ def main():
         module = import_version(version_name)
 
         # Fake run for numba compiling
-        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 100,repetition_count)
+        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 10,repetition_count)
         do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count=1, fake_run=True)
 
         print(f"{delim}\n{delim}")
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
     init_results_folders(cfg)
 
-    #main()
+    main()
 
     #compare_simulation_results("original_simplified", "append_improved_init_capacity_10_numba", cfg)
 

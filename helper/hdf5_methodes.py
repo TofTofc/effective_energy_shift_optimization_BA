@@ -36,12 +36,9 @@ def save_simulation_results(all_data, phase_counts, cfg):
             p_count = phase_counts[cfg_idx]
             cfg_group = f.create_group(f"phase_count_{p_count}")
 
-            for rep_idx, result_dict in enumerate(repetitions_list):
+            for rep_idx, phases in enumerate(repetitions_list):
                 rep_group = cfg_group.create_group(f"rep_{rep_idx}")
 
-                rep_group.create_dataset("mask", data=result_dict['mask'], compression="gzip", compression_opts=4)
-
-                phases = result_dict['phases']
                 collected_data = {name: [] for name in attr_names}
 
                 for phase_obj in phases:
@@ -84,17 +81,14 @@ def compare_simulation_results(version_name_a,version_name_b, cfg) -> bool:
 
     with h5py.File(path_a, 'r') as f_a, h5py.File(path_b, 'r') as f_b:
 
-        # Datasets, die verglichen werden müssen (Basierend auf Ihrer save-Funktion)
-        # 'mask' muss hier eventuell auch rein, falls sie nicht im Loop ist
         datasets_to_compare = [
             "starts_excess", "starts_deficit", "energy_excess", "energy_deficit",
-            "excess_balanced", "deficit_balanced", "excess_ids", "mask"
+            "excess_balanced", "deficit_balanced", "excess_ids"
         ]
 
         groups_a = set(f_a.keys())
         groups_b = set(f_b.keys())
 
-        # Bestimme die Schnittmenge der Phase Counts, die in beiden Dateien existieren
         common_phase_counts = sorted(list(groups_a.intersection(groups_b)))
 
         for cfg_group_name in common_phase_counts:

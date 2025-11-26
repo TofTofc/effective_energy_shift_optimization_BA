@@ -219,7 +219,7 @@ def process_phases_njit(phases_typed_list):
 
         phases_typed_list, is_unbalanced_array = move_overflow_njit(phases_typed_list, is_unbalanced_array)
 
-    return phases_typed_list, is_unbalanced_array
+    return phases_typed_list
 
 
 def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,):
@@ -228,6 +228,6 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
     for ex, de, t in zip(energy_excess, energy_deficit, start_time_phases):
         phases_list.append(efes_dataclasses.Phase(ex, de, id=t))
 
-    phases_out, mask_out = process_phases_njit(phases_list)
+    phases_out = process_phases_njit(phases_list)
 
-    return dict(phases=phases_out, mask=mask_out)
+    return phases_out

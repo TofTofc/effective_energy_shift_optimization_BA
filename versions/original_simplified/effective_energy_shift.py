@@ -130,7 +130,7 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
     mask = None
 
     if process_callback(callback_between_steps, 'init', phases, mask, **callback_kwargs):
-        return dict(phases=phases, mask=mask)
+        return phases
 
     while True:
         phases, mask = balance_phases(phases, mask)
@@ -143,4 +143,4 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
             break
         phases, mask, stop_algorithm = move_overflow(phases, mask, callback_between_steps=callback_between_steps, callback_kwargs=callback_kwargs)
 
-    return dict(phases=phases, mask=mask)
+    return phases
