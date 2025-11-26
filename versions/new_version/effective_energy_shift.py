@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.new_version import efes_dataclasses
+from versions.append_improved_init_capacity_10_numba import efes_dataclasses
 
 
 @njit
@@ -151,13 +151,12 @@ def process_phases_njit(phases_typed_list):
 
     return phases_typed_list
 
+@njit
+def process_phases(excess_array, deficit_array, start_times):
 
-def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,
-                   verbose: bool = False):
+    n = len(excess_array)
     phases_list = List()
-    for ex, de, t in zip(energy_excess, energy_deficit, start_time_phases):
-        phases_list.append(efes_dataclasses.Phase(ex, de, id=t))
-
-    phases_out = process_phases_njit(phases_list)
-
-    return phases_out
+    for i in range(n):
+        phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i], 10)
+        phases_list.append(phase)
+    return process_phases_njit(phases_list)

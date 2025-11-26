@@ -1,6 +1,6 @@
 {
-  "version": "test",
-  "worst_case": false,
+  "version": "new_version",
+  "worst_case": true,
   "number_of_data_points": 300,
   "start_phase_count": 1000,
   "end_phase_count": 1000000000,
