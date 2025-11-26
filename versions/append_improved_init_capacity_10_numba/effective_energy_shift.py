@@ -151,6 +151,7 @@ def process_phases_njit(phases_typed_list):
 
     return phases_typed_list
 
+
 def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,
                    verbose: bool = False):
     phases_list = List()

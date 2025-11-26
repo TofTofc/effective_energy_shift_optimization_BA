@@ -1,8 +1,8 @@
 import numpy as np
-from numba import njit
+from numba import njit, typed
 from numba.typed import List
 
-from versions.new_design import efes_dataclasses
+from versions.tests import efes_dataclasses
 
 
 @njit
@@ -136,13 +136,8 @@ def process_phases_njit(phases_typed_list):
     while True:
         phases_typed_list, mask = balance_phases_njit(phases_typed_list, mask)
 
-        row0_all_false = True
-        row1_all_false = True
-        for i in range(n):
-            if mask[0, i]:
-                row0_all_false = False
-            if mask[1, i]:
-                row1_all_false = False
+        row0_all_false = not np.any(mask[0, :])
+        row1_all_false = not np.any(mask[1, :])
 
         if row0_all_false or row1_all_false:
             break
@@ -151,9 +146,10 @@ def process_phases_njit(phases_typed_list):
 
     return phases_typed_list
 
-def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases,
-                   verbose: bool = False):
-    phases_list = List()
+def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_time_phases):
+
+    phases_list = typed.List()
+
     for ex, de, t in zip(energy_excess, energy_deficit, start_time_phases):
         phases_list.append(efes_dataclasses.Phase(ex, de, id=t))
 

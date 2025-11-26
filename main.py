@@ -149,19 +149,3 @@ def main():
             all_results.append(module_results)
 
             save_to_json(cfg, phase_count, median_runtime, version_name)
-
-
-if __name__ == '__main__':
-
-    change_cfg("abort", False)
-    cfg = load_config()
-
-    init_results_folders(cfg)
-
-    main()
-
-    #compare_simulation_results("original_simplified", "append_improved_init_capacity_10_numba", cfg)
-
-    #plot_from_json(cfg)
-
-    #log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")

@@ -48,64 +48,38 @@ def extract_phase_arrays(phase):
         excess_ids
     )
 
-"""
+
 def compare_phase_objects(p1, p2):
 
     arrs1 = extract_phase_arrays(p1)
     arrs2 = extract_phase_arrays(p2)
 
-    print(arrs1)
-    print(arrs2)
-    print(delim)
-
     return all(np.array_equal(a1, a2) for a1, a2 in zip(arrs1, arrs2))
 
 
-def dicts_equal(a: dict, b: dict) -> bool:
 
-    #if not np.array_equal(a['mask'], b['mask']):
-        #return False
+def repetitions_equal(rep_a: list, rep_b: list) -> bool:
 
-    phases_a = a['phases']
-    phases_b = b['phases']
-
-    if len(phases_a) != len(phases_b):
+    if len(rep_a) != len(rep_b):
         return False
 
-    for p_a, p_b in zip(phases_a, phases_b):
-        compare_phase_objects(p_a, p_b)
-        #if not compare_phase_objects(p_a, p_b):
-            #return False
-
+    for p_a, p_b in zip(rep_a, rep_b):
+        if not compare_phase_objects(p_a, p_b):
+            return False
     return True
 
 
-def test_result(all_result_lists: list[list[dict]]):
+def test_results(list_a: list[list], list_b: list[list]):
 
-    repetition_count = len(all_result_lists[0])
+    for i, (rep_a, rep_b) in enumerate(zip(list_a, list_b)):
+        if not repetitions_equal(rep_a, rep_b):
+            sys.exit(f"Repetition {i} not equal")
 
-    for i in range(repetition_count):
-        first_dict = all_result_lists[0][i]
-        for j, module_results in enumerate(all_result_lists[1:], start=1):
-            if not dicts_equal(first_dict, module_results[i]):
-                sys.exit(f"Dictionaries at repetition {i} of module 0 and module {j} are not equal")
+    print("Both results are equal!")
+    return True
 
 
-def test_result(all_result_dicts: list[dict]):
-
-    for idx, result_dict in enumerate(all_result_dicts):
-
-        phases = result_dict["phases"]
-
-        battery_dict = compute_battery_arrays_from_phases(phases)
-
-        print("\n--- Ergebnis für Dict", idx, "---")
-        print("capacity:", battery_dict["capacity"])
-        print("energy_additional:", battery_dict["energy_additional"])
-        print("effectiveness_local:", battery_dict["effectiveness_local"])
-        print("--------------------------------\n")
-
-    sys.exit()
+"""
 
 def compute_battery_arrays_from_phases(phases, efficiency_discharging = 1):
 
