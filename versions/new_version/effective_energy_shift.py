@@ -1,155 +1,181 @@
+import sys
+
 import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.append_improved_init_capacity_10_numba import efes_dataclasses
-
-
-@njit
-def balance_phase(phase: efes_dataclasses.Phase):
-
-    start_max = max(phase.starts_excess[phase.size_excess - 1],phase.starts_deficit[phase.size_deficit - 1])
-
-    phase.starts_excess[phase.size_excess - 1] = start_max
-    phase.starts_deficit[phase.size_deficit - 1] = start_max
-
-    phase.excess_balanced[phase.size_excess - 1] = True
-
-    if phase.energy_excess[phase.size_excess - 1] == phase.energy_deficit[phase.size_deficit - 1]:
-        phase.deficit_balanced[phase.size_deficit - 1] = True
-        return False, False
-
-    if phase.energy_excess[phase.size_excess - 1] > phase.energy_deficit[phase.size_deficit - 1]:
-        phase.deficit_balanced[phase.size_deficit - 1] = True
-
-        new_start = phase.starts_deficit[phase.size_deficit - 1] + phase.energy_deficit[phase.size_deficit - 1]
-        energy_remaining = phase.energy_excess[phase.size_excess - 1] - phase.energy_deficit[phase.size_deficit - 1]
-
-        phase.energy_excess[phase.size_excess - 1] = phase.energy_deficit[phase.size_deficit - 1]
-
-        phase.append_excess(new_start, energy_remaining, False, phase.excess_ids[phase.size_excess - 1])
-
-        return True, False
-
-    new_start = phase.starts_excess[phase.size_excess - 1] + phase.energy_excess[phase.size_excess - 1]
-    energy_remaining = phase.energy_deficit[phase.size_deficit - 1] - phase.energy_excess[phase.size_excess - 1]
-
-    phase.energy_deficit[phase.size_deficit - 1] = phase.energy_excess[phase.size_excess - 1]
-    phase.deficit_balanced[phase.size_deficit - 1] = True
-
-    phase.append_deficit(new_start, energy_remaining, False)
-    return False, True
-
+from versions.new_version import efes_dataclasses
 
 @njit
-def calculate_virtual_excess(current_phase, next_phase):
-
-    overflow_content = current_phase.energy_excess[current_phase.size_excess - 1]
-    overflow_start = current_phase.starts_excess[current_phase.size_excess - 1]
-
-    blocking_excess_content = next_phase.energy_excess[next_phase.size_excess - 1]
-    blocking_excess_start = next_phase.starts_excess[next_phase.size_excess - 1]
-
-    virtual_excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
-    virtual_excess_content = overflow_content
-    virtual_excess_id = current_phase.excess_ids[current_phase.size_excess - 1]
-
-    return virtual_excess_start, virtual_excess_content, virtual_excess_id
-
-
-@njit
-def balance_phases_njit(phases, mask):
-
+def get_next_excess_index(phases, idx, state_mask):
+    """
+    Returns the idx of the next phase with excess overflow
+    """
+    i = idx + 1
     n = len(phases)
-    for i in range(n):
-        if mask[0, i] and mask[1, i]:
-            res0, res1 = balance_phase(phases[i])
-            mask[0, i] = res0
-            mask[1, i] = res1
-    return phases, mask
-
-
-@njit
-def move_overflow_njit(phases, mask):
-    n = len(phases)
-
-
-    add_virtual_excess_mask = np.empty(n, dtype=np.bool_)
-    for i in range(n):
-        add_virtual_excess_mask[i] = mask[0, (i - 1) % n]
-
-
-    count_excess = 0
-    for i in range(n):
-        if mask[0, i]:
-            count_excess += 1
-
-    next_indices = np.empty(count_excess, dtype=np.int64)
-    j = 0
-    for i in range(n):
-        if mask[0, i]:
-            next_indices[j] = (i + 1) % n
-            j += 1
-
-    current_phases = List()
-    for i in range(n):
-        if mask[0, i]:
-            current_phases.append(phases[i])
-
-    next_phases = List()
-    for k in range(len(next_indices)):
-        idx = next_indices[k]
-        next_phases.append(phases[idx])
-
-    m = len(current_phases)
-    virtual_a = np.empty(m, dtype=np.float64)
-    virtual_b = np.empty(m, dtype=np.float64)
-    virtual_c = np.empty(m, dtype=np.int64)
-
-    for i in range(m):
-        a, b, c = calculate_virtual_excess(current_phases[i], next_phases[i])
-        virtual_a[i] = a
-        virtual_b[i] = b
-        virtual_c[i] = c
-
-    for i in range(m):
-        next_phases[i].append_excess(virtual_a[i], virtual_b[i], False, virtual_c[i])
-
-    for i in range(n):
-        if mask[0, i] and add_virtual_excess_mask[i]:
-            phases[i].remove_excess(-2)
-        elif mask[0, i] and not add_virtual_excess_mask[i]:
-            phases[i].remove_excess(-1)
-
-    for i in range(n):
-        mask[0, i] = add_virtual_excess_mask[i]
-
-    return phases, mask, False
-
-
-@njit
-def process_phases_njit(phases_typed_list):
-
-    n = len(phases_typed_list)
-    mask = np.ones((2, n), dtype=np.bool_)
 
     while True:
-        phases_typed_list, mask = balance_phases_njit(phases_typed_list, mask)
+        if state_mask[i] == 1:
+            return i
+        i = (i + 1) % n
 
-        row0_all_false = True
-        row1_all_false = True
-        for i in range(n):
-            if mask[0, i]:
-                row0_all_false = False
-            if mask[1, i]:
-                row1_all_false = False
 
-        if row0_all_false or row1_all_false:
+@njit
+def get_next_non_balanced_phase(phases, idx, is_balanced_mask):
+
+    """
+    Returns the next non balanced phase starting from idx using is_balanced_mask
+    """
+    sys.exit("NOCH NICHT IMPLEMENTIERT")
+
+@njit
+def move_excess(current_phase, next_phase, max_height):
+    """
+    Move excess from current phase to next phase
+    The starting position of the new Excess in next phase is at least max height high
+    After this, the current phase is now perfectly balanced
+    """
+
+    sys.exit("NOCH NICHT IMPLEMENTIERT")
+
+@njit
+def init(phases, state_mask, max_height_array):
+    """
+    Fills out the state mask:
+        -  1 for excess > deficit
+        - -1 for excess < deficit
+        -  0 for excess = deficit
+
+    For each 0:
+    Also sets the correct height entry for max_height_array
+
+    Balances all Excesses and Deficits:
+        - If E = D: Nothing
+        - If E > D: 2 Excess Entries in the Excess list one covers the Deficit one is the overflow Excess
+        - If E < D: See above
+
+    Returns the tuple: (Number of 1 in total, Number of -1 in total)
+    """
+
+    e_counter = 0
+    d_counter = 0
+
+    for i in range(len(phases)):
+
+        excess  = phases[i].get_energy_excess(-1)
+        deficit = phases[i].get_energy_deficit(-1)
+
+        if excess > deficit:
+            state_mask[i] = 1
+            e_counter += 1
+
+            # Balancing:
+
+            # Create new Excess paket
+            excess_start = deficit
+            excess_content = excess - deficit
+            excess_id = phases[i].id
+
+            phases[i].append_excess(excess_start, excess_content, excess_id)
+
+            # change energy Excess of old Excess entry to match deficit
+            phases[i].energy_excess[0] = deficit
+
+        elif excess < deficit:
+            state_mask[i] = -1
+            d_counter += 1
+
+            # Balancing:
+
+            # Create new Deficit paket
+            deficit_start = excess
+            deficit_content = deficit - excess
+
+            phases[i].append_deficit(deficit_start, deficit_content)
+
+            # change energy Deficit of old Deficit entry to match excess
+            phases[i].energy_deficit[0] = excess
+        else:
+            state_mask[i] = 0
+            max_height_array[i] = excess
+
+    return e_counter, d_counter
+
+@njit
+def process_phases_njit(phases):
+
+    n = len(phases)
+
+    # Mask for the state of the phases:
+    #  1 = Excess > Deficit
+    #  0 = Excess = Deficit
+    # -1 = Excess < Deficit
+    state_mask = np.zeros(n)
+
+    # Counters for how many E > D and E < D we have
+    e_counter = 0
+    d_counter = 0
+
+    # Saves the max_height of all balanced Phases
+    max_height_array = np.zeros(n)
+
+    # Provides the initial states for each Phase object and balances them
+    e_counter, d_counter = init(phases, state_mask, max_height_array)
+
+    # TODO: FÜR DAS ERSTE EXCESS ÜBERSCHUSS PHASE OBJEKT MUSS MAN DEN VIRTUAL EXCESS SPEICHERN, DAMIT WENN AUF DIE PHASE
+    # TODO: EXCESS DRAUF KOMMT MAN DIE KORREKTE HÖHE HAT
+
+    # start with an excess overflow right away
+    idx = get_next_excess_index(phases, 0, state_mask)
+    start_idx = idx
+
+    while True:
+
+        # Stop when either no more Excesses to move or no more Deficits to fill
+        if e_counter == 0 or d_counter == 0:
             break
 
-        phases_typed_list, mask, _ = move_overflow_njit(phases_typed_list, mask)
+        # For each Phase there are 3 possibilities
 
-    return phases_typed_list
+        #1. Excess > Deficit
+        if state_mask[idx] == 1:
+
+            current_phase = phases[idx]
+            next_phase = get_next_non_balanced_phase(phases, idx, state_mask)
+
+            # Moves the Excess from the current Phase to the next non perfectly balanced phase
+            # max height is the max height of the skipped balanced phases
+            # TODO: THIS ALSO CAN REDUCE D_COUNTER AND BALANCE AN DEFICIT NEXT PHASE OR IS NOT ENOUGH TO FILL IT
+            move_excess(phases[current_phase, next_phase, max_height_array[idx]])
+
+            # current phase is now balanced => reduce e_counter
+            state_mask[idx] = 0
+            e_counter -= 1
+
+        #2. Excess = Deficit
+        if state_mask[idx] == 0:
+
+            # Not needed because every balanced Phase gets filled in initially
+            # or gets marked by E > D case
+            #state_mask[idx] = 0
+            pass
+
+        #3. Excess < Deficit:
+        # Nothing to move here so pass
+        else:
+            pass
+
+        # Index goes to the next Excess
+        idx = get_next_excess_index(phases, idx, state_mask)
+
+    return phases
+
+# TODO: PROBLEM LISTE
+# - TODO: WENN DAS PROGRAMM DEN LETZTEN DEFICIT FÜLLT KANN ES SEIN, DAS DAFÜR NICHT ALLE EXCESSE IN DER GENUTZTEN EXCESS GRUPPE BENUTZT WERDEN,
+#   TODO: FALLS DIES PASSIERT, KÖNNEN POSITIONEN DER EXCESSE FALSCH SEIN, DA SIE IN DER NORMALEN IMPLEMENTIERUNG EIG NOCH NICHT ES BIS HIERHIN GESCHAFFT HÄTTEN
+# Idee: Speichere für jedes Excess Packet ab, wo es herkam um es dann dahin zurück zu schicken, wo es mit der eig implementierung hingekommen wäre
+# Problem: Die Höhe dieses Paketes wäre dann wieder potentiell anderes als seine aktuelle Position
+# Idee: Speichere den Verlauf der Höhen des Paketes ab. Nehem Daraus die richtige Höhe
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):
@@ -159,4 +185,5 @@ def process_phases(excess_array, deficit_array, start_times):
     for i in range(n):
         phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i], 10)
         phases_list.append(phase)
+
     return process_phases_njit(phases_list)
