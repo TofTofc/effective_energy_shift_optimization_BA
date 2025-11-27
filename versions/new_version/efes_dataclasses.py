@@ -1,22 +1,22 @@
 import numpy as np
-from numba import int32, float64, boolean
+from numba import int32, float64, boolean, uint32, uint16, uint8
 
 from numba.experimental import jitclass
 
 spec = [
-    ('id', int32),
+    ('id', uint32),
 
-    ('capacity_excess', int32),
-    ('capacity_deficit', int32),
-    ('size_excess', int32),
-    ('size_deficit', int32),
-    ('number_of_excess_not_covered' , int32),
+    ('capacity_excess', uint16),
+    ('capacity_deficit', uint16),
+    ('size_excess', uint16),
+    ('size_deficit', uint16),
+    ('number_of_excess_not_covered' , uint16),
 
-    ('starts_excess', float64[:]),
-    ('starts_deficit', float64[:]),
-    ('energy_excess', float64[:]),
-    ('energy_deficit', float64[:]),
-    ('excess_ids', int32[:]),
+    ('starts_excess', uint32[:]),
+    ('starts_deficit', uint32[:]),
+    ('energy_excess', uint8[:]),
+    ('energy_deficit', uint8[:]),
+    ('excess_ids', uint32[:]),
 ]
 @jitclass(spec)
 class Phase:
@@ -35,8 +35,8 @@ class Phase:
         self.energy_deficit = np.empty(initial_capacity, dtype=np.float64)
         self.excess_ids = np.empty(initial_capacity, dtype=np.int32)
 
-        self.starts_excess[0] = 0.
-        self.starts_deficit[0] = 0.
+        self.starts_excess[0] = 0
+        self.starts_deficit[0] = 0
         self.energy_excess[0] = energy_excess
         self.energy_deficit[0] = energy_deficit
         self.excess_ids[0] = self.id
