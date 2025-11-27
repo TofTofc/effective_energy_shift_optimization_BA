@@ -98,6 +98,32 @@ class Phase:
 
         return self.energy_excess[idx]
 
+    def get_starts_excess_all(self):
+        return self.starts_excess[:self.size_excess]
+
+    def get_starts_excess(self, idx):
+
+        if idx < 0:
+            idx = self.size_excess + idx
+
+        if idx < 0 or idx >= self.size_excess:
+            raise IndexError("energy_excess index out of range")
+
+        return self.starts_excess[idx]
+
+    def get_excess_ids_all(self):
+        return self.excess_ids[:self.size_excess]
+
+    def get_excess_id(self, idx):
+
+        if idx < 0:
+            idx = self.size_excess + idx
+
+        if idx < 0 or idx >= self.size_excess:
+            raise IndexError("energy_excess index out of range")
+
+        return self.excess_ids[idx]
+
     def get_energy_deficit_all(self):
         return self.energy_deficit[:self.size_deficit]
 

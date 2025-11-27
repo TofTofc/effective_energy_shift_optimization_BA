@@ -21,22 +21,77 @@ def get_next_excess_index(phases, idx, state_mask):
 
 
 @njit
-def get_next_non_balanced_phase(phases, idx, is_balanced_mask):
+def get_next_non_balanced_phase(phases, idx, state_mask):
 
     """
     Returns the next non balanced phase starting from idx using is_balanced_mask
     """
-    sys.exit("NOCH NICHT IMPLEMENTIERT")
+    i = idx + 1
+    n = len(phases)
+
+    while True:
+        if state_mask[i] != 0:
+            return i
+        i = (i + 1) % n
 
 @njit
-def move_excess(current_phase, next_phase, max_height):
+def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter):
     """
     Move excess from current phase to next phase
-    The starting position of the new Excess in next phase is at least max height high
-    After this, the current phase is now perfectly balanced
+    The starting position of the new Excess in next phase is at least max height
+    Max height is extracted from max height array between current phase idx and next phase idx
+    The current phase is now perfectly balanced ( e_counter - 1 and state_mask entry changed to 0)
+    Next Phase might become balanced if it was a Deficit Overflow which was fully filled
     """
 
-    sys.exit("NOCH NICHT IMPLEMENTIERT")
+    current_phase = phases[current_phase_idx]
+    next_phase = phases[next_phase_idx]
+
+     # Get the max height inbetween the two phases
+    max_height = np.amax(max_height_array[current_phase_idx + 1 : next_phase_idx])
+
+    # Overflow content is Overflow Excess
+    overflow_content = current_phase.get_energy_excess(-1)
+    # Max of the current start height and the max height of all skipped Phases
+    overflow_start = max (current_phase.get_starts_excess(-1), max_height)
+
+    # Consider the height of the end of the last Excess in the next phase
+    blocking_excess_content = next_phase.get_energy_excess(-1)
+    blocking_excess_start = next_phase.get_starts_excess(-1)
+
+    excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
+    excess_content = overflow_content
+    excess_id = current_phase.get_excess_id(-1)
+
+    # Add Excess to next Phase
+    next_phase.append_excess(excess_start, excess_content, excess_id)
+
+    # Remove Excess from current Phase
+
+    current_phase.remove_excess(-1)
+
+    # Current phase is now balanced
+    state_mask[current_phase_idx] = 0
+    e_counter -= 1
+
+    # Now 4 things can happen:
+
+    # 1. Our Excess Overflow gets added to an Excess Overflow Packet
+    # -> Fuse Excess Overflows together or save info about how many Excess Packet have to be moved
+
+    # 2. Our Excess Overflow gets added to an Deficit Overflow Packet and its not enough to cover it
+    # -> Create new Deficit Entry that covers the newly added Excess
+
+    # 3. As 2 but it perfectly covers the Deficits
+    # -> Next phase is now an Balanced Phase
+
+    # 3. As 2 but we have more Excess than Deficit in next phase
+    # -> next phase is now an Excess Phase
+    # + Split the incoming Excess In 2. One covers the deficit in next phase the other one is the unmatched Excess
+
+
+
+    return e_counter, d_counter
 
 @njit
 def init(phases, state_mask, max_height_array):
@@ -141,16 +196,10 @@ def process_phases_njit(phases):
         if state_mask[idx] == 1:
 
             current_phase = phases[idx]
-            next_phase = get_next_non_balanced_phase(phases, idx, state_mask)
+            next_phase_idx = get_next_non_balanced_phase(phases, idx, state_mask)
 
             # Moves the Excess from the current Phase to the next non perfectly balanced phase
-            # max height is the max height of the skipped balanced phases
-            # TODO: THIS ALSO CAN REDUCE D_COUNTER AND BALANCE AN DEFICIT NEXT PHASE OR IS NOT ENOUGH TO FILL IT
-            move_excess(phases[current_phase, next_phase, max_height_array[idx]])
-
-            # current phase is now balanced => reduce e_counter
-            state_mask[idx] = 0
-            e_counter -= 1
+            e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter)
 
         #2. Excess = Deficit
         if state_mask[idx] == 0:
