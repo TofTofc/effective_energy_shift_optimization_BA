@@ -354,7 +354,7 @@ def process_phases(excess_array, deficit_array, start_times):
     n = len(excess_array)
     phases_list = List()
     for i in range(n):
-        phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i], 10)
+        phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i])
         phases_list.append(phase)
 
     return process_phases_njit(phases_list)

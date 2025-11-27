@@ -26,7 +26,7 @@ def submethod_analysis(version_name, worst_case_scenario = False, phase_count = 
     ps.sort_stats("tottime")
     ps.print_stats()
 
-def test_versions(version_name_a, version_name_b, worst_case_scenario = False, phase_count = 10):
+def test_versions(version_name_a, version_name_b, worst_case_scenario = False, phase_count = 1000):
 
     module_a = import_version(version_name_a)
     module_b = import_version(version_name_b)
