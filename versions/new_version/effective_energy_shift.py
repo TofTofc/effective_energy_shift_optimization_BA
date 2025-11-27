@@ -76,8 +76,10 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
         # Add Excess to next Phase
         next_phase.append_excess(excess_start, excess_content, excess_id)
 
+    # separate removal of excesses in current phase
+    for idx in range(start_idx, total):
         # Remove Excess from current Phase
-        current_phase.remove_excess(idx)
+        current_phase.remove_excess(-1)
 
     # Current phase is now balanced
     state_mask[current_phase_idx] = 0
