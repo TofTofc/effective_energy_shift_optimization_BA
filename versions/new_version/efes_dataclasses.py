@@ -67,6 +67,7 @@ class Phase:
             self.number_of_excess_not_covered = 0
 
     def append_excess(self, excess_start, excess_content, excess_id):
+
         if self.size_excess >= self.capacity_excess:
             self.capacity_excess *= 2
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
@@ -75,11 +76,12 @@ class Phase:
 
         self.starts_excess[self.size_excess] = excess_start
         self.energy_excess[self.size_excess] = excess_content
-
         self.excess_ids[self.size_excess] = excess_id
+
         self.size_excess += 1
 
     def append_deficit(self, new_start, energy_remaining):
+
         if self.size_deficit >= self.capacity_deficit:
             self.capacity_deficit *= 2
             self.starts_deficit = np.resize(self.starts_deficit, self.capacity_deficit)
@@ -87,29 +89,23 @@ class Phase:
 
         self.starts_deficit[self.size_deficit] = new_start
         self.energy_deficit[self.size_deficit] = energy_remaining
+
         self.size_deficit += 1
 
-    def remove_excess(self, index_to_remove, invalid_value=0):
+    def remove_excess(self, index_to_remove):
 
         if index_to_remove < 0:
             index_to_remove += self.size_excess
-        if index_to_remove not in (self.size_excess - 1, self.size_excess - 2):
-            raise IndexError(
-                f"Index {index_to_remove} out of valid range (only last and second-last are allowed)."
-            )
 
-        last_idx = self.size_excess - 1
+        if index_to_remove < 0 or index_to_remove >= self.size_excess:
+            raise IndexError("Index out of range in remove_excess")
 
-        if index_to_remove == last_idx - 1:
-            self.energy_excess[index_to_remove] = self.energy_excess[last_idx]
-            self.starts_excess[index_to_remove] = self.starts_excess[last_idx]
-            self.excess_ids[index_to_remove] = self.excess_ids[last_idx]
-
-        self.energy_excess[last_idx] = invalid_value
-        self.starts_excess[last_idx] = invalid_value
-        self.excess_ids[last_idx] = invalid_value
+        self.starts_excess[index_to_remove:self.size_excess - 1] = self.starts_excess[index_to_remove + 1:self.size_excess]
+        self.energy_excess[index_to_remove:self.size_excess - 1] = self.energy_excess[index_to_remove + 1:self.size_excess]
+        self.excess_ids[index_to_remove:self.size_excess - 1] = self.excess_ids[index_to_remove + 1:self.size_excess]
 
         self.size_excess -= 1
+
 
     def get_energy_excess_all(self):
         return self.energy_excess[:self.size_excess]

@@ -51,22 +51,38 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
     # Get the max height inbetween the two phases
     max_height = np.amax(max_height_array[current_phase_idx + 1 : next_phase_idx])
 
-    # Overflow content is Overflow Excess
-    overflow_content = current_phase.get_energy_excess(-1)
+    # Get start index of not covered excesses
+    n = phases[current_phase_idx].number_of_excess_not_covered
+    total = phases[current_phase_idx].size_excess
+    start_idx = total - n
 
-    # Max of the current start height and the max height of all skipped Phases
-    overflow_start = max (current_phase.get_starts_excess(-1), max_height)
+    # Iterates over all uncovered excesses
+    for idx in range(start_idx, total):
 
-    # Consider the height of the end of the last Excess in the next phase
-    blocking_excess_content = next_phase.get_energy_excess(-1)
-    blocking_excess_start = next_phase.get_starts_excess(-1)
+        # Get the excess content from the current uncovered excess
+        overflow_content = current_phase.get_energy_excess(idx)
 
-    excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
-    excess_content = overflow_content
-    excess_id = current_phase.get_excess_id(-1)
+        # Max of the current start height and the max height of all skipped Phases
+        overflow_start = max(current_phase.get_starts_excess(idx), max_height)
 
-    # Add Excess to next Phase
-    next_phase.append_excess(excess_start, excess_content, excess_id)
+        # Consider the height of the end of the last Excess in the next phase
+        blocking_excess_content = next_phase.get_energy_excess(-1)
+        blocking_excess_start = next_phase.get_starts_excess(-1)
+
+        excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
+        excess_content = overflow_content
+        excess_id = current_phase.get_excess_id(idx)
+
+        # Add Excess to next Phase
+        next_phase.append_excess(excess_start, excess_content, excess_id)
+
+        # Remove Excess from current Phase
+        current_phase.remove_excess(idx)
+
+    # Current phase is now balanced
+    state_mask[current_phase_idx] = 0
+    e_counter -= 1
+
 
     # Now 4 things can happen:
 
@@ -99,14 +115,6 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
 
         else:
             e_counter, d_counter = balance_phase(phases, next_phase_idx, state_mask, max_height_array, e_counter, d_counter)
-
-
-    # Remove Excess from current Phase
-    current_phase.remove_excess(-1)
-
-    # Current phase is now balanced
-    state_mask[current_phase_idx] = 0
-    e_counter -= 1
 
 
     return e_counter, d_counter
