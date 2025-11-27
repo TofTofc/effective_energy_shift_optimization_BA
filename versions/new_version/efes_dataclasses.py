@@ -10,6 +10,7 @@ spec = [
     ('capacity_deficit', int32),
     ('size_excess', int32),
     ('size_deficit', int32),
+    ('number_of_excess_not_covered' , int32),
 
     ('starts_excess', float64[:]),
     ('starts_deficit', float64[:]),
@@ -39,6 +40,31 @@ class Phase:
         self.energy_excess[0] = energy_excess
         self.energy_deficit[0] = energy_deficit
         self.excess_ids[0] = self.id
+
+        # Initial Balancing
+        if energy_excess > energy_deficit:
+
+            self.energy_excess[0] = energy_deficit
+
+            self.energy_excess[1] = energy_excess - energy_deficit
+            self.starts_excess[1] = energy_deficit
+            self.excess_ids[1] = self.id
+
+            self.size_excess = 2
+            self.number_of_excess_not_covered = 1
+
+        elif energy_deficit > energy_excess:
+
+            self.energy_deficit[0] = energy_excess
+
+            self.energy_deficit[1] = energy_deficit - energy_excess
+            self.starts_deficit[1] = energy_excess
+            self.size_deficit = 2
+
+            self.number_of_excess_not_covered = 0
+
+        else:
+            self.number_of_excess_not_covered = 0
 
     def append_excess(self, excess_start, excess_content, excess_id):
         if self.size_excess >= self.capacity_excess:
@@ -133,3 +159,44 @@ class Phase:
         if idx < 0 or idx >= self.size_deficit:
             raise IndexError("energy_deficit index out of range")
         return self.energy_deficit[idx]
+
+    def get_starts_deficit_all(self):
+        return self.starts_deficit[:self.size_deficit]
+
+    def get_starts_deficit(self, idx):
+
+        if idx < 0:
+            idx = self.size_deficit + idx
+
+        if idx < 0 or idx >= self.size_deficit:
+            raise IndexError("energy_excess index out of range")
+
+        return self.starts_deficit[idx]
+
+    def set_energy_excess(self, idx, value):
+        if idx < 0:
+            idx = self.size_excess + idx
+        if idx < 0 or idx >= self.size_excess:
+            raise IndexError("energy_excess index out of range")
+        self.energy_excess[idx] = value
+
+    def set_starts_excess(self, idx, value):
+        if idx < 0:
+            idx = self.size_excess + idx
+        if idx < 0 or idx >= self.size_excess:
+            raise IndexError("starts_excess index out of range")
+        self.starts_excess[idx] = value
+
+    def set_energy_deficit(self, idx, value):
+        if idx < 0:
+            idx = self.size_deficit + idx
+        if idx < 0 or idx >= self.size_deficit:
+            raise IndexError("energy_deficit index out of range")
+        self.energy_deficit[idx] = value
+
+    def set_starts_deficit(self, idx, value):
+        if idx < 0:
+            idx = self.size_deficit + idx
+        if idx < 0 or idx >= self.size_deficit:
+            raise IndexError("starts_deficit index out of range")
+        self.starts_deficit[idx] = value

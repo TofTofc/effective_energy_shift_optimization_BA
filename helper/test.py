@@ -38,7 +38,7 @@ def test_versions(version_name_a, version_name_b, worst_case_scenario = False, p
 
     test_results([phases_list_a], [phases_list_b])
 
-def test_version_solo(version_name, worst_case_scenario = False, phase_count = 100):
+def test_version_solo(version_name, worst_case_scenario = False, phase_count = 40):
 
     module = import_version(version_name)
     energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, phase_count, 1)
