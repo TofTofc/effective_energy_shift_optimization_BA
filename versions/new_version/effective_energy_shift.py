@@ -177,6 +177,14 @@ def process_phases_njit(phases):
 # Problem: Die Höhe dieses Paketes wäre dann wieder potentiell anderes als seine aktuelle Position
 # Idee: Speichere den Verlauf der Höhen des Paketes ab. Nehem Daraus die richtige Höhe
 
+# - TODO: THEORETISCH KANN DER ALGORITHMUS BEENDET WERDEN BEVOR JEDES EXCESS PACKET SICH BEWEGT HAT
+#   TODO: DAMIT BEWEGEN SICH DIESE NICHT ANGEFASSEN EXCESS PACKETE NIEMALS WEITER UND SIND AUF IHRER START POSITION
+#   TODO: OBWOHL SIE EIG WEITER SEIN SOLLTEN
+# Idee: Speichere Die Anzahl der Moves ab die das Packet mit dem längsten Weg gegangen ist und gehen den Weg dann für alle nicht bewegten Packete
+
+# Zentrales Problem: Die Move Anzahl eines Excess Packetes kann zu hoch oder zu niedrig sein
+# und damit das Packet zu weit oder zu kurz weitergereicht werden
+
 @njit
 def process_phases(excess_array, deficit_array, start_times):
 
