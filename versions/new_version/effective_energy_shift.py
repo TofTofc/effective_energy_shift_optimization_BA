@@ -9,8 +9,8 @@ def get_next_excess_index(phases, idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
     """
-    i = idx + 1
     n = len(phases)
+    i = (idx + 1) % n
 
     while True:
         if state_mask[i] == 1:
@@ -24,8 +24,8 @@ def get_next_non_balanced_phase(phases, idx, state_mask):
     """
      Returns the idx of the next phase wich is not balanced
     """
-    i = idx + 1
     n = len(phases)
+    i = (idx + 1) % n
 
     while True:
         if state_mask[i] != 0:
@@ -347,11 +347,18 @@ def process_phases_njit(phases):
 
 # Zentrales Problem: Die Move Anzahl eines Excess Packetes kann zu hoch oder zu niedrig sein
 # und damit das Packet zu weit oder zu kurz weitergereicht werden
+# Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen?
 
 # TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
 
 # TODO: LAUFZEIT WORST CASE IST IMMERNOCH n^2 IDEE: STARTE IN DER MITTE UND KREIERE DAMIT BALANCED PHASES DIE DANN GESKIPPT WERDEN KÖNNEN
 # Im allgemeinen Fall schwieriger da man dann nicht einfach in der Mitte starten kann sondern erst seine Mitte suchen muss und diese evt zu klein ist
+# Problem: Wenn wir in der Mitte starten fehlt für den Excess hinter uns wieder die Info auf welche Höhe er muss
+# Hinweis: Wir müssen dann in ner mitte starten und danch hinten zum anfang durch iterieren
+# Frage: Ist das überhaupt sinnvoll? Im average case wird das quasi nie vorkommen das eine große zahl von excess überschüsssen
+#        auf eine große anzahl von deficit überschüssen trifft. Evt daher weglassen?
+
+# TODO: Problem: Speicherbedarf ist insane hoch und das resizing evt nicht ideal. Teilweise wird append_excess mit capacity_excess = 80k aufgerufen
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):

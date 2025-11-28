@@ -14,16 +14,16 @@ if __name__ == '__main__':
 
 
 
-    main()
+    #main()
 
     #compare_simulation_results("new_version", "append_improved_init_capacity_10_numba", cfg)
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")
+    #log_log_linear_regression(cfg, "new_version")
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
-    #test_version_solo("new_version", True, 10000)
+    test_version_solo("new_version", True, 200000)
