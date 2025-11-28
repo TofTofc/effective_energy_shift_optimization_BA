@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.new_version import efes_dataclasses
+from versions.new_version_experimental import efes_dataclasses
 
 @njit
 def get_next_excess_index(phases, idx, state_mask):
