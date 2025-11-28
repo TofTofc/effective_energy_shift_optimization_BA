@@ -18,8 +18,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
     file_path = output_dir / case_file
 
     attr_names = [
-        "starts_excess", "starts_deficit", "energy_excess", "energy_deficit",
-        "excess_balanced", "deficit_balanced", "excess_ids"
+        "starts_excess", "starts_deficit", "energy_excess", "energy_deficit"
     ]
     dt_float_vlen = h5py.vlen_dtype(np.dtype('float64'))
     dt_int_vlen = h5py.vlen_dtype(np.dtype('int64'))
@@ -82,8 +81,7 @@ def compare_simulation_results(version_name_a,version_name_b, cfg) -> bool:
     with h5py.File(path_a, 'r') as f_a, h5py.File(path_b, 'r') as f_b:
 
         datasets_to_compare = [
-            "starts_excess", "starts_deficit", "energy_excess", "energy_deficit",
-            "excess_balanced", "deficit_balanced", "excess_ids"
+            "starts_excess", "starts_deficit", "energy_excess", "energy_deficit"
         ]
 
         groups_a = set(f_a.keys())

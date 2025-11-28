@@ -110,111 +110,131 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
 @njit
 def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter):
     """
-    Balances the last Excess and Deficit of a Phase with each other.
+    Balances newly moved excess packets for the phase
+
+    Behaviour:
+    0. If there is no uncovered deficit block, nothing to do for balancing (number_of_excess_not_covered was already changed properly)
+
+    1. Start at the first not covered excess and iterate over all of them
+    2. Raise the start of the last deficit packet (uncovered one) to the start of the current excess
+    3. For each current excess vs the uncovered deficit one of 3 happens:
+        a: excess < deficit:
+            - Split the deficit: the lower part is matched to the excess (becomes covered)
+              the upper part remains as a smaller deficit starting at the end of the matched pair
+            - number_of_excess_not_covered --
+            - Move to the next excess and continue
+       b: excess > deficit:
+            - Split the excess: the lower part covers the deficit, the remaining excess stays
+              (with its start adjusted to the end of the covered portion)
+            - Update: deficit counter --, excess counter++, state_mask[i] = 1
+            - return
+       c: excess == deficit:
+            - If last uncovered excess: state_mask[i] = 0, deficit counter --
+              set max_height_array[i] to the end height of this block and return
+              number_of_excess_not_covered --
+            - If not last excess: state_mask[i] = 1, deficit counter--, excess counter++
+              number_of_excess_not_covered -- and return
+
+    4. Return updated (e_counter, d_counter)
     """
 
-    # TODO: UMSCHREIBEN SODASS ICH NICHT DIE IF ELIF UND ELSE GANZ OBEN HABE SONDERN WEITER UNTEN IM ABLAUF
+    phase = phases[i]
 
-    n = phases[i].number_of_excess_not_covered
-    all_excess = phases[i].get_energy_excess_all()
-
-    total_unfilled_excess = np.sum(all_excess[len(all_excess) - n:]) if n > 0 else 0.0
-
-    excess = phases[i].get_energy_excess(-1)
-    deficit = phases[i].get_energy_deficit(-1)
-
-    total = phases[i].size_excess
-
-
-    if total_unfilled_excess > deficit:
-
-        if state_mask[i] != 1:
-            if state_mask[i] == -1:
-                d_counter -= 1
-            state_mask[i] = 1
-            e_counter += 1
-
-        # Balancing:
-        """
-        # Create new Excess paket
-        excess_start = deficit
-        excess_content = excess - deficit
-        excess_id = phases[i].id
-
-        phases[i].append_excess(excess_start, excess_content, excess_id)
-
-        # change energy Excess of old Excess entry to match deficit
-        phases[i].energy_excess[-2] = deficit
-        """
-
-        # TODO
-
-    elif total_unfilled_excess < deficit:
-
-        if state_mask[i] != -1:
-            if state_mask[i] == 1:
-                e_counter -= 1
-            state_mask[i] = -1
-            d_counter += 1
-
-        # Balancing:
-        """
-        # Create new Deficit paket
-        deficit_start = excess
-        deficit_content = deficit - excess
-
-        phases[i].append_deficit(deficit_start, deficit_content)
-
-        # change energy Deficit of old Deficit entry to match excess
-        phases[i].energy_deficit[-2] = excess
-         """
-
-        start_idx = total - n
-        remaining_deficit = deficit
-
-        # Iterates over all unfitted excesses
-        for idx in range(start_idx, total):
-
-            current_excess = phases[i].get_energy_excess[idx]
-            current_excess_start = phases[i].get_starts_excess(idx)
-
-            # Sets the starting height of the last deficit to the height of the current unfitted excess
-            phases[i].set_starts_deficit(-1, phases[i].get_starts_excess(idx))
-
-            # Sets the Deficit of the last deficit to the current_excess
-            phases[i].set_energy_deficit(-1, current_excess)
-
-            energy_remaining = remaining_deficit - current_excess
-
-            if idx == total - 1:
-                new_start = current_excess + current_excess_start
-
-            else:
-                # gets changed in next iteration to the correct value
-                new_start = 0
-
-            # Creates new unfilled deficit
-            phases[i].append_deficit(new_start, energy_remaining)
-
-            remaining_deficit -= current_excess
-            phases[i].number_of_excess_not_covered -= 1
-
+    # 0. no uncovered deficit block -> nothing to do
+    if state_mask[i] == 1:
+        return e_counter, d_counter
 
     else:
+        #  1. Start at the first not covered excess and iterate over all of them
+        n = phase.number_of_excess_not_covered
+        total = phase.size_excess
+        start_idx = total - n
 
-        #TODO: Passe die Höhe an. Die Deficit Blöcke müssen auf der selben höhe sein wie die Excess Blöcke
+        for idx in range(start_idx, total):
 
-        if state_mask[i] == -1:
-            d_counter -= 1
-        if state_mask[i] == 1:
-            e_counter -= 1
+            # 2. Raise the start of the last deficit packet (uncovered one) to the start of the current excess
+            phase.set_starts_deficit(-1, phase.get_starts_excess(idx))
 
-        state_mask[i] = 0
-        max_height_array[i] = excess + phases[i].get_starts_excess(-1)
+            # 3. For each current excess vs the uncovered deficit one of 3 happens:
 
-        phases[i].number_of_excess_not_covered = 0
+            # a: excess < deficit:
+            if phase.get_energy_excess(idx) < phase.get_energy_deficit(-1):
 
-    return e_counter, d_counter
+                # Split the deficit
+
+                # New start is excess height + start
+                new_start = phase.get_starts_excess(idx) + phase.get_energy_excess(idx)
+
+                # Remaining deficit is current deficit - energy excess
+                energy_remaining = phase.get_energy_deficit(-1) - phase.get_energy_excess(idx)
+
+                phase.append_deficit(new_start, energy_remaining)
+
+                # Change Deficit of lower packet
+                phase.set_energy_deficit(-2, phase.get_energy_excess(idx))
+
+                # number_of_excess_not_covered--
+                phase.number_of_excess_not_covered -= 1
+
+                # Move to the next excess and continue
+                continue
+
+            # b: excess > deficit:
+            elif phase.get_energy_excess(idx) > phase.get_energy_deficit(-1):
+
+                # Split the excess
+
+                # New start is deficit height + start
+                new_start = phase.get_starts_deficit(-1) + phase.get_energy_deficit(-1)
+
+                # Remaining excess is current excess - energy deficit
+                energy_remaining = phase.get_energy_excess(idx) - phase.get_energy_deficit(-1)
+
+                phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
+
+                # Change Excess of lower packet
+                phase.set_energy_excess(-2, phase.get_energy_deficit(-1))
+
+                # Update: deficit counter --, excess counter++, state_mask[i] = 1
+                d_counter -= 1
+                e_counter += 1
+                state_mask[i] = 1
+
+                # return
+                return e_counter, d_counter
+
+            # c: excess == deficit:
+            else:
+
+                # If last (uncovered) excess
+                if idx == total-1:
+
+                    #state_mask[i] = 0, deficit counter --
+                    state_mask[i] = 0
+                    d_counter -= 1
+
+                    # set max_height_array[i] to the end height of this block
+                    max_height_array[i] = phase.get_energy_excess(idx) + phase.get_starts_excess(idx)
+
+                    # number_of_excess_not_covered --
+                    phase.number_of_excess_not_covered -= 1
+
+                    return e_counter, d_counter
+
+                # If not last (uncovered) excess
+                else:
+
+                    # state_mask[i] = 1, deficit counter--, excess counter++
+                    state_mask[i] = 1
+                    d_counter -= 1
+                    e_counter += 1
+
+                    # number_of_excess_not_covered --
+                    phase.number_of_excess_not_covered -= 1
+
+                    return e_counter, d_counter
+
+        return e_counter, d_counter
 
 @njit
 def init(phases, state_mask, max_height_array):
@@ -285,8 +305,6 @@ def process_phases_njit(phases):
     idx = get_next_excess_index(phases, 0, state_mask)
     start_idx = idx
 
-    #TODO: bis hier getestet
-
     while True:
 
         # Stop when either no more Excesses to move or no more Deficits to fill
@@ -314,6 +332,8 @@ def process_phases_njit(phases):
         # Index goes to the next Excess
         idx = get_next_excess_index(phases, idx, state_mask)
 
+    #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
+
     return phases
 
 # TODO: PROBLEM LISTE
@@ -331,6 +351,8 @@ def process_phases_njit(phases):
 # Zentrales Problem: Die Move Anzahl eines Excess Packetes kann zu hoch oder zu niedrig sein
 # und damit das Packet zu weit oder zu kurz weitergereicht werden
 
+# TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
+
 @njit
 def process_phases(excess_array, deficit_array, start_times):
 
@@ -340,7 +362,9 @@ def process_phases(excess_array, deficit_array, start_times):
         phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i])
         phases_list.append(phase)
 
-    return process_phases_njit(phases_list)
+    result = process_phases_njit(phases_list)
+
+    return result
 
 
 

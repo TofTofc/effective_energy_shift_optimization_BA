@@ -1,5 +1,5 @@
 import numpy as np
-from numba import int32, float64, boolean
+from numba import int32, float64, boolean, uint32, uint8, uint16, int64
 
 from numba.experimental import jitclass
 
@@ -11,10 +11,10 @@ spec = [
     ('size_excess', int32),
     ('size_deficit', int32),
 
-    ('starts_excess', float64[:]),
-    ('starts_deficit', float64[:]),
-    ('energy_excess', float64[:]),
-    ('energy_deficit', float64[:]),
+    ('starts_excess', int64[:]),
+    ('starts_deficit', int64[:]),
+    ('energy_excess', int32[:]),
+    ('energy_deficit', int32[:]),
     ('excess_balanced', boolean[:]),
     ('deficit_balanced', boolean[:]),
     ('excess_ids', int32[:]),
@@ -22,7 +22,10 @@ spec = [
 @jitclass(spec)
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
-    def __init__(self, energy_excess: float, energy_deficit: float, id: int,  initial_capacity):
+    def __init__(self, energy_excess: float, energy_deficit: float, id: int):
+
+        initial_capacity = 10
+
         self.id = id
 
         self.capacity_excess = initial_capacity
@@ -30,16 +33,16 @@ class Phase:
         self.size_excess = 1
         self.size_deficit = 1
 
-        self.starts_excess = np.empty(initial_capacity, dtype=np.float64)
-        self.starts_deficit = np.empty(initial_capacity, dtype=np.float64)
-        self.energy_excess = np.empty(initial_capacity, dtype=np.float64)
-        self.energy_deficit = np.empty(initial_capacity, dtype=np.float64)
+        self.starts_excess = np.empty(initial_capacity, dtype=np.int64)
+        self.starts_deficit = np.empty(initial_capacity, dtype=np.int64)
+        self.energy_excess = np.empty(initial_capacity, dtype=np.int32)
+        self.energy_deficit = np.empty(initial_capacity, dtype=np.int32)
         self.excess_balanced = np.empty(initial_capacity, dtype=np.bool_)
         self.deficit_balanced = np.empty(initial_capacity, dtype=np.bool_)
         self.excess_ids = np.empty(initial_capacity, dtype=np.int32)
 
-        self.starts_excess[0] = 0.
-        self.starts_deficit[0] = 0.
+        self.starts_excess[0] = 0
+        self.starts_deficit[0] = 0
         self.energy_excess[0] = energy_excess
         self.energy_deficit[0] = energy_deficit
         self.excess_balanced[0] = False

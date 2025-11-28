@@ -10,8 +10,6 @@ def extract_phase_arrays(phase):
         "capacity_excess", "capacity_deficit", "size_excess", "size_deficit",
         "starts_excess", "starts_deficit",
         "energy_excess", "energy_deficit",
-        "excess_balanced", "deficit_balanced",
-        "excess_ids"
     ]
 
     all_exist = all(hasattr(phase, attr) for attr in expected_attrs)
@@ -24,9 +22,6 @@ def extract_phase_arrays(phase):
         starts_deficit = getattr(phase, "starts_deficit")[:size_deficit]
         energy_excess_arr = getattr(phase, "energy_excess")[:size_excess]
         energy_deficit_arr = getattr(phase, "energy_deficit")[:size_deficit]
-        excess_balanced = getattr(phase, "excess_balanced")[:size_excess]
-        deficit_balanced = getattr(phase, "deficit_balanced")[:size_deficit]
-        excess_ids = getattr(phase, "excess_ids")[:size_excess]
 
     else:
 
@@ -34,18 +29,12 @@ def extract_phase_arrays(phase):
         starts_deficit = getattr(phase, "starts_deficit")
         energy_excess_arr = getattr(phase, "energy_excess")
         energy_deficit_arr = getattr(phase, "energy_deficit")
-        excess_balanced = getattr(phase, "excess_balanced")
-        deficit_balanced = getattr(phase, "deficit_balanced")
-        excess_ids = getattr(phase, "excess_ids")
 
     return (
         starts_excess,
         starts_deficit,
         energy_excess_arr,
         energy_deficit_arr,
-        excess_balanced,
-        deficit_balanced,
-        excess_ids
     )
 
 
