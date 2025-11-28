@@ -1,9 +1,6 @@
-import sys
-
 import numpy as np
 from numba import njit
 from numba.typed import List
-from scipy.stats import energy_distance
 
 from versions.new_version import efes_dataclasses
 
@@ -323,10 +320,10 @@ def process_phases_njit(phases):
         if e_counter == 0 or d_counter == 0:
             break
 
-        #2. Excess = Deficit
+        #2. Excess = Deficit (cant happen)
         # Nothing to move here
 
-        #3. Excess < Deficit:
+        #3. Excess < Deficit (cant happen)
         # Nothing to move here
 
         # Index goes to the next Excess
