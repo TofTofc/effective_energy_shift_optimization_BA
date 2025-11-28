@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     #compare_simulation_results("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba", cfg)
 
-    plot_from_json(cfg)
+    #plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "append_improved_init_capacity_10_numba")
 
@@ -26,4 +26,4 @@ if __name__ == '__main__':
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
-    #test_version_solo("new_version")
+    test_version_solo("new_version")

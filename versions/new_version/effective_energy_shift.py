@@ -37,19 +37,29 @@ def get_next_non_balanced_phase(phases, idx, state_mask):
 
 @njit
 def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter):
+
     """
-    Move excess from current phase to next phase
-    The starting position of the new Excess in next phase is at least max height
-    Max height is extracted from max height array between current phase idx and next phase idx
-    The current phase is now perfectly balanced ( e_counter - 1 and state_mask entry changed to 0)
-    Next Phase might become balanced if it was a Deficit Overflow which was fully filled
+    Moves all uncovered excess packets from current -> next phase
+
+    1. Compute max height of skipped phases (0 if no phases skipped)
+    2. Take all uncovered excess packets from current phase
+    3. For each of those packets: new start = max(orig_start, max_skipped_height, end_of_last_in_next)
+    4. Insert packet into next phase via append_excess
+    5. Update uncovered excess counters in both phases
+    6. Remove transferred packets from current phase
+    7. Mark current phase as balanced: state_mask=0, e_counter--, update max_height
+    8. Handle new packets in next phase by calling balance_phase
+    Returns updated (e_counter, d_counter).
     """
 
     current_phase = phases[current_phase_idx]
     next_phase = phases[next_phase_idx]
 
     # Get the max height inbetween the two phases
-    max_height = np.amax(max_height_array[current_phase_idx + 1 : next_phase_idx])
+    if next_phase_idx > current_phase_idx + 1:
+        max_height = np.amax(max_height_array[current_phase_idx + 1: next_phase_idx])
+    else:
+        max_height = 0
 
     # Get start index of not covered excesses
     n = phases[current_phase_idx].number_of_excess_not_covered
@@ -66,15 +76,18 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
         overflow_start = max(current_phase.get_starts_excess(idx), max_height)
 
         # Consider the height of the end of the last Excess in the next phase
-        blocking_excess_content = next_phase.get_energy_excess(-1)
-        blocking_excess_start = next_phase.get_starts_excess(-1)
+        last_excess_end_height = next_phase.get_starts_excess(-1)+ next_phase.get_energy_excess(-1)
 
-        excess_start = max(overflow_start, blocking_excess_start + blocking_excess_content)
-        excess_content = overflow_content
+        excess_start = max(overflow_start, last_excess_end_height)
         excess_id = current_phase.get_excess_id(idx)
 
         # Add Excess to next Phase
-        next_phase.append_excess(excess_start, excess_content, excess_id)
+        next_phase.append_excess(excess_start, overflow_content, excess_id)
+
+        # Icremenmt the Number of not covered excess packets in the next phase
+        next_phase.number_of_excess_not_covered += 1
+
+        current_phase.number_of_excess_not_covered -= 1
 
     # separate removal of excesses in current phase
     for idx in range(start_idx, total):
@@ -83,43 +96,13 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
 
     # Current phase is now balanced
     state_mask[current_phase_idx] = 0
+
+    #Change the max_height_array entry
+    max_height_array[current_phase_idx] = phases[current_phase_idx].get_starts_excess(-1) + phases[current_phase_idx].get_energy_excess(-1)
+
     e_counter -= 1
 
-
-    #TODO: CHANGE BELOW
-
-    # Now 4 things can happen:
-
-    # 1. Our Excess Overflow gets added to an Excess Overflow Packet
-    # -> save info about how many Excess Packet have to be moved (since you cant fuse them
-    # Due to Possible gaps)
-
-    if state_mask[next_phase_idx] == 1:
-
-        next_phase.number_of_excess_not_covered += 1
-
-    else:
-        # 2. Our Excess Overflow gets added to an Deficit Overflow Packet and its not enough to cover it
-        # -> Create new Deficit Entry that covers the newly added Excess
-
-        if  overflow_content < next_phase.get_energy_deficit(-1):
-
-            e_counter, d_counter = balance_phase(phases, next_phase_idx, state_mask, max_height_array, e_counter, d_counter)
-
-        # 3. As 2 but it perfectly covers the Deficit
-        # -> Next phase is now an Balanced Phase
-
-        elif  overflow_content == next_phase.get_energy_deficit(-1):
-
-            state_mask[next_phase_idx] = 0
-
-        # 4. As 2 but we have more Excess than Deficit in next phase
-        # -> next phase is now an Excess Phase
-        # + Split the incoming Excess In 2. One covers the deficit in next phase the other one is the unmatched Excess
-
-        else:
-            e_counter, d_counter = balance_phase(phases, next_phase_idx, state_mask, max_height_array, e_counter, d_counter)
-
+    e_counter, d_counter = balance_phase(phases, next_phase_idx, state_mask, max_height_array, e_counter, d_counter)
 
     return e_counter, d_counter
 
@@ -367,10 +350,15 @@ def process_phases(excess_array, deficit_array, start_times):
 def print_helper(phases, e_counter, d_counter, max_height_array, state_mask):
 
     for phase in phases:
+        print("Energy Excess: ")
         print(phase.get_energy_excess_all())
+        print("Energy Excess Starts: ")
         print(phase.get_starts_excess_all())
+        print("Energy Deficit: ")
         print(phase.get_energy_deficit_all())
+        print("Energy Deficit Starts: ")
         print(phase.get_starts_deficit_all())
+        print("Number of Excess Not Covered: ")
         print(phase.number_of_excess_not_covered)
         print("_____________________")
     print("_____________________")
