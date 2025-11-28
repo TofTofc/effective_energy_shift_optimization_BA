@@ -310,8 +310,6 @@ def process_phases_njit(phases):
 
         # For each Phase there are 3 possibilities
 
-        tmp += 1
-
         #1. Excess > Deficit
         next_phase_idx = get_next_non_balanced_phase(phases, idx, state_mask)
 

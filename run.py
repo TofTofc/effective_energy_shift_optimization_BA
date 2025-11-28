@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
 
 
-    #main()
+    main()
 
     #compare_simulation_results("new_version", "append_improved_init_capacity_10_numba", cfg)
 
@@ -26,4 +26,4 @@ if __name__ == '__main__':
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
-    test_version_solo("new_version", True, 10000)
+    #test_version_solo("new_version", True, 10000)
