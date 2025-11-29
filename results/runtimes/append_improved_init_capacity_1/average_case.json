@@ -1,9 +1,9 @@
 {
   "version": "append_improved_init_capacity_1",
   "worst_case": false,
-  "number_of_data_points": 100,
+  "number_of_data_points": 50,
   "start_phase_count": 1000,
-  "end_phase_count": 500000,
+  "end_phase_count": 200000,
   "repetition_count": 10,
   "master_seed": 125,
   "results": [
@@ -12,399 +12,199 @@
       "runtime": -1
     },
     {
-      "phase_count": 1064,
+      "phase_count": 1114,
       "runtime": -1
     },
     {
-      "phase_count": 1133,
+      "phase_count": 1241,
       "runtime": -1
     },
     {
-      "phase_count": 1207,
+      "phase_count": 1383,
       "runtime": -1
     },
     {
-      "phase_count": 1285,
+      "phase_count": 1541,
       "runtime": -1
     },
     {
-      "phase_count": 1368,
+      "phase_count": 1717,
       "runtime": -1
     },
     {
-      "phase_count": 1457,
+      "phase_count": 1913,
       "runtime": -1
     },
     {
-      "phase_count": 1551,
+      "phase_count": 2131,
       "runtime": -1
     },
     {
-      "phase_count": 1652,
+      "phase_count": 2375,
       "runtime": -1
     },
     {
-      "phase_count": 1759,
+      "phase_count": 2646,
       "runtime": -1
     },
     {
-      "phase_count": 1873,
+      "phase_count": 2948,
       "runtime": -1
     },
     {
-      "phase_count": 1994,
+      "phase_count": 3285,
       "runtime": -1
     },
     {
-      "phase_count": 2123,
+      "phase_count": 3660,
       "runtime": -1
     },
     {
-      "phase_count": 2261,
+      "phase_count": 4078,
       "runtime": -1
     },
     {
-      "phase_count": 2408,
+      "phase_count": 4543,
       "runtime": -1
     },
     {
-      "phase_count": 2564,
+      "phase_count": 5062,
       "runtime": -1
     },
     {
-      "phase_count": 2730,
+      "phase_count": 5641,
       "runtime": -1
     },
     {
-      "phase_count": 2907,
+      "phase_count": 6285,
       "runtime": -1
     },
     {
-      "phase_count": 3095,
+      "phase_count": 7002,
       "runtime": -1
     },
     {
-      "phase_count": 3295,
+      "phase_count": 7802,
       "runtime": -1
     },
     {
-      "phase_count": 3509,
+      "phase_count": 8693,
       "runtime": -1
     },
     {
-      "phase_count": 3736,
+      "phase_count": 9686,
       "runtime": -1
     },
     {
-      "phase_count": 3978,
+      "phase_count": 10792,
       "runtime": -1
     },
     {
-      "phase_count": 4236,
+      "phase_count": 12024,
       "runtime": -1
     },
     {
-      "phase_count": 4511,
+      "phase_count": 13397,
       "runtime": -1
     },
     {
-      "phase_count": 4803,
+      "phase_count": 14927,
       "runtime": -1
     },
     {
-      "phase_count": 5114,
+      "phase_count": 16632,
       "runtime": -1
     },
     {
-      "phase_count": 5446,
+      "phase_count": 18531,
       "runtime": -1
     },
     {
-      "phase_count": 5798,
+      "phase_count": 20647,
       "runtime": -1
     },
     {
-      "phase_count": 6174,
+      "phase_count": 23005,
       "runtime": -1
     },
     {
-      "phase_count": 6574,
+      "phase_count": 25632,
       "runtime": -1
     },
     {
-      "phase_count": 7000,
+      "phase_count": 28559,
       "runtime": -1
     },
     {
-      "phase_count": 7454,
+      "phase_count": 31820,
       "runtime": -1
     },
     {
-      "phase_count": 7937,
+      "phase_count": 35454,
       "runtime": -1
     },
     {
-      "phase_count": 8451,
+      "phase_count": 39503,
       "runtime": -1
     },
     {
-      "phase_count": 8998,
+      "phase_count": 44014,
       "runtime": -1
     },
     {
-      "phase_count": 9581,
+      "phase_count": 49040,
       "runtime": -1
     },
     {
-      "phase_count": 10202,
+      "phase_count": 54640,
       "runtime": -1
     },
     {
-      "phase_count": 10863,
+      "phase_count": 60879,
       "runtime": -1
     },
     {
-      "phase_count": 11567,
+      "phase_count": 67831,
       "runtime": -1
     },
     {
-      "phase_count": 12316,
+      "phase_count": 75577,
       "runtime": -1
     },
     {
-      "phase_count": 13114,
+      "phase_count": 84207,
       "runtime": -1
     },
     {
-      "phase_count": 13964,
+      "phase_count": 93823,
       "runtime": -1
     },
     {
-      "phase_count": 14868,
+      "phase_count": 104537,
       "runtime": -1
     },
     {
-      "phase_count": 15832,
+      "phase_count": 116474,
       "runtime": -1
     },
     {
-      "phase_count": 16857,
+      "phase_count": 129774,
       "runtime": -1
     },
     {
-      "phase_count": 17950,
+      "phase_count": 144594,
       "runtime": -1
     },
     {
-      "phase_count": 19113,
+      "phase_count": 161105,
       "runtime": -1
     },
     {
-      "phase_count": 20351,
+      "phase_count": 179502,
       "runtime": -1
     },
     {
-      "phase_count": 21669,
-      "runtime": -1
-    },
-    {
-      "phase_count": 23073,
-      "runtime": -1
-    },
-    {
-      "phase_count": 24568,
-      "runtime": -1
-    },
-    {
-      "phase_count": 26160,
-      "runtime": -1
-    },
-    {
-      "phase_count": 27854,
-      "runtime": -1
-    },
-    {
-      "phase_count": 29659,
-      "runtime": -1
-    },
-    {
-      "phase_count": 31581,
-      "runtime": -1
-    },
-    {
-      "phase_count": 33627,
-      "runtime": -1
-    },
-    {
-      "phase_count": 35805,
-      "runtime": -1
-    },
-    {
-      "phase_count": 38125,
-      "runtime": -1
-    },
-    {
-      "phase_count": 40595,
-      "runtime": -1
-    },
-    {
-      "phase_count": 43225,
-      "runtime": -1
-    },
-    {
-      "phase_count": 46025,
-      "runtime": -1
-    },
-    {
-      "phase_count": 49007,
-      "runtime": -1
-    },
-    {
-      "phase_count": 52182,
-      "runtime": -1
-    },
-    {
-      "phase_count": 55563,
-      "runtime": -1
-    },
-    {
-      "phase_count": 59163,
-      "runtime": -1
-    },
-    {
-      "phase_count": 62996,
-      "runtime": -1
-    },
-    {
-      "phase_count": 67077,
-      "runtime": -1
-    },
-    {
-      "phase_count": 71422,
-      "runtime": -1
-    },
-    {
-      "phase_count": 76050,
-      "runtime": -1
-    },
-    {
-      "phase_count": 80977,
-      "runtime": -1
-    },
-    {
-      "phase_count": 86223,
-      "runtime": -1
-    },
-    {
-      "phase_count": 91809,
-      "runtime": -1
-    },
-    {
-      "phase_count": 97757,
-      "runtime": -1
-    },
-    {
-      "phase_count": 104090,
-      "runtime": -1
-    },
-    {
-      "phase_count": 110834,
-      "runtime": -1
-    },
-    {
-      "phase_count": 118014,
-      "runtime": -1
-    },
-    {
-      "phase_count": 125660,
-      "runtime": -1
-    },
-    {
-      "phase_count": 133801,
-      "runtime": -1
-    },
-    {
-      "phase_count": 142470,
-      "runtime": -1
-    },
-    {
-      "phase_count": 151700,
-      "runtime": -1
-    },
-    {
-      "phase_count": 161528,
-      "runtime": -1
-    },
-    {
-      "phase_count": 171992,
-      "runtime": -1
-    },
-    {
-      "phase_count": 183135,
-      "runtime": -1
-    },
-    {
-      "phase_count": 195000,
-      "runtime": -1
-    },
-    {
-      "phase_count": 207633,
-      "runtime": -1
-    },
-    {
-      "phase_count": 221085,
-      "runtime": -1
-    },
-    {
-      "phase_count": 235408,
-      "runtime": -1
-    },
-    {
-      "phase_count": 250659,
-      "runtime": -1
-    },
-    {
-      "phase_count": 266898,
-      "runtime": -1
-    },
-    {
-      "phase_count": 284190,
-      "runtime": -1
-    },
-    {
-      "phase_count": 302601,
-      "runtime": -1
-    },
-    {
-      "phase_count": 322206,
-      "runtime": -1
-    },
-    {
-      "phase_count": 343080,
-      "runtime": -1
-    },
-    {
-      "phase_count": 365307,
-      "runtime": -1
-    },
-    {
-      "phase_count": 388974,
-      "runtime": -1
-    },
-    {
-      "phase_count": 414174,
-      "runtime": -1
-    },
-    {
-      "phase_count": 441006,
-      "runtime": -1
-    },
-    {
-      "phase_count": 469577,
-      "runtime": -1
-    },
-    {
-      "phase_count": 499999,
+      "phase_count": 200000,
       "runtime": -1
     }
   ]

@@ -20,10 +20,10 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version")
+    log_log_linear_regression(cfg, "new_version")
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
-    test_version_solo("new_version", True, 200000)
+    #test_version_solo("new_version", True, 200000)

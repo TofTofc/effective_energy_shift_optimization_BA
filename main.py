@@ -118,6 +118,9 @@ def main():
 
         if not pending_phase_counts:
             print("Job done. Everything was measured")
+            print("saving data")
+            save_simulation_results(all_results, phase_counts_done, cfg)
+            print("saved data")
             break
 
         module = import_version(version_name)
