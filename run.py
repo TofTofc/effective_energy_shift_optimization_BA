@@ -3,6 +3,7 @@ from helper.json_methodes import change_cfg, load_config, init_results_folders
 from helper.plot_methodes import plot_from_json
 from helper.runtime_fitting_methodes import log_log_linear_regression
 from helper.test import submethod_analysis, test_versions, test_version_solo
+from helper.visualizer import visualize
 from main import main
 
 if __name__ == '__main__':
@@ -20,10 +21,12 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    log_log_linear_regression(cfg, "new_version_fusion")
+    #log_log_linear_regression(cfg, "new_version_fusion")
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
     #test_version_solo("new_version", True, 200000)
+
+    visualize(cfg, phase=1000, figsize=(14, 7))
