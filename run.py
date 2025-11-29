@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
     #test_version_solo("new_version", True, 200000)
 
-    visualize(cfg, phase=1000, figsize=(14, 7))
+    #visualize(cfg, phase=1000)

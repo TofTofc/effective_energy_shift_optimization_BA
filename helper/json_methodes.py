@@ -47,12 +47,16 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
 
     runtimes_folder = parent / "runtimes"
     visuals_folder = parent / "visuals"
+    visuals_output_folder = parent / "visuals_output"
     average_folder = visuals_folder / "average_case"
     worst_folder = visuals_folder / "worst_case"
+    average_output_folder = visuals_output_folder / "average_case"
+    worst_output_folder = visuals_output_folder / "worst_case"
     copies_folder = visuals_folder / "copies"
     output_folder = parent / "output"
 
-    for folder in (runtimes_folder, visuals_folder, average_folder, worst_folder, copies_folder, output_folder):
+    for folder in (runtimes_folder, visuals_folder, average_folder, worst_folder,
+                   average_output_folder, worst_output_folder, copies_folder, output_folder):
         folder.mkdir(parents=True, exist_ok=True)
 
     versions = cfg.get("versions", [])
@@ -68,6 +72,7 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
         end_phase_count,
         number_of_data_points
     )
+
     for version in versions:
         runtimes_subpath = runtimes_folder / version
         runtimes_subpath.mkdir(parents=True, exist_ok=True)
@@ -94,6 +99,9 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
                 }
                 with json_path.open("w", encoding="utf-8") as f:
                     json.dump(meta, f, indent=2, ensure_ascii=False)
+
+    average_output_folder.mkdir(parents=True, exist_ok=True)
+    worst_output_folder.mkdir(parents=True, exist_ok=True)
 
 def get_run_info_from_json(cfg: dict):
 

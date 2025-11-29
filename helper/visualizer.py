@@ -47,7 +47,6 @@ def plot_columns(
     for i in range(n):
         x_center = indices[i]
 
-        # Exzess Balken
         starts_e = np.asarray(starts_excess_list[i])
         values_e = np.asarray(excess_list[i])
         for b_start, b_height in zip(starts_e, values_e):
@@ -63,7 +62,6 @@ def plot_columns(
                 linewidth=edge_width
             )
 
-        # Defizit Balken
         starts_d = np.asarray(starts_deficit_list[i])
         values_d = np.asarray(deficit_list[i])
         for b_start, b_height in zip(starts_d, values_d):
