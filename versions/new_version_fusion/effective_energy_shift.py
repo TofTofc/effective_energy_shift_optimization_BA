@@ -363,11 +363,6 @@ def process_phases_njit(phases):
 
 # TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
 
-
-# TODO: Problem: Speicherbedarf ist insane hoch und das resizing evt nicht ideal. Teilweise wird append_excess mit capacity_excess = 80k aufgerufen
-# Lösung: Intelligentes Speichermanagement. Man könnte bei allen Balanced Phasen die im Hintergrund liegenden Arrays wieder kleiner machen
-# (evt gefixt durch fusion)
-
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit

@@ -14,7 +14,6 @@ def save_simulation_results(all_data, phase_counts, cfg):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     case_file = "worst_case.h5" if cfg.get("worst_case_scenario", False) else "average_case.h5"
-
     file_path = output_dir / case_file
 
     attr_names = [
@@ -23,19 +22,23 @@ def save_simulation_results(all_data, phase_counts, cfg):
     dt_float_vlen = h5py.vlen_dtype(np.dtype('float64'))
     dt_int_vlen = h5py.vlen_dtype(np.dtype('int64'))
 
-    with h5py.File(file_path, 'a') as f:
+    for cfg_idx, repetitions_list in enumerate(all_data):
 
-        f.attrs['version_name'] = version_name
-        f.attrs['worst_case_scenario'] = worst_case_scenario
-        f.attrs['repetition_count'] = repetition_count
-        f.attrs['master_seed'] = master_seed
+        p_count = phase_counts[cfg_idx]
+        if "save_to_hdf5_till_count" in cfg and p_count > cfg["save_to_hdf5_till_count"]:
+            continue
 
-        for cfg_idx, repetitions_list in enumerate(all_data):
+        with h5py.File(file_path, 'a') as f:
 
-            p_count = phase_counts[cfg_idx]
+            f.attrs['version_name'] = version_name
+            f.attrs['worst_case_scenario'] = worst_case_scenario
+            f.attrs['repetition_count'] = repetition_count
+            f.attrs['master_seed'] = master_seed
+
             cfg_group = f.create_group(f"phase_count_{p_count}")
 
             for rep_idx, phases in enumerate(repetitions_list):
+
                 rep_group = cfg_group.create_group(f"rep_{rep_idx}")
 
                 collected_data = {name: [] for name in attr_names}
@@ -51,6 +54,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
                         name, (len(phases),), dtype=dtype, compression="gzip", compression_opts=4
                     )
                     dset[:] = data_list
+
 
 def vlen_array_equal(arr1, arr2) -> bool:
     if len(arr1) != len(arr2):

@@ -121,7 +121,7 @@ def main():
             print("saving data")
             save_simulation_results(all_results, phase_counts_done, cfg)
             print("saved data")
-            break
+            return
 
         module = import_version(version_name)
 
@@ -152,3 +152,4 @@ def main():
             all_results.append(module_results)
 
             save_to_json(cfg, phase_count, median_runtime, version_name)
+    return

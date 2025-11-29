@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
 
 
-    #main()
+    main()
 
     #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
 

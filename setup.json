@@ -1,0 +1,22 @@
+{
+    "worst_case_scenario": false,
+    "save_copy_of_visuals": false,
+    "start_phase_count": 5,
+    "end_phase_count": 1000000,
+    "number_of_data_points": 100,
+    "repetition_count": 5,
+    "master_seed": 125,
+    "versions": [
+        "original_simplified",
+        "append_improved_init_capacity_1",
+        "append_improved_init_capacity_10",
+        "append_improved_init_capacity_10_numba",
+        "new_version",
+        "new_version_fusion"
+    ],
+    "index_to_use": [
+        5
+    ],
+    "abort": false,
+    "save_to_hdf5_till_count": 10000
+}
