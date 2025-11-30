@@ -41,22 +41,18 @@ def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder=
 
 
 def init_results_folders(cfg: dict, parent_folder: str = "results"):
-
     parent = Path(parent_folder)
     parent.mkdir(parents=True, exist_ok=True)
 
     runtimes_folder = parent / "runtimes"
     visuals_folder = parent / "visuals"
     visuals_output_folder = parent / "visuals_output"
-    average_folder = visuals_folder / "average_case"
-    worst_folder = visuals_folder / "worst_case"
-    average_output_folder = visuals_output_folder / "average_case"
-    worst_output_folder = visuals_output_folder / "worst_case"
     copies_folder = visuals_folder / "copies"
+    worst_case_folder = visuals_folder / "worst_case"
+    average_case_folder = visuals_folder / "average_case"
     output_folder = parent / "output"
 
-    for folder in (runtimes_folder, visuals_folder, average_folder, worst_folder,
-                   average_output_folder, worst_output_folder, copies_folder, output_folder):
+    for folder in (runtimes_folder, visuals_folder, visuals_output_folder, copies_folder, output_folder, worst_case_folder, average_case_folder):
         folder.mkdir(parents=True, exist_ok=True)
 
     versions = cfg.get("versions", [])
@@ -82,7 +78,6 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
 
         for case_name, worst_flag in (("average_case.json", False), ("worst_case.json", True)):
             json_path = runtimes_subpath / case_name
-
             if not json_path.exists():
                 meta = {
                     "version": version,
@@ -100,8 +95,7 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
                 with json_path.open("w", encoding="utf-8") as f:
                     json.dump(meta, f, indent=2, ensure_ascii=False)
 
-    average_output_folder.mkdir(parents=True, exist_ok=True)
-    worst_output_folder.mkdir(parents=True, exist_ok=True)
+        (visuals_output_folder / version).mkdir(parents=True, exist_ok=True)
 
 def get_run_info_from_json(cfg: dict):
 

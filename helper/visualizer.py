@@ -97,9 +97,9 @@ def plot_columns(
     plt.close(fig)
 
 
-def load_phase_data(cfg, version_name, phase=None):
+def load_phase_data(cfg, version_name, phase=None, case="average_case"):
     folder = Path("results/output") / version_name
-    file_path = folder / "average_case.h5"
+    file_path = folder / f"{case}.h5"
 
     if not file_path.exists():
         raise FileNotFoundError(f"HDF5 file not found at: {file_path}")
@@ -126,6 +126,7 @@ def visualize(
     cfg,
     version_name,
     phase=None,
+    case="average_case",
     figsize=(14, 7),
     max_cols=10,
     width_excess=3.0,
@@ -136,13 +137,19 @@ def visualize(
     edge_width=1.3
 ):
     excess, deficit, starts_excess, starts_deficit = load_phase_data(
-        cfg, version_name, phase
+        cfg, version_name, phase, case
     )
 
-    base_folder = Path("results/visuals_output/average_case")
+    base_folder = Path("results/visuals_output") / version_name
     base_folder.mkdir(parents=True, exist_ok=True)
 
-    out_path = base_folder / f"plot_{version_name}.png"
+    if isinstance(phase, int):
+        pc = phase
+    else:
+        pc = int(str(phase).replace("phase_count_", "")) if phase is not None else 0
+
+    out_filename = f"{case}_output_pc_{pc}.png"
+    out_path = base_folder / out_filename
 
     plot_columns(
         excess, deficit, starts_excess, starts_deficit,

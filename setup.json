@@ -11,11 +11,10 @@
         "append_improved_init_capacity_1",
         "append_improved_init_capacity_10",
         "append_improved_init_capacity_10_numba",
-        "new_version",
         "new_version_fusion"
     ],
     "index_to_use": [
-        5
+        3
     ],
     "abort": false,
     "save_to_hdf5_till_count": 10000
