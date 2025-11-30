@@ -97,9 +97,7 @@ def plot_columns(
     plt.close(fig)
 
 
-def load_phase_data(cfg, phase=None):
-    index_to_use = cfg["index_to_use"][0]
-    version_name = cfg["versions"][index_to_use]
+def load_phase_data(cfg, version_name, phase=None):
     folder = Path("results/output") / version_name
     file_path = folder / "average_case.h5"
 
@@ -126,6 +124,7 @@ def load_phase_data(cfg, phase=None):
 
 def visualize(
     cfg,
+    version_name,
     phase=None,
     figsize=(14, 7),
     max_cols=10,
@@ -136,10 +135,15 @@ def visualize(
     show_x_labels=True,
     edge_width=1.3
 ):
-    excess, deficit, starts_excess, starts_deficit = load_phase_data(cfg, phase)
+    excess, deficit, starts_excess, starts_deficit = load_phase_data(
+        cfg, version_name, phase
+    )
+
     base_folder = Path("results/visuals_output/average_case")
     base_folder.mkdir(parents=True, exist_ok=True)
-    out_path = base_folder / "plot.png"
+
+    out_path = base_folder / f"plot_{version_name}.png"
+
     plot_columns(
         excess, deficit, starts_excess, starts_deficit,
         out_path=out_path,
