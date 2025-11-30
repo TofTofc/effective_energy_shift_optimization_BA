@@ -9,8 +9,7 @@ delim = "-"*100
 def clear_console():
     print("\n" * 200)
 
-def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=None):
-
+def log_log_linear_regression(cfg, version_name: str = None, min_phase_count: int = None, max_phase_count: int = None):
     runtimes_folder = os.path.join("results", "runtimes")
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
@@ -30,7 +29,6 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
 
     for vfolder in version_folders:
         json_path = os.path.join(vfolder, case_file)
-
         with open(json_path, "r", encoding="utf-8") as f:
             json_data = json.load(f)
 
@@ -43,16 +41,25 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
             phase_count = int(entry["phase_count"])
             runtime = float(entry["runtime"])
 
-            if runtime > 0 and (max_phase_count is None or phase_count <= max_phase_count):
-                phase_counts.append(phase_count)
-                runtimes.append(runtime)
+            if runtime <= 0:
+                continue
+            if min_phase_count is not None and phase_count < min_phase_count:
+                continue
+            if max_phase_count is not None and phase_count > max_phase_count:
+                continue
+
+            phase_counts.append(phase_count)
+            runtimes.append(runtime)
 
         print(delim)
         print(f"Version: {version_label}")
 
         n = len(phase_counts)
-        for k in range(1, 11):
+        if n == 0:
+            print("No data points in the given phase count range.")
+            continue
 
+        for k in range(1, 11):
             fraction = k / 10.0
             m = int(np.ceil(n * fraction))
 
@@ -75,10 +82,8 @@ def log_log_linear_regression(cfg, version_name: str = None, max_phase_count=Non
             print(f"y = {a:.5e} * x^{b:.5f}")
             print(delim)
 
-            # externe Funktionen aufrufen (wie gewünscht)
             calculate_and_print_regression_stats(x_log, y_log, p)
             plot_powerlaw_fit(subset_x, subset_y, a, b, f"{version_label} ({fraction_label})")
-
             clear_console()
 
 

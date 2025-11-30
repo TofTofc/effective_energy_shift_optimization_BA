@@ -15,13 +15,13 @@ if __name__ == '__main__':
 
 
 
-    main()
+    #main()
 
     #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version_fusion")
+    #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 1000, max_phase_count = 1000000)
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
