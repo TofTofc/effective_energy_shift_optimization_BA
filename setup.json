@@ -1,5 +1,5 @@
 {
-    "worst_case_scenario": false,
+    "worst_case_scenario": true,
     "save_copy_of_visuals": false,
     "start_phase_count": 5,
     "end_phase_count": 5000000,
@@ -14,7 +14,7 @@
         "new_version_fusion"
     ],
     "index_to_use": [
-        3
+        0
     ],
     "abort": false,
     "save_to_hdf5_till_count": 10000

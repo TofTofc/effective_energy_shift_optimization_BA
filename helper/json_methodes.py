@@ -47,12 +47,11 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
     runtimes_folder = parent / "runtimes"
     visuals_folder = parent / "visuals"
     visuals_output_folder = parent / "visuals_output"
-    copies_folder = visuals_folder / "copies"
     worst_case_folder = visuals_folder / "worst_case"
     average_case_folder = visuals_folder / "average_case"
     output_folder = parent / "output"
 
-    for folder in (runtimes_folder, visuals_folder, visuals_output_folder, copies_folder, output_folder, worst_case_folder, average_case_folder):
+    for folder in (runtimes_folder, visuals_folder, visuals_output_folder, output_folder, worst_case_folder, average_case_folder):
         folder.mkdir(parents=True, exist_ok=True)
 
     versions = cfg.get("versions", [])
