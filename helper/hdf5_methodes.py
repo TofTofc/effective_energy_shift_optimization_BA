@@ -26,7 +26,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
 
         p_count = phase_counts[cfg_idx]
         if "save_to_hdf5_till_count" in cfg and p_count > cfg["save_to_hdf5_till_count"]:
-            continue
+            return
 
         with h5py.File(file_path, 'a') as f:
 

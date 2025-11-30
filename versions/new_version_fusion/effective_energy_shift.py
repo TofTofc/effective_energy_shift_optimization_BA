@@ -363,6 +363,8 @@ def process_phases_njit(phases):
 
 # TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
 
+# TODO: Speicher Bedarf enorm hoch. 100GB RAM Usage (mit Swapping) bei 2 millionen phase counts. Verlangsammung des Programmes ab 1 mio durch swapping
+
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit

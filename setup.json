@@ -2,7 +2,7 @@
     "worst_case_scenario": false,
     "save_copy_of_visuals": false,
     "start_phase_count": 5,
-    "end_phase_count": 1000000,
+    "end_phase_count": 2500000,
     "number_of_data_points": 100,
     "repetition_count": 5,
     "master_seed": 125,
