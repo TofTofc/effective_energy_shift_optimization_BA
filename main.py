@@ -92,7 +92,11 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
         end = time.perf_counter()
 
         runtimes_single.append(end - start)
-        module_results.append(phases_list)
+
+        # Only save the results that we later also want to save
+        # -> great memory savings
+        if cfg["save_to_hdf5_till_count"] >= len(energy_excess_list[i]):
+            module_results.append(phases_list)
 
     median_runtime = np.median(runtimes_single)
 
