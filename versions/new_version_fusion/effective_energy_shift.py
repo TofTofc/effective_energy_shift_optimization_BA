@@ -362,6 +362,7 @@ def process_phases_njit(phases):
 # Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen?
 
 # TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
+# Ist das überhaupt so wegen skippen bereits besuchter packete?
 
 # Laufzeit wird irgendwann mal langsammer wegen Swapping (Grenze je nachdem wie viel RAM der PC anderweitig benutzt)
 #TODO: Evt deswegen z.b. 10GB RAM fest zuteilen damit der Wert konstant ist?
