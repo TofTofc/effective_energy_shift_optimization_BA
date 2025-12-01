@@ -1,5 +1,5 @@
 {
-    "worst_case_scenario": false,
+    "worst_case_scenario": true,
     "save_copy_of_visuals": false,
     "start_phase_count": 5,
     "end_phase_count": 5000000,

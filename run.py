@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
 
 
-    main()
+    #main()
 
     #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
 
@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
     #test_version_solo("new_version_fusion", False, 15)
 
-    visualize(cfg,"new_version_fusion" , phase=15, max_cols = 20, case = "average_case")
+    #visualize(cfg,"new_version_fusion" , phase=15, max_cols = 20, case = "worst_case")
