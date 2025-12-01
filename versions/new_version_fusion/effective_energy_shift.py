@@ -168,7 +168,6 @@ def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter)
 
             # a: excess < deficit:
             if phase.get_energy_excess(idx) < phase.get_energy_deficit(-1):
-
                 # Split the deficit
 
                 # New start is excess height + start
@@ -188,28 +187,29 @@ def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter)
                 # Move to the next excess and continue
                 continue
 
-            # b: excess > deficit:
+            # b: excess > deficit
             elif phase.get_energy_excess(idx) > phase.get_energy_deficit(-1):
 
-                # Split the excess
+                excess_energy = phase.get_energy_excess(idx)
+                deficit_energy = phase.get_energy_deficit(-1)
+                deficit_start = phase.get_starts_deficit(-1)
 
-                # New start is deficit height + start
-                new_start = phase.get_starts_deficit(-1) + phase.get_energy_deficit(-1)
+                # computed start for the remaining excess
+                new_start = deficit_start + deficit_energy
+                energy_remaining = excess_energy - deficit_energy
 
-                # Remaining excess is current excess - energy deficit
-                energy_remaining = phase.get_energy_excess(idx) - phase.get_energy_deficit(-1)
+                # set lower packet to cover the deficit
+                phase.set_energy_excess(idx, deficit_energy)
 
+                # append remaining excess to the phase
                 phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
 
-                # Change Excess of lower packet
-                phase.set_energy_excess(-2, phase.get_energy_deficit(-1))
-
-                # Update: deficit counter --, excess counter++, state_mask[i] = 1
+                # update counters and mark phase as still having excess
                 d_counter -= 1
                 e_counter += 1
                 state_mask[i] = 1
 
-                # return
+                # return updated counters
                 return e_counter, d_counter
 
             # c: excess == deficit:
@@ -366,8 +366,6 @@ def process_phases_njit(phases):
 # Laufzeit wird irgendwann mal langsammer wegen Swapping (Grenze je nachdem wie viel RAM der PC anderweitig benutzt)
 #TODO: Evt deswegen z.b. 10GB RAM fest zuteilen damit der Wert konstant ist?
 
-# TODO: Problem beim Bild für phase count 15 verschwinden Excess Counts aus irgendeinem Grund
-
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit
@@ -411,3 +409,21 @@ def print_helper(phases, e_counter, d_counter, max_height_array, state_mask):
     print("state_mask: ", state_mask)
 
     return 0
+
+@njit
+def dbg_sum_excess(phases):
+    s = 0.0
+    for i, p in enumerate(phases):
+        for v in p.get_energy_excess_all():
+            s += v
+    print("Sum of excess: ", s)
+    return s
+
+@njit
+def dbg_sum_deficit(phases):
+    s = 0.0
+    for i, p in enumerate(phases):
+        for v in p.get_energy_deficit_all():
+            s += v
+    print("Sum of deficit: ", s)
+    return s
