@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
     #test_version_solo("new_version_fusion", False, 53)
 
-    visualize(cfg,"new_version_fusion" , phase=53, max_cols = 100, case = "worst_case")
+    #visualize(cfg,"new_version_fusion" , phase=53, max_cols = 100, case = "worst_case")
