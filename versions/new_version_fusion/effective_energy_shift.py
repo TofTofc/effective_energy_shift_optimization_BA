@@ -369,6 +369,8 @@ def process_phases_njit(phases):
 
 #TODO: Evt die Total Excess und Total Deficit Mengen beim erstellen gleich setzen löst das das Problem? -> Nein tut es nicht
 
+#Evt ohne Fusion damit man pro Packet den Weg speichern kann falls notwendig
+
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit
