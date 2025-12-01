@@ -58,6 +58,27 @@ def init(worst_case_scenario: bool,
             energy_excess = rng_excess.integers(0, 100, phase_count)
             energy_deficit = rng_deficit.integers(0, 100, phase_count)
 
+            """ 
+            # Make the total sums equal by distributing the difference
+            sum_ex = energy_excess.sum()
+            sum_def = energy_deficit.sum()
+            diff = sum_ex - sum_def
+
+            if diff > 0:
+                q, r = divmod(diff, phase_count)
+                if q:
+                    energy_deficit = energy_deficit + q
+                if r:
+                    energy_deficit[:r] = energy_deficit[:r] + 1
+            elif diff < 0:
+                needed = -diff
+                q, r = divmod(needed, phase_count)
+                if q:
+                    energy_excess = energy_excess + q
+                if r:
+                    energy_excess[:r] = energy_excess[:r] + 1
+            """
+
         energy_excess_list.append(energy_excess)
         energy_deficit_list.append(energy_deficit)
 

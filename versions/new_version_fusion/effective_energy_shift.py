@@ -367,6 +367,8 @@ def process_phases_njit(phases):
 # Laufzeit wird irgendwann mal langsammer wegen Swapping (Grenze je nachdem wie viel RAM der PC anderweitig benutzt)
 #TODO: Evt deswegen z.b. 10GB RAM fest zuteilen damit der Wert konstant ist?
 
+#TODO: Evt die Total Excess und Total Deficit Mengen beim erstellen gleich setzen löst das das Problem?
+
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit

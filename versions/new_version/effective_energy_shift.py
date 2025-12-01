@@ -291,9 +291,6 @@ def process_phases_njit(phases):
     # Provides the initial states for each Phase object and balances them
     e_counter, d_counter = init(phases, state_mask, max_height_array)
 
-    # TODO: FÜR DAS ERSTE EXCESS ÜBERSCHUSS PHASE OBJEKT MUSS MAN DEN VIRTUAL EXCESS SPEICHERN, DAMIT WENN AUF DIE PHASE
-    # TODO: EXCESS DRAUF KOMMT MAN DIE KORREKTE HÖHE HAT
-
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
         return phases
@@ -332,36 +329,6 @@ def process_phases_njit(phases):
     #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
 
     return phases
-
-# TODO: PROBLEM LISTE
-# - TODO: WENN DAS PROGRAMM DEN LETZTEN DEFICIT FÜLLT KANN ES SEIN, DAS DAFÜR NICHT ALLE EXCESSE IN DER GENUTZTEN EXCESS GRUPPE BENUTZT WERDEN,
-#   TODO: FALLS DIES PASSIERT, KÖNNEN POSITIONEN DER EXCESSE FALSCH SEIN, DA SIE IN DER NORMALEN IMPLEMENTIERUNG EIG NOCH NICHT ES BIS HIERHIN GESCHAFFT HÄTTEN
-# Idee: Speichere für jedes Excess Packet ab, wo es herkam um es dann dahin zurück zu schicken, wo es mit der eig implementierung hingekommen wäre
-# Problem: Die Höhe dieses Paketes wäre dann wieder potentiell anderes als seine aktuelle Position
-# Idee: Speichere den Verlauf der Höhen des Paketes ab. Nehem Daraus die richtige Höhe
-
-# - TODO: THEORETISCH KANN DER ALGORITHMUS BEENDET WERDEN BEVOR JEDES EXCESS PACKET SICH BEWEGT HAT
-#   TODO: DAMIT BEWEGEN SICH DIESE NICHT ANGEFASSEN EXCESS PACKETE NIEMALS WEITER UND SIND AUF IHRER START POSITION
-#   TODO: OBWOHL SIE EIG WEITER SEIN SOLLTEN
-# Idee: Speichere Die Anzahl der Moves ab die das Packet mit dem längsten Weg gegangen ist und gehen den Weg dann für alle nicht bewegten Packete
-
-# Zentrales Problem: Die Move Anzahl eines Excess Packetes kann zu hoch oder zu niedrig sein
-# und damit das Packet zu weit oder zu kurz weitergereicht werden
-# Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen?
-
-# TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
-
-# TODO: LAUFZEIT WORST CASE IST IMMERNOCH n^2 IDEE: STARTE IN DER MITTE UND KREIERE DAMIT BALANCED PHASES DIE DANN GESKIPPT WERDEN KÖNNEN
-# Im allgemeinen Fall schwieriger da man dann nicht einfach in der Mitte starten kann sondern erst seine Mitte suchen muss und diese evt zu klein ist
-# Problem: Wenn wir in der Mitte starten fehlt für den Excess hinter uns wieder die Info auf welche Höhe er muss
-# Hinweis: Wir müssen dann in ner mitte starten und danch hinten zum anfang durch iterieren
-# Frage: Ist das überhaupt sinnvoll? Im average case wird das quasi nie vorkommen das eine große zahl von excess überschüsssen
-#        auf eine große anzahl von deficit überschüssen trifft. Evt daher weglassen?
-
-# TODO: Problem: Speicherbedarf ist insane hoch und das resizing evt nicht ideal. Teilweise wird append_excess mit capacity_excess = 80k aufgerufen
-# Lösung: Intelligentes Speichermanagement. Man könnte bei allen Balanced Phasen die im Hintergrund liegenden Arrays wieder kleiner machen
-
-# worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):

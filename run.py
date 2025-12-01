@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
-    #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
+    #test_versions("original_simplified", "new_version_fusion", phase_count = 1000)
 
     #test_version_solo("new_version_fusion", False, 53)
 
