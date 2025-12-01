@@ -277,7 +277,7 @@ def init(phases, state_mask, max_height_array):
 
         else:
             state_mask[i] = 0
-            max_height_array[i] = phases[i].get_energy_excess(-1)
+            max_height_array[i] = phases[i].get_starts_excess(-1) + phases[i].get_energy_excess(-1)
 
 
     return e_counter, d_counter
