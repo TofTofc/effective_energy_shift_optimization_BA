@@ -27,6 +27,6 @@ if __name__ == '__main__':
 
     #test_versions("append_improved_init_capacity_10_numba_different_datatypes", "append_improved_init_capacity_10_numba")
 
-    #test_version_solo("new_version_fusion", False, 15)
+    #test_version_solo("new_version_fusion", False, 53)
 
-    visualize(cfg,"original_simplified" , phase=53, max_cols = 100, case = "average_case")
+    visualize(cfg,"new_version_fusion" , phase=53, max_cols = 100, case = "worst_case")
