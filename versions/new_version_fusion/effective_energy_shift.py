@@ -366,6 +366,8 @@ def process_phases_njit(phases):
 # Laufzeit wird irgendwann mal langsammer wegen Swapping (Grenze je nachdem wie viel RAM der PC anderweitig benutzt)
 #TODO: Evt deswegen z.b. 10GB RAM fest zuteilen damit der Wert konstant ist?
 
+# TODO: Problem beim Bild für phase count 15 verschwinden Excess Counts aus irgendeinem Grund
+
 # worst case result stimmt. average case ist recht gut teilweise aber falsch
 
 @njit
