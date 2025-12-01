@@ -42,6 +42,7 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
     2. Take all uncovered excess packets from current phase
     3. For each of those packets: new start = max(orig_start, max_skipped_height, end_of_last_in_next)
     4. Insert packet into next phase via append_excess
+    4.1 merge the new excess in the next phase if possible
     5. Update uncovered excess counters in both phases
     6. Remove transferred packets from current phase
     7. Mark current phase as balanced: state_mask=0, e_counter--, update max_height
@@ -89,7 +90,7 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, sta
             # Merge: increase energy of last excess in next_phase
             prev_energy = next_phase.get_energy_excess(-1)
             next_phase.set_energy_excess(-1, prev_energy + overflow_content)
-            # NOT increment next_phase.number_of_excess_not_covered because we no new packet
+            # not increment next_phase.number_of_excess_not_covered because we no new packet
         else:
             # Add Excess to next Phase
             next_phase.append_excess(excess_start, overflow_content, excess_id)
@@ -303,9 +304,6 @@ def process_phases_njit(phases):
     # Provides the initial states for each Phase object and balances them
     e_counter, d_counter = init(phases, state_mask, max_height_array)
 
-    # TODO: FÜR DAS ERSTE EXCESS ÜBERSCHUSS PHASE OBJEKT MUSS MAN DEN VIRTUAL EXCESS SPEICHERN, DAMIT WENN AUF DIE PHASE
-    # TODO: EXCESS DRAUF KOMMT MAN DIE KORREKTE HÖHE HAT
-
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
         return phases
@@ -345,33 +343,37 @@ def process_phases_njit(phases):
 
     return phases
 
-# TODO: PROBLEM LISTE
-# - TODO: WENN DAS PROGRAMM DEN LETZTEN DEFICIT FÜLLT KANN ES SEIN, DAS DAFÜR NICHT ALLE EXCESSE IN DER GENUTZTEN EXCESS GRUPPE BENUTZT WERDEN,
-#   TODO: FALLS DIES PASSIERT, KÖNNEN POSITIONEN DER EXCESSE FALSCH SEIN, DA SIE IN DER NORMALEN IMPLEMENTIERUNG EIG NOCH NICHT ES BIS HIERHIN GESCHAFFT HÄTTEN
-# Idee: Speichere für jedes Excess Packet ab, wo es herkam um es dann dahin zurück zu schicken, wo es mit der eig implementierung hingekommen wäre
-# Problem: Die Höhe dieses Paketes wäre dann wieder potentiell anderes als seine aktuelle Position
-# Idee: Speichere den Verlauf der Höhen des Paketes ab. Nehem Daraus die richtige Höhe
+# Wenn 3 Excess Pakete das letzte Deficit Paket füllen,
+# dann kann es sein, das nicht alle der 3 E überschüsse im original so weit gekommen wären
+# Wenn nur 2 der 3 E Pakete gereicht hätten, dann wäre das letzte E Paket einen Schritt hinter den anderen
 
-# - TODO: THEORETISCH KANN DER ALGORITHMUS BEENDET WERDEN BEVOR JEDES EXCESS PACKET SICH BEWEGT HAT
-#   TODO: DAMIT BEWEGEN SICH DIESE NICHT ANGEFASSEN EXCESS PACKETE NIEMALS WEITER UND SIND AUF IHRER START POSITION
-#   TODO: OBWOHL SIE EIG WEITER SEIN SOLLTEN
-# Idee: Speichere Die Anzahl der Moves ab die das Packet mit dem längsten Weg gegangen ist und gehen den Weg dann für alle nicht bewegten Packete
+# Wenn die letzte Phase eine E Überschuss Phase ist aber davor alle D Überschüsse ausgeglichen wurden,
+# dann hat sich das letzte E Packet nicht bewegt obwohl es sich im original bewegt hätte
+# Idee: Speichere die Schrittzahl eines Paketes und gehe die Schritte die fehlen am Ende
 
-# Zentrales Problem: Die Move Anzahl eines Excess Packetes kann zu hoch oder zu niedrig sein
+# Die Move Anzahl eines Excess Paketes kann zu hoch oder zu niedrig sein
 # und damit das Packet zu weit oder zu kurz weitergereicht werden
-# Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen?
+# Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen um am Ende aufzuräumen?
+# Problem: Evt sind die Höheninfos dabei ein Problem
 
-# TODO: Wenn das letzte Packet zum ersten geht fehlt beim ersten Packet die Höhen Info. Wenn das dann zum zweiten Packet geht fehlt dort wiederum die Höheninfo
-# Ist das überhaupt so wegen skippen bereits besuchter packete?
+# Die Höheninfo der Pakete geht teilweise verloren, wenn an den Anfang zurück gesprungen wird
+# Bsp 1. Phase ist E Phase. Dann loopt man von der letzten Phase zurück zum Anfang
+# Dabei wird von der 1. Phase nur die Höhe des Balancierten Teiles betrachtet, nicht die Höhe des Excess Überschusses
+# Die Höhe des Überschusses wäre beim original aber relevant, falls die letzte Phase einen Überschuss hat
+# und dieser dann ja auf die Höhe des Überschusses platziert wird
 
-# Laufzeit wird irgendwann mal langsammer wegen Swapping (Grenze je nachdem wie viel RAM der PC anderweitig benutzt)
-#TODO: Evt deswegen z.b. 10GB RAM fest zuteilen damit der Wert konstant ist?
+# Laufzeit wird ab ca 1 millionen langsamer wegen RAM Mangel und Swapping.
+# Variabel je nach Auslastung des RAMs durch andere Nutzung
+# Am besten wäre konstante RAM Nutzung für Vergleichbarkeit
 
-#TODO: Evt die Total Excess und Total Deficit Mengen beim erstellen gleich setzen löst das das Problem? -> Nein tut es nicht
+# Fusion weglassen um Weg der einzel Pakete zu tracken?
+# Problem: Worst Case nur mit Fusion optimal
+# Idee: Fange im Worst Case in der Mitte an und gehe mit dem Index immer 1 zurück
+# Damit werden dann in der Mitte balancierte Phasen erzeugt
+# Diese können dann geskipped werden
+# Problem: Im Allgemeinem Fall nicht sinnvoll
 
-#Evt ohne Fusion damit man pro Packet den Weg speichern kann falls notwendig
-
-# worst case result stimmt. average case ist recht gut teilweise aber falsch
+# worst case result stimmt. average case ähnlich aber definitiv nicht gleich
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):
