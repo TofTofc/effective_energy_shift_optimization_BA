@@ -2,6 +2,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 
 def find_dataset_by_substr(group, substr):
@@ -9,7 +10,6 @@ def find_dataset_by_substr(group, substr):
     for name in group:
         if substr in name.lower():
             return name
-    raise KeyError(f"No dataset in group contains '{substr}'")
 
 
 def load_field_as_list(group, key):
@@ -18,20 +18,44 @@ def load_field_as_list(group, key):
     return [np.asarray(d[i]) for i in range(len(d))]
 
 
+def load_phase_data(cfg, version_name, phase=None, case="average_case"):
+    folder = Path("results/output") / version_name
+    file_path = folder / f"{case}.h5"
+
+    with h5py.File(file_path, "r") as hf:
+        if phase is None:
+            phase = list(hf.keys())[0]
+        elif isinstance(phase, int):
+            phase = f"phase_count_{phase}"
+
+        phase_group = hf[phase]
+        rep_name = list(phase_group.keys())[0]
+        rep_group = phase_group[rep_name]
+
+        excess = load_field_as_list(rep_group, "energy_excess")
+        deficit = load_field_as_list(rep_group, "energy_deficit")
+        starts_excess = load_field_as_list(rep_group, "starts_excess")
+        starts_deficit = load_field_as_list(rep_group, "starts_deficit")
+
+        return excess, deficit, starts_excess, starts_deficit
+
+
 def plot_columns(
-    excess_list,
-    deficit_list,
-    starts_excess_list,
-    starts_deficit_list,
-    out_path,
-    figsize=(14, 7),
-    max_cols=0,
-    width_excess=3.0,
-    width_deficit=3.0,
-    white_gap_width=0.5,
-    pair_spacing=10.0,
-    show_x_labels=True,
-    edge_width=1.0
+        excess_list,
+        deficit_list,
+        starts_excess_list,
+        starts_deficit_list,
+        out_path,
+        figsize=(14, 7),
+        max_cols=0,
+        width_excess=3.0,
+        width_deficit=3.0,
+        white_gap_width=0.5,
+        pair_spacing=10.0,
+        show_x_labels=True,
+        edge_width=1.0,
+        title_suffix="",
+        show_plot=False
 ):
     n = len(excess_list)
     if max_cols > 0:
@@ -53,7 +77,7 @@ def plot_columns(
             if b_height == 0:
                 continue
             ax.bar(
-                x_center - (white_gap_width + width_excess)/2,
+                x_center - (white_gap_width + width_excess) / 2,
                 b_height,
                 width=width_excess,
                 bottom=b_start,
@@ -68,7 +92,7 @@ def plot_columns(
             if b_height == 0:
                 continue
             ax.bar(
-                x_center + (white_gap_width + width_deficit)/2,
+                x_center + (white_gap_width + width_deficit) / 2,
                 b_height,
                 width=width_deficit,
                 bottom=b_start,
@@ -87,61 +111,95 @@ def plot_columns(
 
     ax.set_xlabel("Phase Column")
     ax.set_ylabel("Energy")
-    ax.set_title("Excess (red) vs Deficit (blue) results")
-    red_patch = plt.Rectangle((0,0),1,1,color="#e57373")
-    blue_patch = plt.Rectangle((0,0),1,1,color="#64b5f6")
+    ax.set_title(f"Excess (red) vs Deficit (blue) {title_suffix}")
+    red_patch = plt.Rectangle((0, 0), 1, 1, color="#e57373")
+    blue_patch = plt.Rectangle((0, 0), 1, 1, color="#64b5f6")
     ax.legend(handles=[red_patch, blue_patch], labels=["Excess", "Deficit"])
     fig.tight_layout()
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
     fig.savefig(out_path, dpi=200)
-    plt.show()
+
+    if show_plot:
+        plt.show()
+
     plt.close(fig)
 
 
-def load_phase_data(cfg, version_name, phase=None, case="average_case"):
-    folder = Path("results/output") / version_name
-    file_path = folder / f"{case}.h5"
+def _extract_from_objects(phase_objects):
+    excess_list = []
+    deficit_list = []
+    starts_excess_list = []
+    starts_deficit_list = []
 
-    if not file_path.exists():
-        raise FileNotFoundError(f"HDF5 file not found at: {file_path}")
+    for obj in phase_objects:
+        curr_size_e = getattr(obj, "size_excess", 0)
+        e_vals = getattr(obj, "energy_excess", np.array([]))
+        s_e_vals = getattr(obj, "starts_excess", np.array([]))
 
-    with h5py.File(file_path, "r") as hf:
-        if phase is None:
-            phase = list(hf.keys())[0]
-        elif isinstance(phase, int):
-            phase = f"phase_count_{phase}"
+        excess_list.append(np.asarray(e_vals[:curr_size_e]))
+        starts_excess_list.append(np.asarray(s_e_vals[:curr_size_e]))
 
-        phase_group = hf[phase]
-        rep_name = list(phase_group.keys())[0]
-        rep_group = phase_group[rep_name]
+        curr_size_d = getattr(obj, "size_deficit", 0)
+        d_vals = getattr(obj, "energy_deficit", np.array([]))
+        s_d_vals = getattr(obj, "starts_deficit", np.array([]))
 
-        excess = load_field_as_list(rep_group, "energy_excess")
-        deficit = load_field_as_list(rep_group, "energy_deficit")
-        starts_excess = load_field_as_list(rep_group, "starts_excess")
-        starts_deficit = load_field_as_list(rep_group, "starts_deficit")
+        deficit_list.append(np.asarray(d_vals[:curr_size_d]))
+        starts_deficit_list.append(np.asarray(s_d_vals[:curr_size_d]))
 
-        return excess, deficit, starts_excess, starts_deficit
+    return excess_list, deficit_list, starts_excess_list, starts_deficit_list
 
 
 def visualize(
-    cfg,
-    version_name,
-    phase=None,
-    case="average_case",
-    figsize=(14, 7),
-    max_cols=10,
-    width_excess=3.0,
-    width_deficit=3.0,
-    white_gap_width=0.5,
-    pair_spacing=10.0,
-    show_x_labels=True,
-    edge_width=1.3
+        cfg=None,
+        version_name="default",
+        phase=None,
+        case="average_case",
+        step_data=None,
+        figsize=(14, 7),
+        max_cols=10,
+        width_excess=3.0,
+        width_deficit=3.0,
+        white_gap_width=0.5,
+        pair_spacing=10.0,
+        show_x_labels=True,
+        edge_width=1.3,
+        show_plot=True
 ):
+    if step_data is not None:
+        base_folder = Path("results/visuals_output/each_step")
+
+        for i, step_phases in enumerate(step_data):
+            excess, deficit, starts_e, starts_d = _extract_from_objects(step_phases)
+
+            out_filename = f"step_{i}.png"
+            out_path = base_folder / out_filename
+
+            plot_columns(
+                excess, deficit, starts_e, starts_d,
+                out_path=out_path,
+                figsize=figsize,
+                max_cols=max_cols,
+                width_excess=width_excess,
+                width_deficit=width_deficit,
+                white_gap_width=white_gap_width,
+                pair_spacing=pair_spacing,
+                show_x_labels=show_x_labels,
+                edge_width=edge_width,
+                title_suffix=f"- Step {i}",
+                show_plot=False
+            )
+        return
+
+    if cfg is None:
+        return
+
     excess, deficit, starts_excess, starts_deficit = load_phase_data(
         cfg, version_name, phase, case
     )
 
     base_folder = Path("results/visuals_output") / version_name
-    base_folder.mkdir(parents=True, exist_ok=True)
 
     if isinstance(phase, int):
         pc = phase
@@ -161,5 +219,6 @@ def visualize(
         white_gap_width=white_gap_width,
         pair_spacing=pair_spacing,
         show_x_labels=show_x_labels,
-        edge_width=edge_width
+        edge_width=edge_width,
+        show_plot=show_plot
     )
