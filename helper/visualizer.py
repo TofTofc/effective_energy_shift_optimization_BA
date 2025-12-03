@@ -2,8 +2,6 @@ from pathlib import Path
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
 
 def find_dataset_by_substr(group, substr):
     substr = substr.lower()
@@ -200,11 +198,7 @@ def visualize(
     )
 
     base_folder = Path("results/visuals_output") / version_name
-
-    if isinstance(phase, int):
-        pc = phase
-    else:
-        pc = int(str(phase).replace("phase_count_", "")) if phase is not None else 0
+    pc = phase
 
     out_filename = f"{case}_output_pc_{pc}.png"
     out_path = base_folder / out_filename
