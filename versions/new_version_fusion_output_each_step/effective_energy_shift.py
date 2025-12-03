@@ -347,39 +347,10 @@ def process_phases_njit(phases):
 
     #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
 
+    phases_list.append(copy_phase_array(phases))
+
     return phases_list
 
-# Wenn 3 Excess Pakete das letzte Deficit Paket füllen,
-# dann kann es sein, das nicht alle der 3 E überschüsse im original so weit gekommen wären
-# Wenn nur 2 der 3 E Pakete gereicht hätten, dann wäre das letzte E Paket einen Schritt hinter den anderen
-
-# Wenn die letzte Phase eine E Überschuss Phase ist aber davor alle D Überschüsse ausgeglichen wurden,
-# dann hat sich das letzte E Packet nicht bewegt obwohl es sich im original bewegt hätte
-# Idee: Speichere die Schrittzahl eines Paketes und gehe die Schritte die fehlen am Ende
-
-# Die Move Anzahl eines Excess Paketes kann zu hoch oder zu niedrig sein
-# und damit das Packet zu weit oder zu kurz weitergereicht werden
-# Idee: Anzahl der Bewegungen eines Paketes speichern und die Info benutzen um am Ende aufzuräumen?
-# Problem: Evt sind die Höheninfos dabei ein Problem
-
-# Die Höheninfo der Pakete geht teilweise verloren, wenn an den Anfang zurück gesprungen wird
-# Bsp 1. Phase ist E Phase. Dann loopt man von der letzten Phase zurück zum Anfang
-# Dabei wird von der 1. Phase nur die Höhe des Balancierten Teiles betrachtet, nicht die Höhe des Excess Überschusses
-# Die Höhe des Überschusses wäre beim original aber relevant, falls die letzte Phase einen Überschuss hat
-# und dieser dann ja auf die Höhe des Überschusses platziert wird
-
-# Laufzeit wird ab ca 1 millionen langsamer wegen RAM Mangel und Swapping.
-# Variabel je nach Auslastung des RAMs durch andere Nutzung
-# Am besten wäre konstante RAM Nutzung für Vergleichbarkeit
-
-# Fusion weglassen um Weg der einzel Pakete zu tracken?
-# Problem: Worst Case nur mit Fusion optimal
-# Idee: Fange im Worst Case in der Mitte an und gehe mit dem Index immer 1 zurück
-# Damit werden dann in der Mitte balancierte Phasen erzeugt
-# Diese können dann geskipped werden
-# Problem: Im Allgemeinem Fall nicht sinnvoll
-
-# worst case result stimmt. average case ähnlich aber definitiv nicht gleich
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):
