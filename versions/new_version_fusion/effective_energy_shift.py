@@ -373,6 +373,13 @@ def process_phases_njit(phases):
 # Diese können dann geskipped werden
 # Problem: Im Allgemeinem Fall nicht sinnvoll
 
+# Evt den Startpunkt verschieben
+# Beim anfang (der größten / einer) Excess Kette starten
+# Aktuell kann z.b. der Eintrag vor dem Start auf den Start einen Überschuss übertragen
+# Wenn man so startet, das man keinen Excess Übertragen bekommt, löst das evt Probleme
+
+# Evt Mischung aus original und neuer Version z.B. erst original für x Schritte und dann die neue Version
+
 # worst case result stimmt. average case ähnlich aber definitiv nicht gleich
 
 @njit
