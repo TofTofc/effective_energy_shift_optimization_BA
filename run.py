@@ -29,6 +29,6 @@ if __name__ == '__main__':
 
     #test_version_solo("new_version_fusion", False, 53)
 
-    #visualize_output_each_step(phase_count =  15)
+    visualize_output_each_step(phase_count =  15)
 
     #visualize(cfg,"new_version_fusion" , phase=11, max_cols = 100, case = "worst_case")

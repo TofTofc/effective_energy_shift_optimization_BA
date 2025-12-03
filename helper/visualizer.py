@@ -156,7 +156,7 @@ def visualize(
         case="average_case",
         step_data=None,
         figsize=(14, 7),
-        max_cols=10,
+        max_cols=0,
         width_excess=3.0,
         width_deficit=3.0,
         white_gap_width=0.5,
