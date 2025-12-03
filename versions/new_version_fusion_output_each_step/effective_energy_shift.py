@@ -35,7 +35,7 @@ def get_next_non_balanced_phase(phases, idx, state_mask):
         i = (i + 1) % n
 
 @njit
-def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter):
+def move_excess(phases_list, phases, current_phase_idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter):
 
     """
     Moves all uncovered excess packets from current -> next phase
@@ -204,8 +204,9 @@ def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter)
                 # set lower packet to cover the deficit
                 phase.set_energy_excess(idx, deficit_energy)
 
-                # append remaining excess to the phase
-                phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
+                # insert remaining excess after the covered excess and NOT at the end to keep correct sequence
+                #phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
+                phase.insert_excess(idx + 1, new_start, energy_remaining, phase.get_excess_id(idx))
 
                 # update counters and mark phase as still having excess
                 d_counter -= 1
@@ -330,7 +331,7 @@ def process_phases_njit(phases):
         next_phase_idx = get_next_non_balanced_phase(phases, idx, state_mask)
 
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
-        e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter)
+        e_counter, d_counter = move_excess(phases_list, phases, idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter)
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:

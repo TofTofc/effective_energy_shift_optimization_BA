@@ -83,6 +83,25 @@ class Phase:
 
         self.size_excess += 1
 
+    def insert_excess(self, idx, new_start, energy_remaining, excess_id):
+
+        if self.size_excess >= self.capacity_excess:
+
+            self.capacity_excess *= 2
+            self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
+            self.energy_excess = np.resize(self.energy_excess, self.capacity_excess)
+            self.excess_ids = np.resize(self.excess_ids, self.capacity_excess)
+
+        self.starts_excess[idx + 1:self.size_excess + 1] = self.starts_excess[idx:self.size_excess]
+        self.energy_excess[idx + 1:self.size_excess + 1] = self.energy_excess[idx:self.size_excess]
+        self.excess_ids[idx + 1:self.size_excess + 1] = self.excess_ids[idx:self.size_excess]
+
+        self.starts_excess[idx] = new_start
+        self.energy_excess[idx] = energy_remaining
+        self.excess_ids[idx] = excess_id
+
+        self.size_excess += 1
+
     def append_deficit(self, new_start, energy_remaining):
 
         if self.size_deficit >= self.capacity_deficit:

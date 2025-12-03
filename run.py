@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 10000, max_phase_count = None)
+    #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 1000, max_phase_count = None)
 
     #submethod_analysis("append_improved_init_capacity_10_numba")
 
@@ -29,6 +29,6 @@ if __name__ == '__main__':
 
     #test_version_solo("new_version_fusion", False, 53)
 
-    visualize_output_each_step(phase_count =  15)
+    #visualize_output_each_step(phase_count =  15)
 
-    #visualize(cfg,"new_version_fusion" , phase=11, max_cols = 100, case = "worst_case")
+    #visualize(cfg,"new_version_fusion" , phase=15, max_cols = 100, case = "worst_case")

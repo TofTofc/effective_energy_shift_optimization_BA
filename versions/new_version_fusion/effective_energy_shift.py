@@ -202,8 +202,9 @@ def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter)
                 # set lower packet to cover the deficit
                 phase.set_energy_excess(idx, deficit_energy)
 
-                # append remaining excess to the phase
-                phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
+                # insert remaining excess after the covered excess and NOT at the end to keep correct sequence
+                # phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
+                phase.insert_excess(idx + 1, new_start, energy_remaining, phase.get_excess_id(idx))
 
                 # update counters and mark phase as still having excess
                 d_counter -= 1
