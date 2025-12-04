@@ -316,8 +316,7 @@ def process_phases(energy_excess: np.ndarray, energy_deficit: np.ndarray, start_
             break
         phases, mask, stop_algorithm = move_overflow(phases, mask, callback_between_steps=callback_between_steps, callback_kwargs=callback_kwargs)
 
-    return phases
-    #return dict(phases=phases, mask=mask)
+    return dict(phases=phases, mask=mask)
 
 def compute_battery_arrays_from_phases(phases: List[efes_dataclasses.Phase], efficiency_discharging: float):
 

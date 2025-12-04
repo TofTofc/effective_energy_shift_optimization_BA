@@ -3,16 +3,14 @@
     "save_copy_of_visuals": false,
     "start_phase_count": 5,
     "end_phase_count": 5000000,
-    "number_of_data_points": 100,
+    "number_of_data_points": 300,
     "repetition_count": 5,
     "master_seed": 125,
     "versions": [
-        "original_simplified",
-        "append_improved_init_capacity_1",
+        "original",
         "append_improved_init_capacity_10",
         "append_improved_init_capacity_10_numba",
-        "new_version_fusion",
-        "new_version_fusion_experimental"
+        "new_version_fusion"
     ],
     "index_to_use": [
         5
