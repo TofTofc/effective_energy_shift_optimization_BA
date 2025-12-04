@@ -68,9 +68,8 @@ def test_results(list_a: list[list], list_b: list[list]):
     return True
 
 
-"""
 
-def compute_battery_arrays_from_phases(phases, efficiency_discharging = 1):
+def compute_battery_arrays_from_phases(phases):
 
     capacity_phases = []
     energy_additional_phases = []
@@ -91,8 +90,7 @@ def compute_battery_arrays_from_phases(phases, efficiency_discharging = 1):
 
     delta_capacity = np.diff(capacity)
     delta_energy_additional = effectiveness_local[:-1]*delta_capacity
-    energy_additional = efficiency_discharging * np.array([0, *delta_energy_additional.cumsum()])
+    energy_additional = np.array([0, *delta_energy_additional.cumsum()])
 
     return dict(capacity=capacity, energy_additional=energy_additional, effectiveness_local=effectiveness_local)
     
-"""

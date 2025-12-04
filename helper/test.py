@@ -7,7 +7,7 @@ from main import init, import_version
 delim = "-"*100
 
 
-def submethod_analysis(version_name, worst_case_scenario = False, phase_count = 40000):
+def submethod_analysis(version_name, worst_case_scenario = False, phase_count = 1000000):
 
     module = import_version(version_name)
 

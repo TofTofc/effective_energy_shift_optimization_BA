@@ -1,10 +1,8 @@
 import numpy as np
-from numba import njit
-from numba.typed import List
 
-from versions.new_version_fusion import efes_dataclasses
+from versions.new_version_fusion_without_numba import efes_dataclasses
 
-@njit
+
 def get_next_excess_index(phases, idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -13,12 +11,12 @@ def get_next_excess_index(phases, idx, state_mask):
     i = (idx + 1) % n
 
     while True:
-        if state_mask[0][i] and not state_mask[1][i]:
+        if state_mask[i] == 1:
             return i
         i = (i + 1) % n
 
 
-@njit
+
 def get_next_non_balanced_phase(phases, idx, state_mask):
 
     """
@@ -28,12 +26,12 @@ def get_next_non_balanced_phase(phases, idx, state_mask):
     i = (idx + 1) % n
 
     while True:
-        if state_mask[0][i] or state_mask[1][i]:
+        if state_mask[i] != 0:
             return i
         i = (i + 1) % n
 
-@njit
-def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mask, e_counter, d_counter):
+
+def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter):
 
     """
     Moves all uncovered excess packets from current -> next phase
@@ -45,7 +43,7 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
     4.1 merge the new excess in the next phase if possible
     5. Update uncovered excess counters in both phases
     6. Remove transferred packets from current phase
-    7. Mark current phase as balanced: mask=0, e_counter--, update max_height
+    7. Mark current phase as balanced: state_mask=0, e_counter--, update max_height
     8. Handle new packets in next phase by calling balance_phase
     Returns updated (e_counter, d_counter).
     """
@@ -105,21 +103,20 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
         current_phase.remove_excess(-1)
 
     # Current phase is now balanced
-    mask[0][current_phase_idx] = False
-    mask[1][current_phase_idx] = False
+    state_mask[current_phase_idx] = 0
 
     # Change the max_height_array entry
     max_height_array[current_phase_idx] = phases[current_phase_idx].get_starts_excess(-1) + phases[current_phase_idx].get_energy_excess(-1)
 
     e_counter -= 1
 
-    e_counter, d_counter = balance_phase(phases, next_phase_idx, mask, max_height_array, e_counter, d_counter)
+    e_counter, d_counter = balance_phase(phases, next_phase_idx, state_mask, max_height_array, e_counter, d_counter)
 
     return e_counter, d_counter
 
 
-@njit
-def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
+
+def balance_phase(phases, i, state_mask, max_height_array, e_counter, d_counter):
     """
     Balances newly moved excess packets for the phase
 
@@ -152,7 +149,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
     phase = phases[i]
 
     # 0. no uncovered deficit block -> nothing to do
-    if not mask[1][i]:
+    if state_mask[i] == 1:
         return e_counter, d_counter
 
     else:
@@ -210,8 +207,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
                 # update counters and mark phase as still having excess
                 d_counter -= 1
                 e_counter += 1
-                mask[0][i] = True
-                mask[1][i] = False
+                state_mask[i] = 1
 
                 # return updated counters
                 return e_counter, d_counter
@@ -223,8 +219,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
                 if idx == total-1:
 
                     #state_mask[i] = 0, deficit counter --
-                    mask[0][i] = False
-                    mask[1][i] = False
+                    state_mask[i] = 0
                     d_counter -= 1
 
                     # set max_height_array[i] to the end height of this block
@@ -239,8 +234,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
                 else:
 
                     # state_mask[i] = 1, deficit counter--, excess counter++
-                    mask[0][i] = True
-                    mask[1][i] = False
+                    state_mask[i] = 1
                     d_counter -= 1
                     e_counter += 1
 
@@ -251,23 +245,19 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
 
         return e_counter, d_counter
 
-@njit
-def init(phases):
+
+def init(phases, state_mask, max_height_array):
     """
     Fills out the state mask:
+        -  1 for excess > deficit
+        - -1 for excess < deficit
+        -  0 for excess = deficit
 
+    For each 0:
     Also sets the correct height entry for max_height_array
 
     Returns the tuple: (Number of 1 in total, Number of -1 in total)
     """
-
-    n = len(phases)
-
-    # mask[0][idx]: phases[idx] excess is NOT balanced
-    # mask[1][idx]: phases[idx] deficit is NOT balanced
-    mask = np.ones((2, len(phases)), dtype=np.bool)
-
-    max_height_array = np.zeros(n)
 
     e_counter = 0
     d_counter = 0
@@ -279,33 +269,47 @@ def init(phases):
 
         if current_excess_array_size > current_deficit_array_size:
             e_counter += 1
-            mask[0][i] = True
-            mask[1][i] = False
+            state_mask[i] = 1
 
         elif current_excess_array_size < current_deficit_array_size:
             d_counter += 1
-            mask[0][i] = False
-            mask[1][i] = True
+            state_mask[i] = -1
 
         else:
-            mask[0][i] = False
-            mask[1][i] = False
+            state_mask[i] = 0
             max_height_array[i] = phases[i].get_starts_excess(-1) + phases[i].get_energy_excess(-1)
 
-    return e_counter, d_counter, mask, max_height_array
 
-@njit
+    return e_counter, d_counter
+
+
 def process_phases_njit(phases):
 
+    n = len(phases)
+
+    # Mask for the state of the phases:
+    #  1 = Excess > Deficit
+    #  0 = Excess = Deficit
+    # -1 = Excess < Deficit
+    state_mask = np.zeros(n)
+
+    # Counters for how many E > D and E < D we have
+    e_counter = 0
+    d_counter = 0
+
+    # Saves the max_height of all balanced Phases
+    max_height_array = np.zeros(n)
+
     # Provides the initial states for each Phase object and balances them
-    e_counter, d_counter, mask, max_height_array = init(phases)
+    e_counter, d_counter = init(phases, state_mask, max_height_array)
 
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
         return phases
 
     # start with an excess overflow right away
-    idx = get_next_excess_index(phases, 0, mask)
+    idx = get_next_excess_index(phases, 0, state_mask)
+    start_idx = idx
 
     while True:
 
@@ -316,10 +320,10 @@ def process_phases_njit(phases):
         # For each Phase there are 3 possibilities
 
         #1. Excess > Deficit
-        next_phase_idx = get_next_non_balanced_phase(phases, idx, mask)
+        next_phase_idx = get_next_non_balanced_phase(phases, idx, state_mask)
 
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
-        e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, mask, e_counter, d_counter)
+        e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, state_mask, e_counter, d_counter)
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:
@@ -332,7 +336,7 @@ def process_phases_njit(phases):
         # Nothing to move here
 
         # Index goes to the next Excess
-        idx = get_next_excess_index(phases, idx, mask)
+        idx = get_next_excess_index(phases, idx, state_mask)
 
     #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
 
@@ -377,11 +381,11 @@ def process_phases_njit(phases):
 
 # worst case result stimmt. average case ähnlich aber definitiv nicht gleich
 
-@njit
+
 def process_phases(excess_array, deficit_array, start_times):
 
     n = len(excess_array)
-    phases_list = List()
+    phases_list = []
     for i in range(n):
         phase = efes_dataclasses.Phase(excess_array[i], deficit_array[i], start_times[i])
         phases_list.append(phase)
@@ -394,7 +398,7 @@ def process_phases(excess_array, deficit_array, start_times):
 
 
 
-@njit
+
 def print_helper(phases, e_counter, d_counter, max_height_array, state_mask):
 
     for phase in phases:
@@ -419,7 +423,6 @@ def print_helper(phases, e_counter, d_counter, max_height_array, state_mask):
 
     return 0
 
-@njit
 def dbg_sum_excess(phases):
     s = 0.0
     for i, p in enumerate(phases):
@@ -428,7 +431,6 @@ def dbg_sum_excess(phases):
     print("Sum of excess: ", s)
     return s
 
-@njit
 def dbg_sum_deficit(phases):
     s = 0.0
     for i, p in enumerate(phases):

@@ -19,15 +19,15 @@ if __name__ == '__main__':
 
     #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
 
-    #plot_from_json(cfg)
+    plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 1000, max_phase_count = None)
 
-    #submethod_analysis("append_improved_init_capacity_10_numba")
+    #submethod_analysis("new_version_fusion_without_numba")
 
-    #test_versions("original_simplified", "new_version_fusion", phase_count = 1000)
+    #test_versions("new_version_fusion_experimental", "new_version_fusion", phase_count = 1000)
 
-    #test_version_solo("new_version_fusion", False, 53)
+    #test_version_solo("new_version_fusion_experimental", False, 100000)
 
     #visualize_output_each_step(phase_count =  15)
 
