@@ -1,8 +1,7 @@
 {
     "worst_case_scenario": false,
-    "save_copy_of_visuals": false,
-    "start_phase_count": 5,
-    "end_phase_count": 5000000,
+    "start_phase_count": 10,
+    "end_phase_count": 100000000,
     "number_of_data_points": 300,
     "repetition_count": 5,
     "master_seed": 125,
@@ -13,8 +12,7 @@
         "new_version_fusion"
     ],
     "index_to_use": [
-        5
+        3
     ],
-    "abort": false,
-    "save_to_hdf5_till_count": 10000
+    "abort": false
 }

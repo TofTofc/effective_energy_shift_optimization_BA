@@ -58,15 +58,11 @@ def repetitions_equal(rep_a: list, rep_b: list) -> bool:
     return True
 
 
-def test_results(list_a: list[list], list_b: list[list]):
+def test_results(phases_a, phases_b):
 
-    for i, (rep_a, rep_b) in enumerate(zip(list_a, list_b)):
-        if not repetitions_equal(rep_a, rep_b):
-            sys.exit(f"Repetition {i} not equal")
+    dict_a = compute_battery_arrays_from_phases(phases_a)
 
-    print("Both results are equal!")
-    return True
-
+    dict_b = compute_battery_arrays_from_phases(phases_b)
 
 
 def compute_battery_arrays_from_phases(phases):

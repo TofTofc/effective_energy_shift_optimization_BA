@@ -1,15 +1,12 @@
 import importlib
 import importlib.util
 import os
-import sys
 import uuid
 import time
 import numpy as np
 
-from helper.hdf5_methodes import save_simulation_results, compare_simulation_results
+from helper.hdf5_methodes import save_simulation_results
 from helper.json_methodes import save_to_json, load_config, init_results_folders, get_run_info_from_json, change_cfg
-from helper.plot_methodes import  plot_from_json
-from helper.runtime_fitting_methodes import log_log_linear_regression
 
 delim = "-"*100
 abort = False
@@ -58,26 +55,6 @@ def init(worst_case_scenario: bool,
             energy_excess = rng_excess.integers(0, 100, phase_count)
             energy_deficit = rng_deficit.integers(0, 100, phase_count)
 
-            """ 
-            # Make the total sums equal by distributing the difference
-            sum_ex = energy_excess.sum()
-            sum_def = energy_deficit.sum()
-            diff = sum_ex - sum_def
-
-            if diff > 0:
-                q, r = divmod(diff, phase_count)
-                if q:
-                    energy_deficit = energy_deficit + q
-                if r:
-                    energy_deficit[:r] = energy_deficit[:r] + 1
-            elif diff < 0:
-                needed = -diff
-                q, r = divmod(needed, phase_count)
-                if q:
-                    energy_excess = energy_excess + q
-                if r:
-                    energy_excess[:r] = energy_excess[:r] + 1
-            """
 
         energy_excess_list.append(energy_excess)
         energy_deficit_list.append(energy_deficit)
@@ -85,7 +62,7 @@ def init(worst_case_scenario: bool,
     return energy_excess_list, energy_deficit_list, start_time_phases
 
 
-def output_runtime(module, total_runtime: float, repetition_count):
+def output_runtime(module, total_runtime: float):
     full_name = module.__name__
     short_name = full_name[len("effective_energy_shift_"):]
     short_name = "_".join(short_name.split("_")[:-1])
@@ -93,7 +70,7 @@ def output_runtime(module, total_runtime: float, repetition_count):
     print(f"Module: {short_name}, Mean runtime: {total_runtime:.8f}s")
 
 
-def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, repetition_count, fake_run):
+def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, save_to_hdf_till, repetition_count, fake_run):
     """Runs the given version repetition_count times and measures median runtime"""
 
     global abort
@@ -109,25 +86,24 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
             abort = True
 
         start = time.perf_counter()
-        phases_list = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
+        phases = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
         end = time.perf_counter()
 
         runtimes_single.append(end - start)
 
         # Only save the results that we later also want to save
-        # -> great memory savings
-        if cfg["save_to_hdf5_till_count"] >= len(energy_excess_list[i]):
-            module_results.append(phases_list)
+        if save_to_hdf_till >= len(energy_excess_list[i]):
+            module_results.append(phases)
 
     median_runtime = np.median(runtimes_single)
 
     if not fake_run:
-        output_runtime(module, median_runtime, repetition_count)
+        output_runtime(module, median_runtime)
 
     return module_results, median_runtime
 
 
-def main():
+def main(save_to_hdf_till):
 
     global abort
 
@@ -143,16 +119,14 @@ def main():
 
         if not pending_phase_counts:
             print("Job done. Everything was measured")
-            print("saving data")
             save_simulation_results(all_results, phase_counts_done, cfg)
-            print("saved data")
             return
 
         module = import_version(version_name)
 
         # Fake run for numba compiling
         energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 10,repetition_count)
-        do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count=1, fake_run=True)
+        do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, save_to_hdf_till, repetition_count=1, fake_run=True)
 
         print(f"{delim}\n{delim}")
         print(f"Working on version: {version_name}, "f"phase counts from {pending_phase_counts[0]} to {pending_phase_counts[-1]}")
@@ -165,16 +139,13 @@ def main():
 
             energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, phase_count, repetition_count)
 
-            module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, repetition_count, fake_run=False)
+            module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases,save_to_hdf_till, repetition_count, fake_run=False)
 
             if abort:
-                print("saving data")
-                save_simulation_results(all_results, phase_counts_done, cfg)
-                print("saved data")
+                save_simulation_results(all_results, phase_counts_done, cfg, save_to_hdf_till)
                 return
 
             phase_counts_done.append(phase_count)
             all_results.append(module_results)
 
             save_to_json(cfg, phase_count, median_runtime, version_name)
-    return

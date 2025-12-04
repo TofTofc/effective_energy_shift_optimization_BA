@@ -6,7 +6,9 @@ from helper.compare_methodes import extract_phase_arrays
 from helper.json_methodes import get_run_info_from_json
 
 
-def save_simulation_results(all_data, phase_counts, cfg):
+def save_simulation_results(all_data, phase_counts, cfg, save_to_hdf5_till_count):
+
+    print("saving data")
 
     version_name, _, repetition_count, master_seed, worst_case_scenario = get_run_info_from_json(cfg)
 
@@ -25,7 +27,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
     for cfg_idx, repetitions_list in enumerate(all_data):
 
         p_count = phase_counts[cfg_idx]
-        if "save_to_hdf5_till_count" in cfg and p_count > cfg["save_to_hdf5_till_count"]:
+        if p_count > save_to_hdf5_till_count:
             return
 
         with h5py.File(file_path, 'a') as f:
@@ -54,6 +56,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
                         name, (len(phases),), dtype=dtype, compression="gzip", compression_opts=4
                     )
                     dset[:] = data_list
+    print("saved data")
 
 
 def vlen_array_equal(arr1, arr2) -> bool:

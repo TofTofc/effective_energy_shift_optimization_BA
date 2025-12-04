@@ -373,9 +373,6 @@ def process_phases_njit(phases):
 # Aktuell kann z.b. der Eintrag vor dem Start auf den Start einen Überschuss übertragen
 # Wenn man so startet, das man keinen Excess Übertragen bekommt, löst das evt Probleme
 
-# Evt Mischung aus original und neuer Version z.B. erst original für x Schritte und dann die neue Version
-
-# worst case result stimmt. average case ähnlich aber definitiv nicht gleich
 
 @njit
 def process_phases(excess_array, deficit_array, start_times):

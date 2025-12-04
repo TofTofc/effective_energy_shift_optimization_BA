@@ -14,21 +14,20 @@ if __name__ == '__main__':
     init_results_folders(cfg)
 
 
-
-    #main()
+    #main(save_to_hdf_till = 10000)
 
     #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
 
-    plot_from_json(cfg)
+    #plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 1000, max_phase_count = None)
 
     #submethod_analysis("new_version_fusion_without_numba")
 
-    #test_versions("new_version_fusion_experimental", "new_version_fusion", phase_count = 1000)
+    #test_versions("original", "new_version_fusion", phase_count = 1000)
 
-    #test_version_solo("new_version_fusion_experimental", False, 100000)
+    #test_version_solo("new_version_fusion", False, 100000)
 
     #visualize_output_each_step(phase_count =  15)
 
-    #visualize(cfg,"new_version_fusion" , phase=15, max_cols = 100, case = "worst_case")
+    #visualize(cfg,"new_version_fusion" , phase=15, max_cols = 100, case = "average_case")
