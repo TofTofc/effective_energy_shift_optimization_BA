@@ -65,11 +65,6 @@ def move_excess(current_phase_idx, next_phase_idx,
     total = size_excess[current_phase_idx]
     start_idx = total - n
 
-    #print(number_of_excess_not_covered[next_phase_idx])
-    #print(energy_excess[next_phase_idx][:size_excess[next_phase_idx]])
-    #print(energy_deficit[next_phase_idx][:size_deficit[next_phase_idx]])
-    #print("::::::")
-
     # Iterates over all uncovered excesses
     for idx in range(start_idx, total):
 
@@ -162,22 +157,6 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
               number_of_excess_not_covered -- and return
 
     4. Return updated (e_counter, d_counter)
-    """
-
-    """
-    if i == 92:
-        print("TEST:")
-        tmp = 92
-
-        print(energy_excess[tmp][:size_excess[tmp]])
-        print(energy_deficit[tmp][:size_deficit[tmp]])
-
-        print("___________________________")
-
-        print(energy_excess[tmp + 1][:size_excess[tmp + 1]])
-        print(energy_deficit[tmp + 1][:size_deficit[tmp + 1]])
-
-        print("___________________________")
     """
 
     # 0. no uncovered deficit block -> nothing to do
@@ -427,10 +406,6 @@ def process_phases(excess_array, deficit_array, start_times):
         #1. Excess > Deficit
         next_phase_idx = get_next_non_balanced_phase(idx, mask)
 
-        #print(idx)
-        #print(next_phase_idx)
-        #print("___________________________")
-
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
         e_counter, d_counter = move_excess(
             idx, next_phase_idx,
@@ -454,8 +429,6 @@ def process_phases(excess_array, deficit_array, start_times):
 
         # Index goes to the next Excess
         idx = get_next_excess_index(idx, mask)
-
-    #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
 
     return (ids, capacity_excess, capacity_deficit,
      size_excess, size_deficit, number_of_excess_not_covered,

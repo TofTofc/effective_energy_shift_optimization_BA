@@ -13,11 +13,11 @@ if __name__ == '__main__':
     init_results_folders(cfg)
 
 
-    #main(save_to_hdf_till = 10000)
+    main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion", "new_version_fusion_classless", cfg)
+    #compare_simulation_results("new_version_fusion_classless_parallel", "new_version_fusion_classless_parallel_with_flags", cfg)
 
-    #plot_from_json(cfg)
+    plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "new_version_fusion", min_phase_count = 1000, max_phase_count = None)
 
