@@ -35,7 +35,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
 
             for rep_idx, data_arrays in enumerate(repetitions_list):
 
-                starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list = data_arrays
+                starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list, mask = data_arrays
 
                 rep_group = cfg_group.create_group(f"rep_{rep_idx}")
 

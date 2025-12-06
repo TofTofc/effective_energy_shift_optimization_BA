@@ -149,7 +149,7 @@ def process_phases_njit(phases_typed_list):
 
         phases_typed_list, mask, _ = move_overflow_njit(phases_typed_list, mask)
 
-    return phases_typed_list
+    return phases_typed_list, mask
 
 
 @njit

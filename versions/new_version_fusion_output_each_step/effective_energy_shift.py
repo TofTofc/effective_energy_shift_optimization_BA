@@ -311,7 +311,7 @@ def process_phases_njit(phases):
 
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
-        return phases_list
+        return phases_list, state_mask
 
     # start with an excess overflow right away
     idx = get_next_excess_index(phases, 0, state_mask)
@@ -350,7 +350,7 @@ def process_phases_njit(phases):
 
     phases_list.append(copy_phase_array(phases))
 
-    return phases_list
+    return phases_list, state_mask
 
 
 @njit

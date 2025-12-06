@@ -310,7 +310,7 @@ def process_phases_njit(phases):
 
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
-        return phases
+        return phases, mask
 
     # start with an excess overflow right away
     idx = get_next_excess_index(phases, 0, mask)
@@ -326,31 +326,8 @@ def process_phases_njit(phases):
         #1. Excess > Deficit
         next_phase_idx = get_next_non_balanced_phase(phases, idx, mask)
 
-        #print(idx)
-        #print(next_phase_idx)
-        #print("___________________________")
-
-        if idx == 96:
-
-            print(phases[96].get_energy_excess_all())
-            print(phases[96].get_energy_deficit_all())
-
-            print("___________________________")
-
-            print(phases[97].get_energy_excess_all())
-            print(phases[97].get_energy_deficit_all())
-
-            print("___________________________")
-
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
         e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, mask, e_counter, d_counter)
-
-        if idx == 96:
-            print(phases[96].get_energy_excess_all())
-            print(phases[96].get_energy_deficit_all())
-            print("___________________________")
-            print(phases[97].get_energy_excess_all())
-            print(phases[97].get_energy_deficit_all())
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:
@@ -367,7 +344,7 @@ def process_phases_njit(phases):
 
     #print_helper(phases, e_counter, d_counter, max_height_array, state_mask)
 
-    return phases
+    return phases, mask
 
 # Wenn 3 Excess Pakete das letzte Deficit Paket füllen,
 # dann kann es sein, das nicht alle der 3 E überschüsse im original so weit gekommen wären

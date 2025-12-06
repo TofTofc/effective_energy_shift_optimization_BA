@@ -4,89 +4,70 @@ import numpy as np
 
 delim = "-"*100
 
-def extract_phase_arrays(phase):
-
-    expected_attrs = [
-        "capacity_excess", "capacity_deficit", "size_excess", "size_deficit",
-        "starts_excess", "starts_deficit",
-        "energy_excess", "energy_deficit",
-    ]
-
-    all_exist = all(hasattr(phase, attr) for attr in expected_attrs)
-
-    if all_exist:
-        size_excess = getattr(phase, "size_excess")
-        size_deficit = getattr(phase, "size_deficit")
-
-        starts_excess = getattr(phase, "starts_excess")[:size_excess]
-        starts_deficit = getattr(phase, "starts_deficit")[:size_deficit]
-        energy_excess_arr = getattr(phase, "energy_excess")[:size_excess]
-        energy_deficit_arr = getattr(phase, "energy_deficit")[:size_deficit]
-
-    else:
-
-        starts_excess = getattr(phase, "starts_excess")
-        starts_deficit = getattr(phase, "starts_deficit")
-        energy_excess_arr = getattr(phase, "energy_excess")
-        energy_deficit_arr = getattr(phase, "energy_deficit")
-
-    return (
-        starts_excess,
-        starts_deficit,
-        energy_excess_arr,
-        energy_deficit_arr,
-    )
+import numpy as np
 
 
-def compare_phase_objects(p1, p2):
+def is_equal(tuple_a, tuple_b):
+    starts_excess_list_a, starts_deficit_list_a, energy_excess_list_a, energy_deficit_list_a, mask_a = tuple_a
+    starts_excess_list_b, starts_deficit_list_b, energy_excess_list_b, energy_deficit_list_b, mask_b = tuple_b
 
-    arrs1 = extract_phase_arrays(p1)
-    arrs2 = extract_phase_arrays(p2)
+    starts_deficit_merged_a, energy_deficit_merged_a = merge_deficits(starts_deficit_list_a, energy_deficit_list_a)
+    starts_deficit_merged_b, energy_deficit_merged_b = merge_deficits(starts_deficit_list_b, energy_deficit_list_b)
 
-    return all(np.array_equal(a1, a2) for a1, a2 in zip(arrs1, arrs2))
+    for i in range(len(starts_deficit_merged_a)):
 
+        starts_a = starts_deficit_merged_a[i]
+        energy_a = energy_deficit_merged_a[i]
+        starts_b = starts_deficit_merged_b[i]
+        energy_b = energy_deficit_merged_b[i]
 
+        if len(starts_a) != len(starts_b):
+            print(f"Versions are not equal at phase index i = {i}.")
+            print(f"Number of deficits is different: A has {len(starts_a)}, B has {len(starts_b)}.")
+            return False
 
-def repetitions_equal(rep_a: list, rep_b: list) -> bool:
+        if not np.array_equal(starts_a, starts_b):
+            print(f"Versions are not equal at phase index i = {i}.")
+            print("Deficit start points do not match.")
+            return False
 
-    if len(rep_a) != len(rep_b):
+        if not np.array_equal(energy_a, energy_b):
+            print(f"Versions are not equal at phase index i = {i}.")
+            print("Deficit values (energy) do not match.")
+            return False
+
+    if not np.array_equal(mask_a[1], mask_b[1]):
+        print("Error: Deficit Balance Masks (row 1) are not equal.")
         return False
 
-    for p_a, p_b in zip(rep_a, rep_b):
-        if not compare_phase_objects(p_a, p_b):
-            return False
     return True
 
 
-def test_results(phases_a, phases_b):
+def merge_deficits(starts_deficit_list, energy_deficit_list):
+    merged_starts_list = []
+    merged_energy_list = []
 
-    dict_a = compute_battery_arrays_from_phases(phases_a)
+    for starts_arr, energy_arr in zip(starts_deficit_list, energy_deficit_list):
 
-    dict_b = compute_battery_arrays_from_phases(phases_b)
+        merged_starts = [starts_arr[0]]
+        merged_energy = [energy_arr[0]]
+        last_end = starts_arr[0] + energy_arr[0]
 
+        for i in range(1, len(starts_arr)):
+            current_start = starts_arr[i]
+            current_energy = energy_arr[i]
 
-def compute_battery_arrays_from_phases(phases):
+            if current_start == last_end:
 
-    capacity_phases = []
-    energy_additional_phases = []
+                merged_energy[-1] += current_energy
+                last_end = merged_starts[-1] + merged_energy[-1]
 
-    for phase in phases:
-        capacity_phases.extend(phase.starts_deficit[phase.deficit_balanced])
-        energy_additional_phases.extend(phase.energy_deficit[phase.deficit_balanced])
+            else:
+                merged_starts.append(current_start)
+                merged_energy.append(current_energy)
+                last_end = current_start + current_energy
 
-    capacity_phases = np.array(capacity_phases)
-    energy_additional_phases = np.array(energy_additional_phases)
+        merged_starts_list.append(np.array(merged_starts))
+        merged_energy_list.append(np.array(merged_energy))
 
-    capacity = np.unique(np.sort(np.array([capacity_phases, capacity_phases + energy_additional_phases]).flatten()))
-
-    effectiveness_local = np.zeros(len(capacity))
-    for phase in phases:
-        for capacity_lower, capacity_upper in zip(phase.starts_deficit[phase.deficit_balanced], phase.starts_deficit[phase.deficit_balanced] + phase.energy_deficit[phase.deficit_balanced]):
-            effectiveness_local[(capacity_lower <= capacity) & (capacity < capacity_upper)] += 1
-
-    delta_capacity = np.diff(capacity)
-    delta_energy_additional = effectiveness_local[:-1]*delta_capacity
-    energy_additional = np.array([0, *delta_energy_additional.cumsum()])
-
-    return dict(capacity=capacity, energy_additional=energy_additional, effectiveness_local=effectiveness_local)
-    
+    return merged_starts_list, merged_energy_list
