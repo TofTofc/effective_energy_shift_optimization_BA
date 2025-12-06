@@ -50,6 +50,8 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
     Returns updated (e_counter, d_counter).
     """
 
+    i = 0
+
     current_phase = phases[current_phase_idx]
     next_phase = phases[next_phase_idx]
 
@@ -63,6 +65,11 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
     n = phases[current_phase_idx].number_of_excess_not_covered
     total = phases[current_phase_idx].size_excess
     start_idx = total - n
+
+    #print(next_phase.number_of_excess_not_covered)
+    #print(next_phase.get_energy_excess_all())
+    #print(next_phase.get_energy_deficit_all())
+    #print("::::::")
 
     # Iterates over all uncovered excesses
     for idx in range(start_idx, total):
@@ -92,6 +99,7 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
             next_phase.set_energy_excess(-1, prev_energy + overflow_content)
             # not increment next_phase.number_of_excess_not_covered because we no new packet
         else:
+
             # Add Excess to next Phase
             next_phase.append_excess(excess_start, overflow_content, excess_id)
             # Increment the Number of not covered excess packets in the next phase
@@ -267,7 +275,7 @@ def init(phases):
     # mask[1][idx]: phases[idx] deficit is NOT balanced
     mask = np.ones((2, len(phases)), dtype=np.bool)
 
-    max_height_array = np.zeros(n)
+    max_height_array = np.zeros(n, dtype=np.int64)
 
     e_counter = 0
     d_counter = 0
@@ -318,8 +326,31 @@ def process_phases_njit(phases):
         #1. Excess > Deficit
         next_phase_idx = get_next_non_balanced_phase(phases, idx, mask)
 
+        #print(idx)
+        #print(next_phase_idx)
+        #print("___________________________")
+
+        if idx == 96:
+
+            print(phases[96].get_energy_excess_all())
+            print(phases[96].get_energy_deficit_all())
+
+            print("___________________________")
+
+            print(phases[97].get_energy_excess_all())
+            print(phases[97].get_energy_deficit_all())
+
+            print("___________________________")
+
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
         e_counter, d_counter = move_excess(phases, idx, next_phase_idx, max_height_array, mask, e_counter, d_counter)
+
+        if idx == 96:
+            print(phases[96].get_energy_excess_all())
+            print(phases[96].get_energy_deficit_all())
+            print("___________________________")
+            print(phases[97].get_energy_excess_all())
+            print(phases[97].get_energy_deficit_all())
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:

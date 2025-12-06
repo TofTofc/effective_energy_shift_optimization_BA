@@ -23,7 +23,7 @@ class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
     def __init__(self, energy_excess: float, energy_deficit: float, id: int):
 
-        initial_capacity = 10
+        initial_capacity = 25
 
         self.id = id
 
@@ -73,6 +73,7 @@ class Phase:
 
         if self.size_excess >= self.capacity_excess:
             self.capacity_excess *= 2
+            print(self.capacity_excess)
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
             self.energy_excess = np.resize(self.energy_excess, self.capacity_excess)
             self.excess_ids = np.resize(self.excess_ids, self.capacity_excess)
@@ -88,6 +89,7 @@ class Phase:
         if self.size_excess >= self.capacity_excess:
 
             self.capacity_excess *= 2
+            print(self.capacity_excess)
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
             self.energy_excess = np.resize(self.energy_excess, self.capacity_excess)
             self.excess_ids = np.resize(self.excess_ids, self.capacity_excess)
@@ -106,6 +108,7 @@ class Phase:
 
         if self.size_deficit >= self.capacity_deficit:
             self.capacity_deficit *= 2
+            print(self.capacity_excess)
             self.starts_deficit = np.resize(self.starts_deficit, self.capacity_deficit)
             self.energy_deficit = np.resize(self.energy_deficit, self.capacity_deficit)
 

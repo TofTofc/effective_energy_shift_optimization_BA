@@ -146,7 +146,6 @@ def get_run_info_from_json(cfg: dict):
 
     return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario
 
-
 def change_cfg(key, new_value):
     file = Path("setup.json")
 
@@ -157,4 +156,3 @@ def change_cfg(key, new_value):
 
     with open(file, 'w') as f:
         json.dump(data, f, indent=4)
-

@@ -5,8 +5,9 @@ import uuid
 import time
 import numpy as np
 
+from helper.extract_results import extract_results
 from helper.hdf5_methodes import save_simulation_results
-from helper.json_methodes import save_to_json, load_config, init_results_folders, get_run_info_from_json, change_cfg
+from helper.json_methodes import save_to_json, load_config, get_run_info_from_json
 
 delim = "-"*100
 abort = False
@@ -73,27 +74,22 @@ def output_runtime(module, total_runtime: float):
 def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_phases, save_to_hdf_till, repetition_count, fake_run):
     """Runs the given version repetition_count times and measures median runtime"""
 
-    global abort
-
     runtimes_single = []
     module_results = []
 
     for i in range(repetition_count):
 
-        # Terminates the run
-        cfg = load_config()
-        if cfg["abort"]:
-            abort = True
-
         start = time.perf_counter()
-        phases = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
+        result = module.process_phases(energy_excess_list[i], energy_deficit_list[i], start_time_phases)
         end = time.perf_counter()
 
         runtimes_single.append(end - start)
 
-        # Only save the results that we later also want to save
+        # Only save the results that we want to save
         if save_to_hdf_till >= len(energy_excess_list[i]):
-            module_results.append(phases)
+
+            data_arrays = extract_results(result)
+            module_results.append(data_arrays)
 
     median_runtime = np.median(runtimes_single)
 
@@ -105,12 +101,12 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
 
 def main(save_to_hdf_till):
 
-    global abort
-
     cfg = load_config()
 
     phase_counts_done = []
     all_results = []
+
+    saving_done = False
 
     while True:
 
@@ -119,7 +115,6 @@ def main(save_to_hdf_till):
 
         if not pending_phase_counts:
             print("Job done. Everything was measured")
-            save_simulation_results(all_results, phase_counts_done, cfg)
             return
 
         module = import_version(version_name)
@@ -134,6 +129,12 @@ def main(save_to_hdf_till):
 
         for phase_count in pending_phase_counts:
 
+            cfg = load_config()
+            if cfg["abort"]:
+                if not saving_done:
+                    save_simulation_results(all_results, phase_counts_done, cfg)
+                return
+
             print(delim)
             print("Current Phase Count: ", phase_count)
 
@@ -141,11 +142,15 @@ def main(save_to_hdf_till):
 
             module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases,save_to_hdf_till, repetition_count, fake_run=False)
 
-            if abort:
-                save_simulation_results(all_results, phase_counts_done, cfg, save_to_hdf_till)
-                return
+            if not saving_done:
 
-            phase_counts_done.append(phase_count)
-            all_results.append(module_results)
+                all_results.append(module_results)
+                phase_counts_done.append(phase_count)
+
+                if phase_count >= save_to_hdf_till:
+                    save_simulation_results(all_results, phase_counts_done, cfg)
+                    all_results = []
+                    phase_counts_done = []
+                    saving_done = True
 
             save_to_json(cfg, phase_count, median_runtime, version_name)

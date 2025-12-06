@@ -10,13 +10,12 @@ if __name__ == '__main__':
 
     change_cfg("abort", False)
     cfg = load_config()
-
     init_results_folders(cfg)
 
 
     #main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion", "append_improved_init_capacity_10_numba", cfg)
+    #compare_simulation_results("new_version_fusion", "new_version_fusion_classless", cfg)
 
     #plot_from_json(cfg)
 
@@ -26,8 +25,8 @@ if __name__ == '__main__':
 
     #test_versions("original", "new_version_fusion", phase_count = 1000)
 
-    #test_version_solo("new_version_fusion", False, 100000)
+    #test_version_solo("new_version_fusion_classless", False, 1114)
 
     #visualize_output_each_step(phase_count =  15)
 
-    #visualize(cfg,"new_version_fusion" , phase=15, max_cols = 100, case = "average_case")
+    #visualize(cfg,"new_version_fusion_classless" , phase=21, max_cols = 100, case = "average_case")

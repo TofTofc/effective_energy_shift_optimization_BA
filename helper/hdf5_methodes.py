@@ -2,11 +2,10 @@ import h5py
 import numpy as np
 from pathlib import Path
 
-from helper.compare_methodes import extract_phase_arrays
 from helper.json_methodes import get_run_info_from_json
 
 
-def save_simulation_results(all_data, phase_counts, cfg, save_to_hdf5_till_count):
+def save_simulation_results(all_data, phase_counts, cfg):
 
     print("saving data")
 
@@ -18,17 +17,12 @@ def save_simulation_results(all_data, phase_counts, cfg, save_to_hdf5_till_count
     case_file = "worst_case.h5" if cfg.get("worst_case_scenario", False) else "average_case.h5"
     file_path = output_dir / case_file
 
-    attr_names = [
-        "starts_excess", "starts_deficit", "energy_excess", "energy_deficit"
-    ]
-    dt_float_vlen = h5py.vlen_dtype(np.dtype('float64'))
-    dt_int_vlen = h5py.vlen_dtype(np.dtype('int64'))
+    dt_int32_vlen = h5py.vlen_dtype(np.dtype('int32'))
+    dt_int64_vlen = h5py.vlen_dtype(np.dtype('int64'))
 
     for cfg_idx, repetitions_list in enumerate(all_data):
 
         p_count = phase_counts[cfg_idx]
-        if p_count > save_to_hdf5_till_count:
-            return
 
         with h5py.File(file_path, 'a') as f:
 
@@ -39,23 +33,29 @@ def save_simulation_results(all_data, phase_counts, cfg, save_to_hdf5_till_count
 
             cfg_group = f.create_group(f"phase_count_{p_count}")
 
-            for rep_idx, phases in enumerate(repetitions_list):
+            for rep_idx, data_arrays in enumerate(repetitions_list):
+
+                starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list = data_arrays
 
                 rep_group = cfg_group.create_group(f"rep_{rep_idx}")
 
-                collected_data = {name: [] for name in attr_names}
-
-                for phase_obj in phases:
-                    extracted = extract_phase_arrays(phase_obj)
-                    for i, name in enumerate(attr_names):
-                        collected_data[name].append(np.asarray(extracted[i]))
+                collected_data = {
+                    "starts_excess": starts_excess_list,
+                    "starts_deficit": starts_deficit_list,
+                    "energy_excess": energy_excess_list,
+                    "energy_deficit": energy_deficit_list
+                }
 
                 for name, data_list in collected_data.items():
-                    dtype = dt_int_vlen if "ids" in name else dt_float_vlen
-                    dset = rep_group.create_dataset(
-                        name, (len(phases),), dtype=dtype, compression="gzip", compression_opts=4
-                    )
+
+                    if "starts" in name:
+                        dtype = dt_int64_vlen
+                    else:
+                        dtype = dt_int32_vlen
+
+                    dset = rep_group.create_dataset(name, (len(data_list),), dtype=dtype, compression="gzip", compression_opts=4)
                     dset[:] = data_list
+
     print("saved data")
 
 
@@ -65,6 +65,10 @@ def vlen_array_equal(arr1, arr2) -> bool:
 
     for i in range(len(arr1)):
         if not np.array_equal(arr1[i], arr2[i]):
+            print(arr1[i])
+            print("_________________________________")
+            print(arr2[i])
+            print(i)
             return False
 
     return True
