@@ -28,24 +28,28 @@ def submethod_analysis(version_name, worst_case_scenario = False, phase_count = 
     ps.sort_stats("tottime")
     ps.print_stats()
 
-def test_versions(version_name_a, version_name_b, start = 10, end = 1000, worst_case_scenario = False):
+def test_versions(version_name_a, version_name_b, start = 10, end = 1000, repetitions_count = 25, worst_case_scenario = False):
 
     module_a = import_version(version_name_a)
     module_b = import_version(version_name_b)
 
     for i in range(start, end):
 
-        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, i, 1)
+        print(i)
 
-        phases_list_a = module_a.process_phases(energy_excess_lists[0], energy_deficit_lists[0], start_time_phases)
-        phases_list_b = module_b.process_phases(energy_excess_lists[0], energy_deficit_lists[0], start_time_phases)
+        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, i, repetitions_count)
 
-        result_a = extract_results(phases_list_a)
-        result_b = extract_results(phases_list_b)
+        for idx in range(repetitions_count):
 
-        if not is_equal(result_a, result_b):
-            print(f"Versions are not equal at phase count i = {i}")
-            return
+            phases_list_a = module_a.process_phases(energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases)
+            phases_list_b = module_b.process_phases(energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases)
+
+            result_a = extract_results(phases_list_a)
+            result_b = extract_results(phases_list_b)
+
+            if not is_equal(result_a, result_b):
+                print(f"Versions are not equal at phase count i = {i}")
+                return
 
     print("Versions are equal")
 
@@ -53,6 +57,12 @@ def test_version_solo(version_name, worst_case_scenario = False, phase_count = 5
 
     module = import_version(version_name)
     energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, phase_count, 1)
+
+    print(energy_excess_lists[0]-energy_deficit_lists[0])
+
+    print(energy_excess_lists[0])
+    print(energy_deficit_lists[0])
+
     module.process_phases(energy_excess_lists[0], energy_deficit_lists[0], start_time_phases)
 
 def visualize_output_each_step(phase_count, version_name = "new_version_fusion_output_each_step", worst_case_scenario = False):

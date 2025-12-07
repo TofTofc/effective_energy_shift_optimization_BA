@@ -1,8 +1,8 @@
 {
     "worst_case_scenario": false,
-    "start_phase_count": 271,
-    "end_phase_count": 12000,
-    "number_of_data_points": 100,
+    "start_phase_count": 10,
+    "end_phase_count": 100000000,
+    "number_of_data_points": 300,
     "repetition_count": 5,
     "master_seed": 125,
     "versions": [
@@ -15,7 +15,7 @@
         "new_version_fusion_classless_parallel_with_flags"
     ],
     "index_to_use": [
-        0
+        3
     ],
     "abort": false
 }

@@ -58,6 +58,23 @@ def move_excess(phases_list, phases, current_phase_idx, next_phase_idx, max_heig
     # Get the max height inbetween the two phases
     if next_phase_idx > current_phase_idx + 1:
         max_height = np.amax(max_height_array[current_phase_idx + 1: next_phase_idx])
+
+    elif next_phase_idx <= current_phase_idx:
+
+        current_start = current_phase_idx + 1
+        next_stop = next_phase_idx
+
+        slice_1 = max_height_array[current_start:]
+
+        slice_2 = max_height_array[:next_stop]
+
+        combined_array = np.concatenate((slice_1, slice_2))
+
+        if len(combined_array) > 0:
+            max_height = np.amax(combined_array)
+        else:
+            max_height = 0
+
     else:
         max_height = 0
 

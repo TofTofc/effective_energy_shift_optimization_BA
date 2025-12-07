@@ -1,9 +1,6 @@
 import numba
 import numpy as np
-from numba import njit
-from numba.typed import List
 
-@njit(nogil = True, inline = "always")
 def get_next_excess_index(idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -17,7 +14,6 @@ def get_next_excess_index(idx, state_mask):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
 def get_next_non_balanced_phase(idx, state_mask):
 
     """
@@ -31,7 +27,6 @@ def get_next_non_balanced_phase(idx, state_mask):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
 def move_excess(current_phase_idx, next_phase_idx,
                 max_height_array, mask,
                 e_counter, d_counter,
@@ -143,7 +138,6 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     return e_counter, d_counter
 
-@njit(nogil = True, inline = "always")
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
                   starts_excess, energy_excess, excess_ids,
@@ -292,7 +286,6 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
     return e_counter, d_counter
 
-@njit(parallel = True, nogil = True, inline = "always")
 def init(excess_array, deficit_array, start_times):
     """
     Fills out the state mask:
@@ -390,7 +383,6 @@ def init(excess_array, deficit_array, start_times):
 
 # TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
 
-@njit(nogil = True)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them
