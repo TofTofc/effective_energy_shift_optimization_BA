@@ -12,10 +12,12 @@
         "new_version_fusion",
         "new_version_fusion_classless",
         "new_version_fusion_classless_parallel",
-        "new_version_fusion_classless_parallel_with_flags"
+        "new_version_fusion_classless_parallel_with_flags",
+        "new_version_fusion_classless_parallel_with_flags_no_ids",
+        "new_version_fusion_classless_parallel_with_flags_no_ids_dtypes"
     ],
     "index_to_use": [
-        3
+        8
     ],
     "abort": false
 }

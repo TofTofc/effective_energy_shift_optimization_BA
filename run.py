@@ -15,13 +15,13 @@ if __name__ == '__main__':
 
     #main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion_classless_parallel", "new_version_fusion_classless_parallel_with_flags", cfg)
+    #compare_simulation_results("new_version_fusion_classless_parallel_with_flags_no_ids_dtypes", "new_version_fusion", cfg)
 
-    #plot_from_json(cfg)
+    plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "new_version_fusion_classless_parallel_with_flags", min_phase_count = 1000, max_phase_count = None)
 
-    submethod_analysis("new_version_fusion_classless_parallel_with_flags_no_numba")
+    #submethod_analysis("new_version_fusion_classless_parallel_with_flags_no_numba")
 
     #test_versions("original", "new_version_fusion_classless_parallel_with_flags")
 
