@@ -1,5 +1,5 @@
 {
-  "version": "new_version_fusion_classless_parallel_with_flags",
+  "version": "new_version_fusion_classless_parallel_init",
   "worst_case": true,
   "number_of_data_points": 300,
   "start_phase_count": 10,

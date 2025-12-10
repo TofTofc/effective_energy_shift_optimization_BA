@@ -3,7 +3,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-@njit(nogil = True, inline = "always")
+@njit
 def get_next_excess_index(idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -17,7 +17,7 @@ def get_next_excess_index(idx, state_mask):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
+@njit
 def get_next_non_balanced_phase(idx, state_mask):
 
     """
@@ -31,7 +31,7 @@ def get_next_non_balanced_phase(idx, state_mask):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
+@njit
 def move_excess(current_phase_idx, next_phase_idx,
                 max_height_array, mask,
                 e_counter, d_counter,
@@ -143,7 +143,7 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     return e_counter, d_counter
 
-@njit(nogil = True, inline = "always")
+@njit
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
                   starts_excess, energy_excess, excess_ids,
@@ -292,7 +292,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
     return e_counter, d_counter
 
-@njit(parallel = True, nogil = True, inline = "always")
+@njit(parallel = True)
 def init(excess_array, deficit_array, start_times):
     """
     Fills out the state mask:
@@ -305,21 +305,23 @@ def init(excess_array, deficit_array, start_times):
     n = excess_array.shape[0]
     initial_capacity = 50
 
-    starts_excess = np.empty((n, initial_capacity), dtype=np.int64)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.int64)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.int32)
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.int32)
-    excess_ids = np.empty((n, initial_capacity), dtype=np.int32)
+    # Smaller Datatypes are possible for average case only
+    # Worst case results in huge numbers
+    starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    excess_ids = np.empty((n, initial_capacity), dtype=np.uint64)
 
-    ids = np.empty(n, dtype=np.int32)
-    capacity_excess = np.empty(n, dtype=np.int32)
-    capacity_deficit = np.empty(n, dtype=np.int32)
-    size_excess = np.empty(n, dtype=np.int32)
-    size_deficit = np.empty(n, dtype=np.int32)
-    number_of_excess_not_covered = np.empty(n, dtype=np.int32)
+    ids = np.empty(n, dtype=np.int64)
+    capacity_excess = np.empty(n, dtype=np.uint8)
+    capacity_deficit = np.empty(n, dtype=np.uint8)
+    size_excess = np.empty(n, dtype=np.uint8)
+    size_deficit = np.empty(n, dtype=np.uint8)
+    number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
 
     mask = np.ones((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.int64)
+    max_height_array = np.zeros(n, dtype=np.uint64)
 
     e_counter = 0
     d_counter = 0
@@ -388,9 +390,9 @@ def init(excess_array, deficit_array, start_times):
             energy_excess, energy_deficit,
             excess_ids)
 
-# TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
+# TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS
 
-@njit(nogil = True)
+@njit
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them
@@ -450,10 +452,9 @@ def process_phases(excess_array, deficit_array, start_times):
         idx = get_next_excess_index(idx, mask)
 
     return \
-    (
-        size_excess, size_deficit,
-        starts_excess, starts_deficit,
-        energy_excess, energy_deficit,
-        mask
-    )
-
+        (
+            size_excess, size_deficit,
+            starts_excess, starts_deficit,
+            energy_excess, energy_deficit,
+            mask
+        )

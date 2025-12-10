@@ -13,20 +13,20 @@ if __name__ == '__main__':
     init_results_folders(cfg)
 
 
-    #main(save_to_hdf_till = 10000)
+    main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion_classless_parallel_with_flags_no_ids_dtypes", "new_version_fusion", cfg)
+    #compare_simulation_results("new_version_fusion_classless_parallel_init_with_flags_fewer_arrays", "new_version_fusion", cfg)
 
-    plot_from_json(cfg)
+    #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version_fusion_classless_parallel_with_flags", min_phase_count = 1000, max_phase_count = None)
+    #log_log_linear_regression(cfg, "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays", min_phase_count = 1000, max_phase_count = None)
 
     #submethod_analysis("new_version_fusion_classless_parallel_with_flags_no_numba")
 
-    #test_versions("original", "new_version_fusion_classless_parallel_with_flags")
+    #test_versions("original", "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays")
 
     #test_version_solo("new_version_fusion", False, 271)
 
     #visualize_output_each_step(phase_count =  271)
 
-    #visualize(cfg,"new_version_fusion_classless_parallel_with_flags" , phase=271, max_cols = 10, case = "average_case")
+    #visualize(cfg,"new_version_fusion_classless_parallel_init_with_flags" , phase=271, max_cols = 10, case = "average_case")

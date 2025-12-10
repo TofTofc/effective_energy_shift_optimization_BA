@@ -37,7 +37,7 @@ def move_excess(current_phase_idx, next_phase_idx,
                 e_counter, d_counter,
                 size_excess,
                 number_of_excess_not_covered,
-                starts_excess, energy_excess,
+                starts_excess, energy_excess, excess_ids,
                 size_deficit, starts_deficit, energy_deficit):
 
     """
@@ -103,6 +103,8 @@ def move_excess(current_phase_idx, next_phase_idx,
         # 2. start of moved packet equals end of last excess in next phase
         can_merge = (number_of_excess_not_covered[next_phase_idx] > 0) and (excess_start == last_excess_end_height)
 
+        excess_id = excess_ids[current_phase_idx, idx]
+
         if can_merge:
 
             # Merge: increase energy of last excess in next_phase
@@ -114,6 +116,7 @@ def move_excess(current_phase_idx, next_phase_idx,
             i = size_excess[next_phase_idx]
             starts_excess[next_phase_idx, i] = excess_start
             energy_excess[next_phase_idx, i] = overflow_content
+            excess_ids[next_phase_idx, i] = excess_id
             size_excess[next_phase_idx] += 1
             number_of_excess_not_covered[next_phase_idx] += 1
 
@@ -135,7 +138,7 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     e_counter, d_counter = balance_phase(next_phase_idx, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
-                  starts_excess, energy_excess,
+                  starts_excess, energy_excess, excess_ids,
                   size_deficit, starts_deficit, energy_deficit)
 
     return e_counter, d_counter
@@ -143,7 +146,7 @@ def move_excess(current_phase_idx, next_phase_idx,
 @njit(nogil = True, inline = "always")
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
-                  starts_excess, energy_excess,
+                  starts_excess, energy_excess, excess_ids,
                   size_deficit, starts_deficit, energy_deficit):
     """
     Balances newly moved excess packets for the phase
@@ -226,6 +229,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             # computed start for the remaining excess
             new_start = deficit_start + deficit_energy
             energy_remaining = excess_energy - deficit_energy
+            excess_id = excess_ids[i, idx]
 
             # set lower packet to cover the deficit
             energy_excess[i, idx] = deficit_energy
@@ -237,9 +241,11 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
             starts_excess[i, insert_idx + 1: size + 1] = starts_excess[i, insert_idx:size].copy()
             energy_excess[i, insert_idx + 1: size + 1] = energy_excess[i, insert_idx:size].copy()
+            excess_ids[i, insert_idx + 1: size + 1] = excess_ids[i, insert_idx:size].copy()
 
             starts_excess[i, insert_idx] = new_start
             energy_excess[i, insert_idx] = energy_remaining
+            excess_ids[i, insert_idx] = excess_id
             size_excess[i] += 1
 
             # update counters and mark phase as still having excess
@@ -299,25 +305,30 @@ def init(excess_array, deficit_array, start_times):
     n = excess_array.shape[0]
     initial_capacity = 50
 
-    starts_excess = np.empty((n, initial_capacity), dtype=np.int64)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.int64)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.int32)
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.int32)
+    # Smaller Datatypes are possible for average case only
+    # Worst case results in huge numbers
+    starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    excess_ids = np.empty((n, initial_capacity), dtype=np.uint64)
 
-    capacity_excess = np.empty(n, dtype=np.int32)
-    capacity_deficit = np.empty(n, dtype=np.int32)
-    size_excess = np.empty(n, dtype=np.int32)
-    size_deficit = np.empty(n, dtype=np.int32)
-    number_of_excess_not_covered = np.empty(n, dtype=np.int32)
+    ids = np.empty(n, dtype=np.int64)
+    capacity_excess = np.empty(n, dtype=np.uint8)
+    capacity_deficit = np.empty(n, dtype=np.uint8)
+    size_excess = np.empty(n, dtype=np.uint8)
+    size_deficit = np.empty(n, dtype=np.uint8)
+    number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
 
     mask = np.ones((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.int64)
+    max_height_array = np.zeros(n, dtype=np.uint64)
 
     e_counter = 0
     d_counter = 0
 
     for i in numba.prange(n):
 
+        ids[i] = start_times[i]
         capacity_excess[i] = initial_capacity
         capacity_deficit[i] = initial_capacity
 
@@ -325,6 +336,7 @@ def init(excess_array, deficit_array, start_times):
         starts_deficit[i, 0] = 0
         energy_excess[i, 0] = excess_array[i]
         energy_deficit[i, 0] = deficit_array[i]
+        excess_ids[i, 0] = ids[i]
 
         e_ex = excess_array[i]
         e_def = deficit_array[i]
@@ -339,6 +351,7 @@ def init(excess_array, deficit_array, start_times):
 
             energy_excess[i, 1] = e_ex - e_def
             starts_excess[i, 1] = e_def
+            excess_ids[i, 1] = ids[i]
 
             size_excess[i] = 2
             size_deficit[i] = 1
@@ -371,10 +384,11 @@ def init(excess_array, deficit_array, start_times):
             max_height_array[i] = (starts_excess[i, 0] + energy_excess[i, 0])
 
     return (e_counter, d_counter, mask, max_height_array,
-            capacity_excess, capacity_deficit,
+            ids, capacity_excess, capacity_deficit,
             size_excess, size_deficit, number_of_excess_not_covered,
             starts_excess, starts_deficit,
-            energy_excess, energy_deficit)
+            energy_excess, energy_deficit,
+            excess_ids)
 
 # TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
 
@@ -383,11 +397,11 @@ def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them
     (e_counter, d_counter, mask, max_height_array,
-     capacity_excess, capacity_deficit,
+     ids, capacity_excess, capacity_deficit,
      size_excess, size_deficit, number_of_excess_not_covered,
      starts_excess, starts_deficit,
      energy_excess, energy_deficit,
-     ) = init(excess_array, deficit_array, start_times)
+     excess_ids) = init(excess_array, deficit_array, start_times)
 
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
@@ -420,7 +434,7 @@ def process_phases(excess_array, deficit_array, start_times):
             e_counter, d_counter,
             size_excess,
             number_of_excess_not_covered,
-            starts_excess, energy_excess,
+            starts_excess, energy_excess, excess_ids,
             size_deficit, starts_deficit, energy_deficit
         )
 

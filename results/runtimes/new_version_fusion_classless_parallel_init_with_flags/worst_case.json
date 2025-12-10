@@ -1,6 +1,6 @@
 {
-  "version": "new_version_fusion_classless",
-  "worst_case": false,
+  "version": "new_version_fusion_classless_parallel_init_with_flags",
+  "worst_case": true,
   "number_of_data_points": 300,
   "start_phase_count": 10,
   "end_phase_count": 100000000,

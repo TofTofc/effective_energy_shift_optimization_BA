@@ -11,13 +11,12 @@
         "append_improved_init_capacity_10_numba",
         "new_version_fusion",
         "new_version_fusion_classless",
-        "new_version_fusion_classless_parallel",
-        "new_version_fusion_classless_parallel_with_flags",
-        "new_version_fusion_classless_parallel_with_flags_no_ids",
-        "new_version_fusion_classless_parallel_with_flags_no_ids_dtypes"
+        "new_version_fusion_classless_parallel_init",
+        "new_version_fusion_classless_parallel_init_with_flags",
+        "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays"
     ],
     "index_to_use": [
-        8
+        7
     ],
     "abort": false
 }

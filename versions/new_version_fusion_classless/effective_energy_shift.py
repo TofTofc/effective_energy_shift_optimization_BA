@@ -305,21 +305,23 @@ def init(excess_array, deficit_array, start_times):
     n = excess_array.shape[0]
     initial_capacity = 50
 
-    starts_excess = np.empty((n, initial_capacity), dtype=np.int64)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.int64)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.int32)
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.int32)
-    excess_ids = np.empty((n, initial_capacity), dtype=np.int32)
+    # Smaller Datatypes are possible for average case only
+    # Worst case results in huge numbers
+    starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
+    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    excess_ids = np.empty((n, initial_capacity), dtype=np.uint64)
 
-    ids = np.empty(n, dtype=np.int32)
-    capacity_excess = np.empty(n, dtype=np.int32)
-    capacity_deficit = np.empty(n, dtype=np.int32)
-    size_excess = np.empty(n, dtype=np.int32)
-    size_deficit = np.empty(n, dtype=np.int32)
-    number_of_excess_not_covered = np.empty(n, dtype=np.int32)
+    ids = np.empty(n, dtype=np.int64)
+    capacity_excess = np.empty(n, dtype=np.uint8)
+    capacity_deficit = np.empty(n, dtype=np.uint8)
+    size_excess = np.empty(n, dtype=np.uint8)
+    size_deficit = np.empty(n, dtype=np.uint8)
+    number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
 
     mask = np.ones((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.int64)
+    max_height_array = np.zeros(n, dtype=np.uint64)
 
     e_counter = 0
     d_counter = 0
