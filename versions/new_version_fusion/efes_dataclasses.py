@@ -4,26 +4,26 @@ from numba import int32, float64, boolean, uint32, uint16, uint8, int64, uint64
 from numba.experimental import jitclass
 
 spec = [
-    ('id', int32),
+    ('id', int64),
 
     ('capacity_excess', int32),
     ('capacity_deficit', int32),
     ('size_excess', int32),
     ('size_deficit', int32),
-    ('number_of_excess_not_covered' , int32),
+    ('number_of_excess_not_covered' , int64),
 
     ('starts_excess', int64[:]),
     ('starts_deficit', int64[:]),
-    ('energy_excess', int32[:]),
-    ('energy_deficit', int32[:]),
-    ('excess_ids', int32[:]),
+    ('energy_excess', int64[:]),
+    ('energy_deficit', int64[:]),
+    ('excess_ids', int64[:]),
 ]
 @jitclass(spec)
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
     def __init__(self, energy_excess: float, energy_deficit: float, id: int):
 
-        initial_capacity = 25
+        initial_capacity = 50
 
         self.id = id
 
@@ -34,9 +34,9 @@ class Phase:
 
         self.starts_excess = np.empty(initial_capacity, dtype=np.int64)
         self.starts_deficit = np.empty(initial_capacity, dtype=np.int64)
-        self.energy_excess = np.empty(initial_capacity, dtype=np.int32)
-        self.energy_deficit = np.empty(initial_capacity, dtype=np.int32)
-        self.excess_ids = np.empty(initial_capacity, dtype=np.int32)
+        self.energy_excess = np.empty(initial_capacity, dtype=np.int64)
+        self.energy_deficit = np.empty(initial_capacity, dtype=np.int64)
+        self.excess_ids = np.empty(initial_capacity, dtype=np.int64)
 
         self.starts_excess[0] = 0
         self.starts_deficit[0] = 0
@@ -73,7 +73,6 @@ class Phase:
 
         if self.size_excess >= self.capacity_excess:
             self.capacity_excess *= 2
-            print(self.capacity_excess)
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
             self.energy_excess = np.resize(self.energy_excess, self.capacity_excess)
             self.excess_ids = np.resize(self.excess_ids, self.capacity_excess)

@@ -1,6 +1,6 @@
 {
-  "version": "new_version_fusion_classless_parallel_init_with_flags",
-  "worst_case": false,
+  "version": "test_parallel_16_threads",
+  "worst_case": true,
   "number_of_data_points": 100,
   "start_phase_count": 10,
   "end_phase_count": 15000000,

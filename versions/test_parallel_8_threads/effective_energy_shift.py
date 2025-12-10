@@ -1,7 +1,9 @@
 import numba
 import numpy as np
-from numba import njit
+from numba import njit, prange
 from numba.typed import List
+
+THREAD_COUNT = 8
 
 @njit(nogil = True, inline = "always")
 def get_next_excess_index(idx, state_mask):
@@ -299,6 +301,8 @@ def init(excess_array, deficit_array):
     n = excess_array.shape[0]
     initial_capacity = 50
 
+    # TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
+
     # Smaller Datatypes are possible for average case only
     # Worst case results in huge numbers
     starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
@@ -313,9 +317,6 @@ def init(excess_array, deficit_array):
     mask = np.ones((2, n), dtype=np.bool_)
     max_height_array = np.zeros(n, dtype=np.uint64)
 
-    e_counter = 0
-    d_counter = 0
-
     for i in numba.prange(n):
 
         starts_excess[i, 0] = 0
@@ -328,7 +329,6 @@ def init(excess_array, deficit_array):
 
         if e_ex > e_def:
 
-            e_counter += 1
             mask[0, i] = True
             mask[1, i] = False
 
@@ -343,7 +343,6 @@ def init(excess_array, deficit_array):
 
         elif e_def > e_ex:
 
-            d_counter += 1
             mask[0, i] = False
             mask[1, i] = True
 
@@ -367,35 +366,90 @@ def init(excess_array, deficit_array):
 
             max_height_array[i] = (starts_excess[i, 0] + energy_excess[i, 0])
 
-    return (e_counter, d_counter, mask, max_height_array,
+    return (mask, max_height_array,
             size_excess, size_deficit, number_of_excess_not_covered,
             starts_excess, starts_deficit,
             energy_excess, energy_deficit)
 
-# TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
 
-@njit(nogil = True)
+@njit(nogil=True, inline="always")
+def get_next_non_balanced_phase_local(current_idx, end_idx, state_mask):
+
+    for i in range(current_idx + 1, end_idx):
+        if state_mask[0][i] or state_mask[1][i]:
+            return i
+    return -1
+
+@njit(nogil = True, inline = "always")
+def process_sub_array(start, end,
+            mask, max_height_array,
+            size_excess, number_of_excess_not_covered,
+            starts_excess, energy_excess,
+            size_deficit, starts_deficit, energy_deficit):
+
+    # Not used here
+    e_counter_dummy = 0
+    d_counter_dummy = 0
+
+    for current_phase_idx in range(start, end):
+
+        # Current Phase has excess
+        if mask[0][current_phase_idx] and not mask[1][current_phase_idx]:
+
+            next_phase_idx = get_next_non_balanced_phase_local(current_phase_idx, end, mask)
+
+            if next_phase_idx == -1:
+                break
+
+            move_excess(
+                current_phase_idx, next_phase_idx,
+                max_height_array, mask,
+                e_counter_dummy, d_counter_dummy,
+                size_excess,
+                number_of_excess_not_covered,
+                starts_excess, energy_excess,
+                size_deficit, starts_deficit, energy_deficit
+            )
+    return 1
+
+@njit(nogil = True, parallel = True)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them
-    (e_counter, d_counter, mask, max_height_array,
+    (mask, max_height_array,
      size_excess, size_deficit, number_of_excess_not_covered,
      starts_excess, starts_deficit,
      energy_excess, energy_deficit,
      ) = init(excess_array, deficit_array)
 
-    # Return when we either start with no Excess or no Deficit
-    if e_counter == 0 or d_counter == 0:
-        return \
-            (
-                size_excess, size_deficit,
-                starts_excess, starts_deficit,
-                energy_excess, energy_deficit,
-                mask
-            )
+    current_THREAD_COUNT = THREAD_COUNT
+
+    n = len(excess_array)
+
+    if n < current_THREAD_COUNT:
+        current_THREAD_COUNT = n
+
+    chunk_size = n // current_THREAD_COUNT
+
+    for chunk_idx in prange(current_THREAD_COUNT):
+
+        start = chunk_idx * chunk_size
+        end = (chunk_idx + 1) * chunk_size if chunk_idx < current_THREAD_COUNT - 1 else n
+
+        process_sub_array(
+            start, end,
+            mask, max_height_array,
+            size_excess, number_of_excess_not_covered,
+            starts_excess, energy_excess,
+            size_deficit, starts_deficit, energy_deficit
+        )
+
+    # Calculate the 2 counters
+    e_counter = np.sum(np.logical_and(mask[0], np.logical_not(mask[1])))
+    d_counter = np.sum(np.logical_and(np.logical_not(mask[0]), mask[1]))
 
     # start with an excess overflow right away
-    idx = get_next_excess_index( 0, mask)
+    idx = get_next_excess_index(0, mask)
 
     while True:
 
@@ -405,7 +459,7 @@ def process_phases(excess_array, deficit_array, start_times):
 
         # For each Phase there are 3 possibilities
 
-        #1. Excess > Deficit
+        # 1. Excess > Deficit
         next_phase_idx = get_next_non_balanced_phase(idx, mask)
 
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
@@ -423,20 +477,19 @@ def process_phases(excess_array, deficit_array, start_times):
         if e_counter == 0 or d_counter == 0:
             break
 
-        #2. Excess = Deficit (cant happen)
+        # 2. Excess = Deficit (cant happen)
         # Nothing to move here
 
-        #3. Excess < Deficit (cant happen)
+        # 3. Excess < Deficit (cant happen)
         # Nothing to move here
 
         # Index goes to the next Excess
         idx = get_next_excess_index(idx, mask)
 
     return \
-    (
-        size_excess, size_deficit,
-        starts_excess, starts_deficit,
-        energy_excess, energy_deficit,
-        mask
-    )
-
+        (
+            size_excess, size_deficit,
+            starts_excess, starts_deficit,
+            energy_excess, energy_deficit,
+            mask
+        )
