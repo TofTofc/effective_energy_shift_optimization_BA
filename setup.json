@@ -13,7 +13,8 @@
         "new_version_fusion_classless",
         "new_version_fusion_classless_parallel_init",
         "new_version_fusion_classless_parallel_init_with_flags",
-        "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays"
+        "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays",
+        "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays_max_height_new"
     ],
     "index_to_use": [
         7

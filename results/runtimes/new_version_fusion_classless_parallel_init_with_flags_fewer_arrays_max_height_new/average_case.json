@@ -1,6 +1,6 @@
 {
-  "version": "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays",
-  "worst_case": true,
+  "version": "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays_max_height_new",
+  "worst_case": false,
   "number_of_data_points": 300,
   "start_phase_count": 10,
   "end_phase_count": 100000000,
