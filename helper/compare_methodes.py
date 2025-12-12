@@ -54,6 +54,7 @@ def merge_deficits(starts_deficit_list, energy_deficit_list):
         last_end = starts_arr[0] + energy_arr[0]
 
         for i in range(1, len(starts_arr)):
+
             current_start = starts_arr[i]
             current_energy = energy_arr[i]
 

@@ -1,7 +1,7 @@
 {
     "worst_case_scenario": false,
     "start_phase_count": 10,
-    "end_phase_count": 15000000,
+    "end_phase_count": 5000000,
     "number_of_data_points": 100,
     "repetition_count": 5,
     "master_seed": 125,
@@ -10,15 +10,12 @@
         "append_improved_init_capacity_10",
         "append_improved_init_capacity_10_numba",
         "new_version_fusion",
-        "new_version_fusion_classless",
-        "new_version_fusion_classless_parallel_init",
-        "new_version_fusion_classless_parallel_init_with_flags",
-        "new_version_fusion_classless_parallel_init_with_flags_fewer_arrays",
+        "new_version_fusion_2",
         "test_parallel_8_threads",
         "test_parallel_16_threads"
     ],
     "index_to_use": [
-        9
+        3
     ],
-    "abort": true
+    "abort": false
 }
