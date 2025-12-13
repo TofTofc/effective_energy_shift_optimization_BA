@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     #submethod_analysis("no_numba")
 
-    #test_versions("original", "new_version_fusion_2_avg_case_dtypes_parallel_no_resize", start = 10, end = 1000, repetitions_count = 1)
+    #test_versions("original", "new_version_fusion_2_avg_case_dtypes_index_strategy", start = 10, end = 1000, repetitions_count = 1)
 
-    #test_version_solo("new_version_fusion_2_avg_case_dtypes_parallel_no_resize", False, 5000000)
+    #test_version_solo("new_version_fusion_2_avg_case_dtypes_index_strategy", False, 10000)
 
     #visualize_output_each_step(phase_count =  13)
 
