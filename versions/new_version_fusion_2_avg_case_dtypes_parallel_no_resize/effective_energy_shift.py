@@ -3,9 +3,21 @@ import numpy as np
 from numba import njit, prange
 from numba.typed import List
 
-THREAD_COUNT = 8
+"""
+changes made from new_version_fusion_2_avg_case_dtypes:
 
-@njit(nogil = True, inline = "always")
+- parallel array manipulation with 8 threats 
+- parallel -> no resize 
+- bounds check of numba activated (slower than without)
+- starting with bigger init capacity to ensure out of bounds error being very unlikely  
+- post parallel work to finish the partially unfinished parallel work 
+
+"""
+
+THREAD_COUNT = 8
+INITIAL_CAPACITY = 20
+
+@njit(nogil = True, inline = "always", boundscheck = 1)
 def get_next_excess_index(idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -19,7 +31,7 @@ def get_next_excess_index(idx, state_mask):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", boundscheck = 1)
 def get_next_non_balanced_phase(idx, state_mask):
 
     """
@@ -33,7 +45,7 @@ def get_next_non_balanced_phase(idx, state_mask):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", boundscheck = 1)
 def move_excess(current_phase_idx, next_phase_idx,
                 max_height_array, mask,
                 e_counter, d_counter,
@@ -114,6 +126,7 @@ def move_excess(current_phase_idx, next_phase_idx,
 
             # append new excess
             i = size_excess[next_phase_idx]
+
             starts_excess[next_phase_idx, i] = excess_start
             energy_excess[next_phase_idx, i] = overflow_content
             size_excess[next_phase_idx] += 1
@@ -142,7 +155,7 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     return e_counter, d_counter
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", boundscheck = 1)
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
                   starts_excess, energy_excess,
@@ -288,7 +301,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
     return e_counter, d_counter
 
-@njit(parallel = True, nogil = True, inline = "always")
+@njit(parallel = True, nogil = True, inline = "always", boundscheck = 1)
 def init(excess_array, deficit_array):
     """
     Fills out the state mask:
@@ -299,23 +312,21 @@ def init(excess_array, deficit_array):
     """
 
     n = excess_array.shape[0]
-    initial_capacity = 50
 
-    # TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
+    # Use uint64 for worst case
+    starts_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
+    starts_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
+    energy_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
 
-    # Smaller Datatypes are possible for average case only
-    # Worst case results in huge numbers
-    starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    # Uint8 due to max of 100 deficit in our case needs to be higher if input ints can be higher than 255
+    energy_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.uint8)
 
     size_excess = np.empty(n, dtype=np.uint8)
     size_deficit = np.empty(n, dtype=np.uint8)
     number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
 
     mask = np.ones((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.uint64)
+    max_height_array = np.zeros(n, dtype=np.uint32)
 
     for i in numba.prange(n):
 
@@ -372,7 +383,7 @@ def init(excess_array, deficit_array):
             energy_excess, energy_deficit)
 
 
-@njit(nogil=True, inline="always")
+@njit(nogil=True, inline="always", boundscheck  = 1)
 def get_next_non_balanced_phase_local(current_idx, end_idx, state_mask):
 
     for i in range(current_idx + 1, end_idx):
@@ -380,7 +391,7 @@ def get_next_non_balanced_phase_local(current_idx, end_idx, state_mask):
             return i
     return -1
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", boundscheck  = 1)
 def process_sub_array(start, end,
             mask, max_height_array,
             size_excess, number_of_excess_not_covered,
@@ -412,7 +423,7 @@ def process_sub_array(start, end,
             )
     return 1
 
-@njit(nogil = True, parallel = True)
+@njit(nogil = True, parallel = True, boundscheck  = 1)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them

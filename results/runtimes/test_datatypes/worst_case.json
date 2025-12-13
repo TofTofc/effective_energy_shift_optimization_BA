@@ -1,5 +1,5 @@
 {
-  "version": "append_improved_init_capacity_10_numba",
+  "version": "test_datatypes",
   "worst_case": true,
   "number_of_data_points": 300,
   "start_phase_count": 10,

@@ -1,11 +1,25 @@
 import numba
 import numpy as np
-from numba import njit, prange
+from numba import njit
 from numba.typed import List
 
-THREAD_COUNT = 16
+from versions.test.resize import add_excess_value, add_deficit_value, insert_excess_value
 
-@njit(nogil = True, inline = "always")
+"""
+changes made from new_version_fusion:
+
+- merged the phase class into the code
+- parallel init 
+- added some numba flags 
+- reduced the amount of arrays 
+- optimized init 
+
+
+init capacity of 2 and growth of + 5 per resize (same as old version)
+"""
+
+
+@njit(nogil=True, inline="always")
 def get_next_excess_index(idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -19,9 +33,8 @@ def get_next_excess_index(idx, state_mask):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil=True, inline="always")
 def get_next_non_balanced_phase(idx, state_mask):
-
     """
      Returns the idx of the next phase wich is not balanced
     """
@@ -33,7 +46,8 @@ def get_next_non_balanced_phase(idx, state_mask):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
+
+@njit(nogil=True, inline="always")
 def move_excess(current_phase_idx, next_phase_idx,
                 max_height_array, mask,
                 e_counter, d_counter,
@@ -41,7 +55,6 @@ def move_excess(current_phase_idx, next_phase_idx,
                 number_of_excess_not_covered,
                 starts_excess, energy_excess,
                 size_deficit, starts_deficit, energy_deficit):
-
     """
     Moves all uncovered excess packets from current -> next phase
 
@@ -92,13 +105,13 @@ def move_excess(current_phase_idx, next_phase_idx,
         overflow_content = energy_excess[current_phase_idx, idx]
 
         # Max of the current start height and the max height of all skipped Phases
-        overflow_start = max(starts_excess[current_phase_idx, idx], max_height)
+        overflow_start = np.maximum(starts_excess[current_phase_idx, idx], max_height)
 
         last_idx_next = size_excess[next_phase_idx] - 1
         last_excess_end_height = starts_excess[next_phase_idx, last_idx_next] + energy_excess[next_phase_idx, last_idx_next]
 
         # computed start for the moved packet (before appending)
-        excess_start = max(overflow_start, last_excess_end_height)
+        excess_start = np.maximum(overflow_start, last_excess_end_height)
 
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
@@ -113,11 +126,20 @@ def move_excess(current_phase_idx, next_phase_idx,
         else:
 
             # append new excess
-            i = size_excess[next_phase_idx]
-            starts_excess[next_phase_idx, i] = excess_start
-            energy_excess[next_phase_idx, i] = overflow_content
-            size_excess[next_phase_idx] += 1
+            # i = size_excess[next_phase_idx]
+            # starts_excess[next_phase_idx, i] = excess_start
+            # energy_excess[next_phase_idx, i] = overflow_content
+            # size_excess[next_phase_idx] += 1
             number_of_excess_not_covered[next_phase_idx] += 1
+
+            starts_excess, energy_excess = add_excess_value(
+                row_idx=next_phase_idx,
+                start_value=excess_start,
+                energy_value=overflow_content,
+                starts_excess=starts_excess,
+                energy_excess=energy_excess,
+                size_excess=size_excess
+            )
 
         # remove one uncovered excess from current phase
         number_of_excess_not_covered[current_phase_idx] -= 1
@@ -135,18 +157,20 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     e_counter -= 1
 
-    e_counter, d_counter = balance_phase(next_phase_idx, mask, max_height_array, e_counter, d_counter,
-                  size_excess, number_of_excess_not_covered,
-                  starts_excess, energy_excess,
-                  size_deficit, starts_deficit, energy_deficit)
+    e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit = (
+        balance_phase(next_phase_idx, mask, max_height_array, e_counter, d_counter,
+                      size_excess, number_of_excess_not_covered,
+                      starts_excess, energy_excess,
+                      size_deficit, starts_deficit, energy_deficit))
 
-    return e_counter, d_counter
+    return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
-@njit(nogil = True, inline = "always")
+
+@njit(nogil=True, inline="always")
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
                   starts_excess, energy_excess,
-                  size_deficit, starts_deficit, energy_deficit):
+                  size_deficit, starts_deficit, energy_deficit, ):
     """
     Balances newly moved excess packets for the phase
 
@@ -178,7 +202,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
     # 0. no uncovered deficit block -> nothing to do
     if not mask[1][i]:
-        return e_counter, d_counter
+        return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
     #  1. Start at the first not covered excess and iterate over all of them
     n = number_of_excess_not_covered[i]
@@ -206,12 +230,21 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             new_start = starts_excess[i, idx] + excess_energy
 
             # Remaining deficit is current deficit - energy excess
-            energy_remaining = deficit_energy  - excess_energy
+            energy_remaining = deficit_energy - excess_energy
 
-            next_def_idx = size_deficit[i]
-            starts_deficit[i, next_def_idx] = new_start
-            energy_deficit[i, next_def_idx] = energy_remaining
-            size_deficit[i] += 1
+            # next_def_idx = size_deficit[i]
+            # starts_deficit[i, next_def_idx] = new_start
+            # energy_deficit[i, next_def_idx] = energy_remaining
+            # size_deficit[i] += 1
+
+            starts_deficit, energy_deficit = add_deficit_value(
+                row_idx=i,
+                start_value=new_start,
+                energy_value=energy_remaining,
+                starts_deficit=starts_deficit,
+                energy_deficit=energy_deficit,
+                size_deficit=size_deficit,
+            )
 
             # Change Deficit of lower packet
             energy_deficit[i, last_def_idx] = excess_energy
@@ -235,14 +268,25 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             # insert remaining excess after the covered excess and NOT at the end to keep correct sequence
             # phase.append_excess(new_start, energy_remaining, phase.get_excess_id(idx))
             insert_idx = idx + 1
-            size = size_excess[i]
 
-            starts_excess[i, insert_idx + 1: size + 1] = starts_excess[i, insert_idx:size].copy()
-            energy_excess[i, insert_idx + 1: size + 1] = energy_excess[i, insert_idx:size].copy()
+            # size = size_excess[i]
 
-            starts_excess[i, insert_idx] = new_start
-            energy_excess[i, insert_idx] = energy_remaining
-            size_excess[i] += 1
+            # starts_excess[i, insert_idx + 1: size + 1] = starts_excess[i, insert_idx:size].copy()
+            # energy_excess[i, insert_idx + 1: size + 1] = energy_excess[i, insert_idx:size].copy()
+
+            # starts_excess[i, insert_idx] = new_start
+            # energy_excess[i, insert_idx] = energy_remaining
+            # size_excess[i] += 1
+
+            starts_excess, energy_excess = insert_excess_value(
+                row_idx=i,
+                insert_idx=insert_idx,
+                start_value=new_start,
+                energy_value=energy_remaining,
+                starts_excess=starts_excess,
+                energy_excess=energy_excess,
+                size_excess=size_excess,
+            )
 
             # update counters and mark phase as still having excess
             d_counter -= 1
@@ -251,15 +295,15 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             mask[1][i] = False
 
             # return updated counters
-            return e_counter, d_counter
+            return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
         # c: excess == deficit:
         else:
 
             # If last (uncovered) excess
-            if idx == total-1:
+            if idx == total - 1:
 
-                #state_mask[i] = 0, deficit counter --
+                # state_mask[i] = 0, deficit counter --
                 mask[0][i] = False
                 mask[1][i] = False
                 d_counter -= 1
@@ -270,7 +314,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                 # number_of_excess_not_covered --
                 number_of_excess_not_covered[i] -= 1
 
-                return e_counter, d_counter
+                return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
             # If not last (uncovered) excess
             else:
@@ -284,11 +328,12 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                 # number_of_excess_not_covered --
                 number_of_excess_not_covered[i] -= 1
 
-                return e_counter, d_counter
+                return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
-    return e_counter, d_counter
+    return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
-@njit(parallel = True, nogil = True, inline = "always")
+
+@njit(parallel=True, nogil=True, inline="always")
 def init(excess_array, deficit_array):
     """
     Fills out the state mask:
@@ -299,9 +344,8 @@ def init(excess_array, deficit_array):
     """
 
     n = excess_array.shape[0]
-    initial_capacity = 50
-
-    # TODO: AKTUELL KEIN RESIZE IMPLEMENTIERT BEI ZU KLEINEN ARRAYS  (passiert aber quasi eh nie)
+    # Not smaller than 2
+    initial_capacity = 2
 
     # Smaller Datatypes are possible for average case only
     # Worst case results in huge numbers
@@ -310,12 +354,15 @@ def init(excess_array, deficit_array):
     energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
     energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
 
-    size_excess = np.empty(n, dtype=np.uint8)
-    size_deficit = np.empty(n, dtype=np.uint8)
-    number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
+    size_excess = np.full(n, 1, dtype=np.uint8)
+    size_deficit = np.full(n, 1, dtype=np.uint8)
+    number_of_excess_not_covered = np.zeros(n, dtype=np.uint8)
 
-    mask = np.ones((2, n), dtype=np.bool_)
+    mask = np.zeros((2, n), dtype=np.bool_)
     max_height_array = np.zeros(n, dtype=np.uint64)
+
+    e_counter = 0
+    d_counter = 0
 
     for i in numba.prange(n):
 
@@ -329,8 +376,9 @@ def init(excess_array, deficit_array):
 
         if e_ex > e_def:
 
+            e_counter += 1
             mask[0, i] = True
-            mask[1, i] = False
+            # mask[1, i] = False
 
             energy_excess[i, 0] = e_def
 
@@ -338,12 +386,13 @@ def init(excess_array, deficit_array):
             starts_excess[i, 1] = e_def
 
             size_excess[i] = 2
-            size_deficit[i] = 1
+            # size_deficit[i] = 1
             number_of_excess_not_covered[i] = 1
 
         elif e_def > e_ex:
 
-            mask[0, i] = False
+            d_counter += 1
+            # mask[0, i] = False
             mask[1, i] = True
 
             energy_deficit[i, 0] = e_ex
@@ -351,107 +400,114 @@ def init(excess_array, deficit_array):
             energy_deficit[i, 1] = e_def - e_ex
             starts_deficit[i, 1] = e_ex
 
-            size_excess[i] = 1
+            # size_excess[i] = 1
             size_deficit[i] = 2
-            number_of_excess_not_covered[i] = 0
+            # number_of_excess_not_covered[i] = 0
 
         else:
 
-            size_excess[i] = 1
-            size_deficit[i] = 1
-            number_of_excess_not_covered[i] = 0
+            # size_excess[i] = 1
+            # size_deficit[i] = 1
+            # number_of_excess_not_covered[i] = 0
 
-            mask[0, i] = False
-            mask[1, i] = False
+            # mask[0, i] = False
+            # mask[1, i] = False
 
             max_height_array[i] = (starts_excess[i, 0] + energy_excess[i, 0])
 
-    return (mask, max_height_array,
+    return (e_counter, d_counter, mask, max_height_array,
             size_excess, size_deficit, number_of_excess_not_covered,
             starts_excess, starts_deficit,
             energy_excess, energy_deficit)
 
 
-@njit(nogil=True, inline="always")
-def get_next_non_balanced_phase_local(current_idx, end_idx, state_mask):
+@njit(nogil=True)
+def get_current_max_values(size_excess, size_deficit, number_of_excess_not_covered,
+                           max_height_array, starts_excess, starts_deficit,
+                           energy_excess, energy_deficit):
+    m_size_ex = np.max(size_excess)
+    m_size_def = np.max(size_deficit)
+    m_num_not_cov = np.max(number_of_excess_not_covered)
+    m_max_height = np.max(max_height_array)
 
-    for i in range(current_idx + 1, end_idx):
-        if state_mask[0][i] or state_mask[1][i]:
-            return i
-    return -1
+    m_start_ex = np.uint64(0)
+    m_energy_ex = np.uint64(0)
+    m_start_def = np.uint64(0)
+    m_energy_def = np.uint64(0)
 
-@njit(nogil = True, inline = "always")
-def process_sub_array(start, end,
-            mask, max_height_array,
-            size_excess, number_of_excess_not_covered,
-            starts_excess, energy_excess,
-            size_deficit, starts_deficit, energy_deficit):
+    n = size_excess.shape[0]
 
-    # Not used here
-    e_counter_dummy = 0
-    d_counter_dummy = 0
+    for i in range(n):
+        for j in range(size_excess[i]):
+            if starts_excess[i, j] > m_start_ex:
+                m_start_ex = starts_excess[i, j]
+            if energy_excess[i, j] > m_energy_ex:
+                m_energy_ex = energy_excess[i, j]
 
-    for current_phase_idx in range(start, end):
+        for k in range(size_deficit[i]):
+            if starts_deficit[i, k] > m_start_def:
+                m_start_def = starts_deficit[i, k]
+            if energy_deficit[i, k] > m_energy_def:
+                m_energy_def = energy_deficit[i, k]
 
-        # Current Phase has excess
-        if mask[0][current_phase_idx] and not mask[1][current_phase_idx]:
+    return (m_size_ex, m_size_def, m_num_not_cov, m_max_height,
+            m_start_ex, m_energy_ex, m_start_def, m_energy_def)
 
-            next_phase_idx = get_next_non_balanced_phase_local(current_phase_idx, end, mask)
 
-            if next_phase_idx == -1:
-                break
+@njit(nogil=True)
+def print_final_max_report(max_values):
+    print("------ PROGRAM MAX VALUES REPORT (All Iterations) ------")
+    print("Max Size Excess       :", str(max_values[0]))
+    print("Max Size Deficit      :", str(max_values[1]))
+    print("Max Uncovered Count   :", str(max_values[2]))
+    print("Max Height Array      :", str(max_values[3]))
+    print("Max Start Excess      :", str(max_values[4]))
+    print("Max Energy Excess     :", str(max_values[5]))
+    print("Max Start Deficit     :", str(max_values[6]))
+    print("Max Energy Deficit    :", str(max_values[7]))
+    print("------------------------------------------------------")
 
-            move_excess(
-                current_phase_idx, next_phase_idx,
-                max_height_array, mask,
-                e_counter_dummy, d_counter_dummy,
-                size_excess,
-                number_of_excess_not_covered,
-                starts_excess, energy_excess,
-                size_deficit, starts_deficit, energy_deficit
-            )
-    return 1
 
-@njit(nogil = True, parallel = True)
+@njit(nogil=True)
 def process_phases(excess_array, deficit_array, start_times):
-
     # Provides the initial states for each Phase object and balances them
-    (mask, max_height_array,
+    (e_counter, d_counter, mask, max_height_array,
      size_excess, size_deficit, number_of_excess_not_covered,
      starts_excess, starts_deficit,
-     energy_excess, energy_deficit,
+     energy_excess, energy_deficit
      ) = init(excess_array, deficit_array)
 
-    current_THREAD_COUNT = THREAD_COUNT
+    global_max_values = np.array([0, 0, 0, 0, 0, 0, 0, 0], dtype=np.uint64)
 
-    n = len(excess_array)
+    # NEUER ZÄHLER FÜR DIE STICHPROBE
+    iteration_counter = 0
 
-    if n < current_THREAD_COUNT:
-        current_THREAD_COUNT = n
+    current_max = get_current_max_values(
+        size_excess, size_deficit, number_of_excess_not_covered,
+        max_height_array, starts_excess, starts_deficit,
+        energy_excess, energy_deficit
+    )
+    global_max_values = np.maximum(global_max_values, np.array(current_max, dtype=np.uint64))
 
-    chunk_size = n // current_THREAD_COUNT
+    # Return when we either start with no Excess or no Deficit
+    if e_counter == 0 or d_counter == 0:
+        print_final_max_report(global_max_values)
 
-    for chunk_idx in prange(current_THREAD_COUNT):
-
-        start = chunk_idx * chunk_size
-        end = (chunk_idx + 1) * chunk_size if chunk_idx < current_THREAD_COUNT - 1 else n
-
-        process_sub_array(
-            start, end,
-            mask, max_height_array,
-            size_excess, number_of_excess_not_covered,
-            starts_excess, energy_excess,
-            size_deficit, starts_deficit, energy_deficit
-        )
-
-    # Calculate the 2 counters
-    e_counter = np.sum(np.logical_and(mask[0], np.logical_not(mask[1])))
-    d_counter = np.sum(np.logical_and(np.logical_not(mask[0]), mask[1]))
+        return \
+            (
+                size_excess, size_deficit,
+                starts_excess, starts_deficit,
+                energy_excess, energy_deficit,
+                mask
+            )
 
     # start with an excess overflow right away
     idx = get_next_excess_index(0, mask)
 
     while True:
+
+        # Zähler inkrementieren
+        iteration_counter += 1
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:
@@ -463,7 +519,7 @@ def process_phases(excess_array, deficit_array, start_times):
         next_phase_idx = get_next_non_balanced_phase(idx, mask)
 
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
-        e_counter, d_counter = move_excess(
+        e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit = move_excess(
             idx, next_phase_idx,
             max_height_array, mask,
             e_counter, d_counter,
@@ -472,6 +528,16 @@ def process_phases(excess_array, deficit_array, start_times):
             starts_excess, energy_excess,
             size_deficit, starts_deficit, energy_deficit
         )
+
+        # Nur jede 10000. Iteration Max-Werte aktualisieren
+        if iteration_counter % 10000 == 0:
+            current_max = get_current_max_values(
+                size_excess, size_deficit, number_of_excess_not_covered,
+                max_height_array, starts_excess, starts_deficit,
+                energy_excess, energy_deficit
+            )
+
+            global_max_values = np.maximum(global_max_values, np.array(current_max, dtype=np.uint64))
 
         # Stop when either no more Excesses to move or no more Deficits to fill
         if e_counter == 0 or d_counter == 0:
@@ -485,6 +551,18 @@ def process_phases(excess_array, deficit_array, start_times):
 
         # Index goes to the next Excess
         idx = get_next_excess_index(idx, mask)
+
+    # Max-Werte ein letztes Mal am Ende aktualisieren, falls die Schleife vor dem 10000er-Intervall endet
+    if iteration_counter % 10000 != 0:
+        current_max = get_current_max_values(
+            size_excess, size_deficit, number_of_excess_not_covered,
+            max_height_array, starts_excess, starts_deficit,
+            energy_excess, energy_deficit
+        )
+
+        global_max_values = np.maximum(global_max_values, np.array(current_max, dtype=np.uint64))
+
+    print_final_max_report(global_max_values)
 
     return \
         (

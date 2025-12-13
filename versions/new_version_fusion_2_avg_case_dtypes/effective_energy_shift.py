@@ -3,17 +3,12 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.new_version_fusion_2.resize import add_excess_value, add_deficit_value, insert_excess_value
+from versions.new_version_fusion_2_avg_case_dtypes.resize import add_excess_value, add_deficit_value, insert_excess_value
 
 """
-changes made from new_version_fusion:
+changes made from new_version_fusion_2:
 
-- merged the phase class into the code
-- parallel init 
-- added some numba flags 
-- reduced the amount of arrays 
-- optimized init 
-
+- used smaller datatypes optimal for avg case usage
 
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
@@ -105,13 +100,13 @@ def move_excess(current_phase_idx, next_phase_idx,
         overflow_content = energy_excess[current_phase_idx, idx]
 
         # Max of the current start height and the max height of all skipped Phases
-        overflow_start = max(starts_excess[current_phase_idx, idx], max_height)
+        overflow_start = np.maximum(starts_excess[current_phase_idx, idx], max_height)
 
         last_idx_next = size_excess[next_phase_idx] - 1
         last_excess_end_height = starts_excess[next_phase_idx, last_idx_next] + energy_excess[next_phase_idx, last_idx_next]
 
         # computed start for the moved packet (before appending)
-        excess_start = max(overflow_start, last_excess_end_height)
+        excess_start = np.maximum(overflow_start, last_excess_end_height)
 
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
@@ -347,19 +342,20 @@ def init(excess_array, deficit_array):
     # Not smaller than 2
     initial_capacity = 2
 
-    # Smaller Datatypes are possible for average case only
-    # Worst case results in huge numbers
-    starts_excess = np.empty((n, initial_capacity), dtype=np.uint64)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.uint64)
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint64)
+    # Use uint64 for worst case
+    starts_excess = np.empty((n, initial_capacity), dtype=np.uint32)
+    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint32)
+    energy_excess = np.empty((n, initial_capacity), dtype=np.uint32)
+
+    # Uint8 due to max of 100 deficit in our case needs to be higher if input ints can be higher than 255
+    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint8)
 
     size_excess = np.full(n,1, dtype=np.uint8)
     size_deficit = np.full(n, 1, dtype=np.uint8)
     number_of_excess_not_covered = np.zeros(n, dtype=np.uint8)
 
     mask = np.zeros((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.uint64)
+    max_height_array = np.zeros(n, dtype=np.uint32)
 
     e_counter = 0
     d_counter = 0

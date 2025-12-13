@@ -8,12 +8,12 @@ from versions.new_version_fusion_2.resize import add_excess_value, add_deficit_v
 """
 changes made from new_version_fusion:
 
-- merged the phase class into the code
-- parallel init 
-- added some numba flags 
-- reduced the amount of arrays 
-- optimized init 
-
+- merged the phase class into the code (huge impact)
+- parallel init (small impact)
+- added some numba flags (impact)
+- reduced the amount of arrays (impact)
+- optimized init (small impact)
+- changed max to np.maximum (very small impact)
 
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
@@ -105,13 +105,13 @@ def move_excess(current_phase_idx, next_phase_idx,
         overflow_content = energy_excess[current_phase_idx, idx]
 
         # Max of the current start height and the max height of all skipped Phases
-        overflow_start = max(starts_excess[current_phase_idx, idx], max_height)
+        overflow_start = np.maximum(starts_excess[current_phase_idx, idx], max_height)
 
         last_idx_next = size_excess[next_phase_idx] - 1
         last_excess_end_height = starts_excess[next_phase_idx, last_idx_next] + energy_excess[next_phase_idx, last_idx_next]
 
         # computed start for the moved packet (before appending)
-        excess_start = max(overflow_start, last_excess_end_height)
+        excess_start = np.maximum(overflow_start, last_excess_end_height)
 
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
