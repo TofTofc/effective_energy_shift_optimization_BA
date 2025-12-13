@@ -1,7 +1,7 @@
 {
     "worst_case_scenario": false,
     "start_phase_count": 10,
-    "end_phase_count": 5000000,
+    "end_phase_count": 50000000,
     "number_of_data_points": 100,
     "repetition_count": 5,
     "master_seed": 125,
@@ -16,7 +16,7 @@
         "test_parallel_16_threads"
     ],
     "index_to_use": [
-        5
+        4
     ],
     "abort": false
 }

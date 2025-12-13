@@ -1,411 +1,411 @@
 {
-  "version": "new_version_fusion_2",
-  "worst_case": false,
-  "number_of_data_points": 100,
-  "start_phase_count": 10,
-  "end_phase_count": 5000000,
-  "repetition_count": 5,
-  "master_seed": 125,
-  "results": [
-    {
-      "phase_count": 10,
-      "runtime": -1
-    },
-    {
-      "phase_count": 11,
-      "runtime": -1
-    },
-    {
-      "phase_count": 13,
-      "runtime": -1
-    },
-    {
-      "phase_count": 14,
-      "runtime": -1
-    },
-    {
-      "phase_count": 16,
-      "runtime": -1
-    },
-    {
-      "phase_count": 19,
-      "runtime": -1
-    },
-    {
-      "phase_count": 22,
-      "runtime": -1
-    },
-    {
-      "phase_count": 25,
-      "runtime": -1
-    },
-    {
-      "phase_count": 28,
-      "runtime": -1
-    },
-    {
-      "phase_count": 32,
-      "runtime": -1
-    },
-    {
-      "phase_count": 37,
-      "runtime": -1
-    },
-    {
-      "phase_count": 42,
-      "runtime": -1
-    },
-    {
-      "phase_count": 49,
-      "runtime": -1
-    },
-    {
-      "phase_count": 56,
-      "runtime": -1
-    },
-    {
-      "phase_count": 63,
-      "runtime": -1
-    },
-    {
-      "phase_count": 73,
-      "runtime": -1
-    },
-    {
-      "phase_count": 83,
-      "runtime": -1
-    },
-    {
-      "phase_count": 95,
-      "runtime": -1
-    },
-    {
-      "phase_count": 108,
-      "runtime": -1
-    },
-    {
-      "phase_count": 124,
-      "runtime": -1
-    },
-    {
-      "phase_count": 141,
-      "runtime": -1
-    },
-    {
-      "phase_count": 161,
-      "runtime": -1
-    },
-    {
-      "phase_count": 184,
-      "runtime": -1
-    },
-    {
-      "phase_count": 210,
-      "runtime": -1
-    },
-    {
-      "phase_count": 240,
-      "runtime": -1
-    },
-    {
-      "phase_count": 274,
-      "runtime": -1
-    },
-    {
-      "phase_count": 313,
-      "runtime": -1
-    },
-    {
-      "phase_count": 358,
-      "runtime": -1
-    },
-    {
-      "phase_count": 409,
-      "runtime": -1
-    },
-    {
-      "phase_count": 467,
-      "runtime": -1
-    },
-    {
-      "phase_count": 533,
-      "runtime": -1
-    },
-    {
-      "phase_count": 608,
-      "runtime": -1
-    },
-    {
-      "phase_count": 695,
-      "runtime": -1
-    },
-    {
-      "phase_count": 793,
-      "runtime": -1
-    },
-    {
-      "phase_count": 906,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1034,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1181,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1348,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1539,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1758,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2007,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2291,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2616,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2987,
-      "runtime": -1
-    },
-    {
-      "phase_count": 3410,
-      "runtime": -1
-    },
-    {
-      "phase_count": 3894,
-      "runtime": -1
-    },
-    {
-      "phase_count": 4446,
-      "runtime": -1
-    },
-    {
-      "phase_count": 5076,
-      "runtime": -1
-    },
-    {
-      "phase_count": 5796,
-      "runtime": -1
-    },
-    {
-      "phase_count": 6617,
-      "runtime": -1
-    },
-    {
-      "phase_count": 7555,
-      "runtime": -1
-    },
-    {
-      "phase_count": 8626,
-      "runtime": -1
-    },
-    {
-      "phase_count": 9849,
-      "runtime": -1
-    },
-    {
-      "phase_count": 11245,
-      "runtime": -1
-    },
-    {
-      "phase_count": 12838,
-      "runtime": -1
-    },
-    {
-      "phase_count": 14658,
-      "runtime": -1
-    },
-    {
-      "phase_count": 16736,
-      "runtime": -1
-    },
-    {
-      "phase_count": 19108,
-      "runtime": -1
-    },
-    {
-      "phase_count": 21816,
-      "runtime": -1
-    },
-    {
-      "phase_count": 24908,
-      "runtime": -1
-    },
-    {
-      "phase_count": 28439,
-      "runtime": -1
-    },
-    {
-      "phase_count": 32470,
-      "runtime": -1
-    },
-    {
-      "phase_count": 37072,
-      "runtime": -1
-    },
-    {
-      "phase_count": 42326,
-      "runtime": -1
-    },
-    {
-      "phase_count": 48326,
-      "runtime": -1
-    },
-    {
-      "phase_count": 55175,
-      "runtime": -1
-    },
-    {
-      "phase_count": 62996,
-      "runtime": -1
-    },
-    {
-      "phase_count": 71924,
-      "runtime": -1
-    },
-    {
-      "phase_count": 82119,
-      "runtime": -1
-    },
-    {
-      "phase_count": 93758,
-      "runtime": -1
-    },
-    {
-      "phase_count": 107047,
-      "runtime": -1
-    },
-    {
-      "phase_count": 122219,
-      "runtime": -1
-    },
-    {
-      "phase_count": 139542,
-      "runtime": -1
-    },
-    {
-      "phase_count": 159320,
-      "runtime": -1
-    },
-    {
-      "phase_count": 181901,
-      "runtime": -1
-    },
-    {
-      "phase_count": 207683,
-      "runtime": -1
-    },
-    {
-      "phase_count": 237119,
-      "runtime": -1
-    },
-    {
-      "phase_count": 270727,
-      "runtime": -1
-    },
-    {
-      "phase_count": 309098,
-      "runtime": -1
-    },
-    {
-      "phase_count": 352909,
-      "runtime": -1
-    },
-    {
-      "phase_count": 402928,
-      "runtime": -1
-    },
-    {
-      "phase_count": 460037,
-      "runtime": -1
-    },
-    {
-      "phase_count": 525241,
-      "runtime": -1
-    },
-    {
-      "phase_count": 599686,
-      "runtime": -1
-    },
-    {
-      "phase_count": 684683,
-      "runtime": -1
-    },
-    {
-      "phase_count": 781726,
-      "runtime": -1
-    },
-    {
-      "phase_count": 892525,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1019027,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1163459,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1328362,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1516637,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1731598,
-      "runtime": -1
-    },
-    {
-      "phase_count": 1977026,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2257240,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2577171,
-      "runtime": -1
-    },
-    {
-      "phase_count": 2942446,
-      "runtime": -1
-    },
-    {
-      "phase_count": 3359494,
-      "runtime": -1
-    },
-    {
-      "phase_count": 3835652,
-      "runtime": -1
-    },
-    {
-      "phase_count": 4379299,
-      "runtime": -1
-    },
-    {
-      "phase_count": 4999999,
-      "runtime": -1
-    }
-  ]
+    "version": "new_version_fusion_2",
+    "worst_case": false,
+    "number_of_data_points": 100,
+    "start_phase_count": 10,
+    "end_phase_count": 50000000,
+    "repetition_count": 5,
+    "master_seed": 125,
+    "results": [
+        {
+            "phase_count": 10,
+            "runtime": 6.500000154119334e-06
+        },
+        {
+            "phase_count": 11,
+            "runtime": 6.299999995462713e-06
+        },
+        {
+            "phase_count": 13,
+            "runtime": 8.7999999323074e-06
+        },
+        {
+            "phase_count": 15,
+            "runtime": 7.400000185953104e-06
+        },
+        {
+            "phase_count": 18,
+            "runtime": 9.59999988481286e-06
+        },
+        {
+            "phase_count": 21,
+            "runtime": 8.499999921696144e-06
+        },
+        {
+            "phase_count": 25,
+            "runtime": 9.200000022246968e-06
+        },
+        {
+            "phase_count": 29,
+            "runtime": 8.400000069741509e-06
+        },
+        {
+            "phase_count": 34,
+            "runtime": 9.300000101575279e-06
+        },
+        {
+            "phase_count": 40,
+            "runtime": 1.059999999597494e-05
+        },
+        {
+            "phase_count": 47,
+            "runtime": 1.13999999484804e-05
+        },
+        {
+            "phase_count": 55,
+            "runtime": 1.5699999948992627e-05
+        },
+        {
+            "phase_count": 64,
+            "runtime": 1.4899999996487168e-05
+        },
+        {
+            "phase_count": 75,
+            "runtime": 1.990000009755022e-05
+        },
+        {
+            "phase_count": 88,
+            "runtime": 2.0899999981338624e-05
+        },
+        {
+            "phase_count": 103,
+            "runtime": 2.470000003995665e-05
+        },
+        {
+            "phase_count": 120,
+            "runtime": 1.9600000086938962e-05
+        },
+        {
+            "phase_count": 141,
+            "runtime": 3.710000009959913e-05
+        },
+        {
+            "phase_count": 165,
+            "runtime": 3.6500000078376615e-05
+        },
+        {
+            "phase_count": 193,
+            "runtime": 4.569999987324991e-05
+        },
+        {
+            "phase_count": 225,
+            "runtime": 3.4200000072814873e-05
+        },
+        {
+            "phase_count": 263,
+            "runtime": 4.16000000313943e-05
+        },
+        {
+            "phase_count": 308,
+            "runtime": 4.3000000005122274e-05
+        },
+        {
+            "phase_count": 360,
+            "runtime": 4.6899999915694934e-05
+        },
+        {
+            "phase_count": 420,
+            "runtime": 6.869999992886733e-05
+        },
+        {
+            "phase_count": 491,
+            "runtime": 6.819999998697313e-05
+        },
+        {
+            "phase_count": 574,
+            "runtime": 7.599999980811845e-05
+        },
+        {
+            "phase_count": 671,
+            "runtime": 9.019999993142847e-05
+        },
+        {
+            "phase_count": 784,
+            "runtime": 9.93000001017208e-05
+        },
+        {
+            "phase_count": 916,
+            "runtime": 0.00016329999994013633
+        },
+        {
+            "phase_count": 1071,
+            "runtime": 0.00013889999991079094
+        },
+        {
+            "phase_count": 1252,
+            "runtime": 0.0001620999998976913
+        },
+        {
+            "phase_count": 1463,
+            "runtime": 0.00019179999981133733
+        },
+        {
+            "phase_count": 1709,
+            "runtime": 0.0003242000000227563
+        },
+        {
+            "phase_count": 1998,
+            "runtime": 0.00035769999999502033
+        },
+        {
+            "phase_count": 2335,
+            "runtime": 0.00041200000009666837
+        },
+        {
+            "phase_count": 2728,
+            "runtime": 0.0005733999998938089
+        },
+        {
+            "phase_count": 3189,
+            "runtime": 0.0005439999999907741
+        },
+        {
+            "phase_count": 3726,
+            "runtime": 0.0008043000000270695
+        },
+        {
+            "phase_count": 4355,
+            "runtime": 0.0009709999999358843
+        },
+        {
+            "phase_count": 5089,
+            "runtime": 0.0009666000000834174
+        },
+        {
+            "phase_count": 5947,
+            "runtime": 0.0012745999999879132
+        },
+        {
+            "phase_count": 6950,
+            "runtime": 0.0014469000000190135
+        },
+        {
+            "phase_count": 8121,
+            "runtime": 0.0017139999999926658
+        },
+        {
+            "phase_count": 9491,
+            "runtime": 0.0019511999998940155
+        },
+        {
+            "phase_count": 11091,
+            "runtime": 0.002075700000204961
+        },
+        {
+            "phase_count": 12961,
+            "runtime": 0.002034700000194789
+        },
+        {
+            "phase_count": 15146,
+            "runtime": 0.0024644999998599815
+        },
+        {
+            "phase_count": 17700,
+            "runtime": 0.003046900000072128
+        },
+        {
+            "phase_count": 20684,
+            "runtime": 0.004268099999990227
+        },
+        {
+            "phase_count": 24172,
+            "runtime": 0.004792199999883451
+        },
+        {
+            "phase_count": 28247,
+            "runtime": 0.005660899999838875
+        },
+        {
+            "phase_count": 33010,
+            "runtime": 0.006483500000058484
+        },
+        {
+            "phase_count": 38576,
+            "runtime": 0.008050600000160557
+        },
+        {
+            "phase_count": 45079,
+            "runtime": 0.009141699999872799
+        },
+        {
+            "phase_count": 52680,
+            "runtime": 0.011568200000056095
+        },
+        {
+            "phase_count": 61562,
+            "runtime": 0.013754600000083883
+        },
+        {
+            "phase_count": 71942,
+            "runtime": 0.0156673999999839
+        },
+        {
+            "phase_count": 84071,
+            "runtime": 0.018251299999974435
+        },
+        {
+            "phase_count": 98246,
+            "runtime": 0.021859400000039386
+        },
+        {
+            "phase_count": 114810,
+            "runtime": 0.02537350000011429
+        },
+        {
+            "phase_count": 134167,
+            "runtime": 0.03225930000007793
+        },
+        {
+            "phase_count": 156788,
+            "runtime": 0.03633469999999761
+        },
+        {
+            "phase_count": 183223,
+            "runtime": 0.04348669999990307
+        },
+        {
+            "phase_count": 214115,
+            "runtime": 0.049519200000077035
+        },
+        {
+            "phase_count": 250215,
+            "runtime": 0.059873599999946236
+        },
+        {
+            "phase_count": 292401,
+            "runtime": 0.06986910000000535
+        },
+        {
+            "phase_count": 341701,
+            "runtime": 0.08026960000006511
+        },
+        {
+            "phase_count": 399312,
+            "runtime": 0.09365230000003066
+        },
+        {
+            "phase_count": 466636,
+            "runtime": 0.13893639999992047
+        },
+        {
+            "phase_count": 545312,
+            "runtime": 0.1265056000002005
+        },
+        {
+            "phase_count": 637252,
+            "runtime": 0.16165190000015173
+        },
+        {
+            "phase_count": 744694,
+            "runtime": 0.19728060000011283
+        },
+        {
+            "phase_count": 870251,
+            "runtime": 0.24476380000010067
+        },
+        {
+            "phase_count": 1016976,
+            "runtime": 0.31768030000012004
+        },
+        {
+            "phase_count": 1188440,
+            "runtime": 0.38399219999996603
+        },
+        {
+            "phase_count": 1388812,
+            "runtime": 0.4550073999998858
+        },
+        {
+            "phase_count": 1622968,
+            "runtime": 0.5706001999999444
+        },
+        {
+            "phase_count": 1896602,
+            "runtime": 0.6238198000000921
+        },
+        {
+            "phase_count": 2216372,
+            "runtime": 0.720207099999925
+        },
+        {
+            "phase_count": 2590055,
+            "runtime": 0.939431999999897
+        },
+        {
+            "phase_count": 3026742,
+            "runtime": 1.071501699999999
+        },
+        {
+            "phase_count": 3537055,
+            "runtime": 1.275261799999953
+        },
+        {
+            "phase_count": 4133407,
+            "runtime": 1.3902229000000261
+        },
+        {
+            "phase_count": 4830304,
+            "runtime": 1.6377760000000308
+        },
+        {
+            "phase_count": 5644700,
+            "runtime": 1.962099999999964
+        },
+        {
+            "phase_count": 6596404,
+            "runtime": 2.298238099999935
+        },
+        {
+            "phase_count": 7708566,
+            "runtime": 2.857876499999975
+        },
+        {
+            "phase_count": 9008241,
+            "runtime": 3.415957599999956
+        },
+        {
+            "phase_count": 10527042,
+            "runtime": 3.913886100000127
+        },
+        {
+            "phase_count": 12301915,
+            "runtime": 4.785527600000023
+        },
+        {
+            "phase_count": 14376034,
+            "runtime": 5.682180300000027
+        },
+        {
+            "phase_count": 16799852,
+            "runtime": -1
+        },
+        {
+            "phase_count": 19632328,
+            "runtime": -1
+        },
+        {
+            "phase_count": 22942365,
+            "runtime": -1
+        },
+        {
+            "phase_count": 26810477,
+            "runtime": -1
+        },
+        {
+            "phase_count": 31330758,
+            "runtime": -1
+        },
+        {
+            "phase_count": 36613165,
+            "runtime": -1
+        },
+        {
+            "phase_count": 42786192,
+            "runtime": -1
+        },
+        {
+            "phase_count": 49999999,
+            "runtime": -1
+        }
+    ]
 }

@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     #main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion_2", "new_version_fusion", cfg)
+    #compare_simulation_results("new_version_fusion_2", "test_parallel_8_threads", cfg)
 
     #plot_from_json(cfg)
 
@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     #submethod_analysis("no_numba")
 
-    #test_versions("original", "new_version_fusion_2")
+    #test_versions("new_version_fusion_2", "test_parallel_8_threads", start = 1000, end = 1000000, repetitions_count = 1)
 
-    #test_version_solo("new_version_fusion_deficit_based", False, 10)
+    #test_version_solo("new_version_fusion_2", False, 20000000)
 
     #visualize_output_each_step(phase_count =  13)
 
