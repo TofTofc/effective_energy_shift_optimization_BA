@@ -11,11 +11,12 @@
         "append_improved_init_capacity_10_numba",
         "new_version_fusion",
         "new_version_fusion_2",
+        "test",
         "test_parallel_8_threads",
         "test_parallel_16_threads"
     ],
     "index_to_use": [
-        3
+        5
     ],
     "abort": false
 }
