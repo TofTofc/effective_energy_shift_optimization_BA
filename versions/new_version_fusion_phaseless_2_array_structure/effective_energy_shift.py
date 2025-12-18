@@ -12,7 +12,7 @@ changes made from new_version_fusion_2_avg_case_dtypes:
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def get_next_excess_index(idx, phase_meta):
     """
     Returns the idx of the next phase with excess overflow
@@ -26,7 +26,7 @@ def get_next_excess_index(idx, phase_meta):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def get_next_non_balanced_phase(idx, phase_meta):
 
     """
@@ -40,7 +40,7 @@ def get_next_non_balanced_phase(idx, phase_meta):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def move_excess(current_phase_idx, next_phase_idx,
                 phase_meta, e_counter, d_counter,
                 data_excess, data_deficit):
@@ -146,7 +146,7 @@ def move_excess(current_phase_idx, next_phase_idx,
     return e_counter, d_counter, data_excess, data_deficit, phase_meta
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit):
 
     """
@@ -286,7 +286,7 @@ def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit
 
     return e_counter, d_counter, data_excess, data_deficit, phase_meta
 
-@njit(parallel = True, nogil = True, inline = "always")
+@njit(parallel = True, nogil = True, inline = "always", fastmath = True)
 def init(excess_array, deficit_array):
     """
     Fills out the state mask:
@@ -359,7 +359,7 @@ def init(excess_array, deficit_array):
 
     return e_counter, d_counter, phase_meta, data_excess, data_deficit
 
-@njit(nogil = True)
+@njit(nogil = True, fastmath = True)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them

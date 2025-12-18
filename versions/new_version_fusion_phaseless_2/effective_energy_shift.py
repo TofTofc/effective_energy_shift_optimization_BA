@@ -16,7 +16,7 @@ changes made from new_version_fusion_phaseless:
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def get_next_excess_index(idx, state_mask):
     """
     Returns the idx of the next phase with excess overflow
@@ -30,7 +30,7 @@ def get_next_excess_index(idx, state_mask):
         i = (i + 1) % n
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def get_next_non_balanced_phase(idx, state_mask):
 
     """
@@ -44,7 +44,7 @@ def get_next_non_balanced_phase(idx, state_mask):
             return i
         i = (i + 1) % n
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def move_excess(current_phase_idx, next_phase_idx,
                 max_height_array, mask,
                 e_counter, d_counter,
@@ -164,7 +164,7 @@ def move_excess(current_phase_idx, next_phase_idx,
     return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
 
-@njit(nogil = True, inline = "always")
+@njit(nogil = True, inline = "always", fastmath = True)
 def balance_phase(i, mask, max_height_array, e_counter, d_counter,
                   size_excess, number_of_excess_not_covered,
                   starts_excess, energy_excess,
@@ -331,7 +331,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
     return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
-@njit(parallel = True, nogil = True, inline = "always")
+@njit(parallel = True, nogil = True, inline = "always", fastmath = True)
 def init(excess_array, deficit_array):
     """
     Fills out the state mask:
@@ -418,7 +418,7 @@ def init(excess_array, deficit_array):
             starts_excess, starts_deficit,
             energy_excess, energy_deficit)
 
-@njit(nogil = True)
+@njit(nogil = True, fastmath = True)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them

@@ -1,5 +1,5 @@
 {
-  "version": "test_datatypes",
+  "version": "append_improved",
   "worst_case": true,
   "number_of_data_points": 300,
   "start_phase_count": 10,
