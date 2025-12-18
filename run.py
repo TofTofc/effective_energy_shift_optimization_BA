@@ -17,13 +17,13 @@ if __name__ == '__main__':
 
     #compare_simulation_results("new_version_fusion_2", "new_version_fusion_2_avg_case_dtypes_parallel_no_resize", cfg)
 
-    #plot_from_json(cfg)
+    plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version_fusion_2_avg_case_dtypes_parallel_no_resize", min_phase_count = 1000, max_phase_count = None)
+    #log_log_linear_regression(cfg, "new_version_fusion_2_avg_case_dtypes", min_phase_count = 1000, max_phase_count = 30000000)
 
     #submethod_analysis("no_numba")
 
-    #test_versions("original", "new_version_fusion_2_avg_case_dtypes_index_strategy", start = 10, end = 1000, repetitions_count = 1)
+    #test_versions("original", "test", start = 10, end = 100, repetitions_count = 1)
 
     #test_version_solo("new_version_fusion_2_avg_case_dtypes_index_strategy", False, 10000)
 
