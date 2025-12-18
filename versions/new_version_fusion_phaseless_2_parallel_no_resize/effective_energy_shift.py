@@ -314,19 +314,17 @@ def init(excess_array, deficit_array):
     n = excess_array.shape[0]
 
     # Use uint64 for worst case
-    starts_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
-    starts_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
-    energy_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.uint32)
-
-    # Uint8 due to max of 100 deficit in our case needs to be higher if input ints can be higher than 255
-    energy_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.uint8)
+    starts_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.float64)
+    starts_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.float64)
+    energy_excess = np.empty((n, INITIAL_CAPACITY), dtype=np.float64)
+    energy_deficit = np.empty((n, INITIAL_CAPACITY), dtype=np.float64)
 
     size_excess = np.empty(n, dtype=np.uint8)
     size_deficit = np.empty(n, dtype=np.uint8)
     number_of_excess_not_covered = np.empty(n, dtype=np.uint8)
 
     mask = np.ones((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.uint32)
+    max_height_array = np.zeros(n, dtype=np.float64)
 
     for i in numba.prange(n):
 

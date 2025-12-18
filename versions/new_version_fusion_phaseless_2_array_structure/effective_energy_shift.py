@@ -2,12 +2,11 @@ import numba
 import numpy as np
 from numba import njit
 
-from versions.test.resize import add_excess_value, add_deficit_value, insert_excess_value
+from versions.new_version_fusion_phaseless_2_array_structure.resize import add_excess_value, add_deficit_value, insert_excess_value
 
 """
 changes made from new_version_fusion_2_avg_case_dtypes:
 
-- changed % usage to if i >= n: i = 0
 - changed array structures
 
 init capacity of 2 and growth of + 5 per resize (same as old version)
@@ -19,14 +18,12 @@ def get_next_excess_index(idx, phase_meta):
     Returns the idx of the next phase with excess overflow
     """
     n = phase_meta.shape[0]
-    i = idx + 1
-    if i >= n: i = 0
+    i = (idx + 1) % n
 
     while True:
         if phase_meta[i, 4] == 1 and phase_meta[i, 5] == 0:
             return i
-        i += 1
-        if i >= n: i = 0
+        i = (i + 1) % n
 
 
 @njit(nogil = True, inline = "always")
@@ -36,14 +33,12 @@ def get_next_non_balanced_phase(idx, phase_meta):
      Returns the idx of the next phase wich is not balanced
     """
     n = phase_meta.shape[0]
-    i = idx + 1
-    if i >= n: i = 0
+    i = (idx + 1) % n
 
     while True:
         if phase_meta[i, 4] == 1 or phase_meta[i, 5] == 1:
             return i
-        i += 1
-        if i >= n: i = 0
+        i = (i + 1) % n
 
 @njit(nogil = True, inline = "always")
 def move_excess(current_phase_idx, next_phase_idx,
@@ -319,11 +314,11 @@ def init(excess_array, deficit_array):
     # Not smaller than 2
     initial_capacity = 2
 
-    # Use uint64 for worst case
-    data_excess = np.empty((n, initial_capacity, 2), dtype=np.uint32)
-    data_deficit = np.empty((n, initial_capacity, 2), dtype=np.uint32)
+    # float32 possible only for avg case
+    data_excess = np.empty((n, initial_capacity, 2), dtype=np.float64)
+    data_deficit = np.empty((n, initial_capacity, 2), dtype=np.float64)
 
-    phase_meta = np.zeros((n, 6), dtype=np.uint32)
+    phase_meta = np.zeros((n, 6), dtype=np.float64)
     phase_meta[:, 0] = 1
     phase_meta[:, 1] = 1
 

@@ -1,48 +1,28 @@
 import numpy as np
-from numba import int32, float64, boolean, uint32, uint8, uint16, int64
+from dataclasses import dataclass
 
-from numba.experimental import jitclass
-
-spec = [
-    ('id', int32),
-
-    ('capacity_excess', int32),
-    ('capacity_deficit', int32),
-    ('size_excess', int32),
-    ('size_deficit', int32),
-
-    ('starts_excess', int64[:]),
-    ('starts_deficit', int64[:]),
-    ('energy_excess', int32[:]),
-    ('energy_deficit', int32[:]),
-    ('excess_balanced', boolean[:]),
-    ('deficit_balanced', boolean[:]),
-    ('excess_ids', int32[:]),
-]
-@jitclass(spec)
+@dataclass
 class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
-    def __init__(self, energy_excess: float, energy_deficit: float, id: int):
+    def __init__(self, energy_excess: float, energy_deficit: float, id: int, initial_capacity=2):
 
-        initial_capacity = 10
+        self.id = np.uint32(id)
 
-        self.id = id
+        self.capacity_excess = np.uint8(initial_capacity)
+        self.capacity_deficit = np.uint8(initial_capacity)
+        self.size_excess = np.uint8(1)
+        self.size_deficit = np.uint8(1)
 
-        self.capacity_excess = initial_capacity
-        self.capacity_deficit = initial_capacity
-        self.size_excess = 1
-        self.size_deficit = 1
-
-        self.starts_excess = np.empty(initial_capacity, dtype=np.int64)
-        self.starts_deficit = np.empty(initial_capacity, dtype=np.int64)
-        self.energy_excess = np.empty(initial_capacity, dtype=np.int32)
-        self.energy_deficit = np.empty(initial_capacity, dtype=np.int32)
+        self.starts_excess = np.empty(initial_capacity, dtype=np.float64)
+        self.starts_deficit = np.empty(initial_capacity, dtype=np.float64)
+        self.energy_excess = np.empty(initial_capacity, dtype=np.float64)
+        self.energy_deficit = np.empty(initial_capacity, dtype=np.float64)
         self.excess_balanced = np.empty(initial_capacity, dtype=np.bool_)
         self.deficit_balanced = np.empty(initial_capacity, dtype=np.bool_)
-        self.excess_ids = np.empty(initial_capacity, dtype=np.int32)
+        self.excess_ids = np.empty(initial_capacity, dtype=np.uint32)
 
-        self.starts_excess[0] = 0
-        self.starts_deficit[0] = 0
+        self.starts_excess[0] = 0.0
+        self.starts_deficit[0] = 0.0
         self.energy_excess[0] = energy_excess
         self.energy_deficit[0] = energy_deficit
         self.excess_balanced[0] = False
@@ -51,7 +31,7 @@ class Phase:
 
     def append_excess(self, excess_start, excess_content, excess_balanced, excess_id):
         if self.size_excess >= self.capacity_excess:
-            self.capacity_excess *= 2
+            self.capacity_excess +=5
             self.starts_excess = np.resize(self.starts_excess, self.capacity_excess)
             self.energy_excess = np.resize(self.energy_excess, self.capacity_excess)
             self.excess_balanced = np.resize(self.excess_balanced, self.capacity_excess)
@@ -66,7 +46,7 @@ class Phase:
 
     def append_deficit(self, new_start, energy_remaining, balanced):
         if self.size_deficit >= self.capacity_deficit:
-            self.capacity_deficit *= 2
+            self.capacity_deficit  +=5
             self.starts_deficit = np.resize(self.starts_deficit, self.capacity_deficit)
             self.energy_deficit = np.resize(self.energy_deficit, self.capacity_deficit)
             self.deficit_balanced = np.resize(self.deficit_balanced, self.capacity_deficit)

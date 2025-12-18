@@ -3,12 +3,15 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.new_version_fusion_2_avg_case_dtypes.resize import add_excess_value, add_deficit_value, insert_excess_value
+from versions.new_version_fusion_phaseless_2.resize import add_excess_value, add_deficit_value, insert_excess_value
 
 """
-changes made from new_version_fusion_2:
+changes made from new_version_fusion_phaseless:
 
-- used smaller datatypes optimal for avg case usage
+- parallel init 
+- added some numba flags 
+- optimized init 
+- changed max to np.maximum 
 
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
@@ -22,7 +25,7 @@ def get_next_excess_index(idx, state_mask):
     i = (idx + 1) % n
 
     while True:
-        if state_mask[0,i] and not state_mask[1,i]:
+        if state_mask[0][i] and not state_mask[1][i]:
             return i
         i = (i + 1) % n
 
@@ -37,7 +40,7 @@ def get_next_non_balanced_phase(idx, state_mask):
     i = (idx + 1) % n
 
     while True:
-        if state_mask[0,i] or state_mask[1,i]:
+        if state_mask[0][i] or state_mask[1][i]:
             return i
         i = (i + 1) % n
 
@@ -196,7 +199,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
     """
 
     # 0. no uncovered deficit block -> nothing to do
-    if not mask[1,i]:
+    if not mask[1][i]:
 
         return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
 
@@ -287,8 +290,8 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             # update counters and mark phase as still having excess
             d_counter -= 1
             e_counter += 1
-            mask[0,i] = True
-            mask[1,i] = False
+            mask[0][i] = True
+            mask[1][i] = False
 
             # return updated counters
             return e_counter, d_counter, starts_excess, energy_excess, starts_deficit, energy_deficit
@@ -300,8 +303,8 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             if idx == total-1:
 
                 #state_mask[i] = 0, deficit counter --
-                mask[0,i] = False
-                mask[1,i] = False
+                mask[0][i] = False
+                mask[1][i] = False
                 d_counter -= 1
 
                 # set max_height_array[i] to the end height of this block
@@ -316,8 +319,8 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             else:
 
                 # state_mask[i] = 1, deficit counter--, excess counter++
-                mask[0,i] = True
-                mask[1,i] = False
+                mask[0][i] = True
+                mask[1][i] = False
                 d_counter -= 1
                 e_counter += 1
 
@@ -342,20 +345,19 @@ def init(excess_array, deficit_array):
     # Not smaller than 2
     initial_capacity = 2
 
-    # Use uint64 for worst case
-    starts_excess = np.empty((n, initial_capacity), dtype=np.uint32)
-    starts_deficit = np.empty((n, initial_capacity), dtype=np.uint32)
-    energy_excess = np.empty((n, initial_capacity), dtype=np.uint32)
-
-    # Uint8 due to max of 100 deficit in our case needs to be higher if input ints can be higher than 255
-    energy_deficit = np.empty((n, initial_capacity), dtype=np.uint8)
+    # Smaller Datatypes are possible for average case only
+    # Worst case results in huge numbers
+    starts_excess = np.empty((n, initial_capacity), dtype=np.float64)
+    starts_deficit = np.empty((n, initial_capacity), dtype=np.float64)
+    energy_excess = np.empty((n, initial_capacity), dtype=np.float64)
+    energy_deficit = np.empty((n, initial_capacity), dtype=np.float64)
 
     size_excess = np.full(n,1, dtype=np.uint8)
     size_deficit = np.full(n, 1, dtype=np.uint8)
     number_of_excess_not_covered = np.zeros(n, dtype=np.uint8)
 
     mask = np.zeros((2, n), dtype=np.bool_)
-    max_height_array = np.zeros(n, dtype=np.uint32)
+    max_height_array = np.zeros(n, dtype=np.float64)
 
     e_counter = 0
     d_counter = 0

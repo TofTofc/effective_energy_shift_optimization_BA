@@ -4,19 +4,20 @@ from numba import int32, float64, boolean, uint32, uint16, uint8, int64, uint64
 from numba.experimental import jitclass
 
 spec = [
-    ('id', int64),
+    ('id', uint32),
 
-    ('capacity_excess', int32),
-    ('capacity_deficit', int32),
-    ('size_excess', int32),
-    ('size_deficit', int32),
-    ('number_of_excess_not_covered' , int64),
+    ('capacity_excess', uint8),
+    ('capacity_deficit', uint8),
+    ('size_excess', uint8),
+    ('size_deficit', uint8),
 
-    ('starts_excess', int64[:]),
-    ('starts_deficit', int64[:]),
-    ('energy_excess', int64[:]),
-    ('energy_deficit', int64[:]),
-    ('excess_ids', int64[:]),
+    ('starts_excess', float64[:]),
+    ('starts_deficit', float64[:]),
+    ('energy_excess', float64[:]),
+    ('energy_deficit', float64[:]),
+    ('excess_balanced', boolean[:]),
+    ('deficit_balanced', boolean[:]),
+    ('excess_ids', uint32[:]),
 ]
 @jitclass(spec)
 class Phase:

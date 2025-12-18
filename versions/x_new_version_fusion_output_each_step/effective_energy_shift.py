@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.new_version_fusion_output_each_step import efes_dataclasses
+from versions.x_new_version_fusion_output_each_step import efes_dataclasses
 
 @njit
 def get_next_excess_index(phases, idx, state_mask):
