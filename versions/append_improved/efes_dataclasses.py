@@ -6,12 +6,12 @@ class Phase:
     """A class to describe a balancing phase consisting of  energy packets for excess and deficit"""
     def __init__(self, energy_excess: float, energy_deficit: float, id: int, initial_capacity=2):
 
-        self.id = np.uint32(id)
+        self.id = id
 
-        self.capacity_excess = np.uint8(initial_capacity)
-        self.capacity_deficit = np.uint8(initial_capacity)
-        self.size_excess = np.uint8(1)
-        self.size_deficit = np.uint8(1)
+        self.capacity_excess = initial_capacity
+        self.capacity_deficit = initial_capacity
+        self.size_excess = 1
+        self.size_deficit = 1
 
         self.starts_excess = np.empty(initial_capacity, dtype=np.float64)
         self.starts_deficit = np.empty(initial_capacity, dtype=np.float64)
@@ -19,7 +19,7 @@ class Phase:
         self.energy_deficit = np.empty(initial_capacity, dtype=np.float64)
         self.excess_balanced = np.empty(initial_capacity, dtype=np.bool_)
         self.deficit_balanced = np.empty(initial_capacity, dtype=np.bool_)
-        self.excess_ids = np.empty(initial_capacity, dtype=np.uint32)
+        self.excess_ids = np.empty(initial_capacity, dtype=np.int32)
 
         self.starts_excess[0] = 0.0
         self.starts_deficit[0] = 0.0

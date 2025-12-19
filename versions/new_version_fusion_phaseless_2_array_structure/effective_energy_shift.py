@@ -21,7 +21,7 @@ def get_next_excess_index(idx, phase_meta):
     i = (idx + 1) % n
 
     while True:
-        if phase_meta[i, 4] == 1 and phase_meta[i, 5] == 0:
+        if phase_meta[i, 3] == 1 and phase_meta[i, 4] == 0:
             return i
         i = (i + 1) % n
 
@@ -36,13 +36,13 @@ def get_next_non_balanced_phase(idx, phase_meta):
     i = (idx + 1) % n
 
     while True:
-        if phase_meta[i, 4] == 1 or phase_meta[i, 5] == 1:
+        if phase_meta[i, 3] == 1 or phase_meta[i, 4] == 1:
             return i
         i = (i + 1) % n
 
 @njit(nogil = True, inline = "always", fastmath = True)
 def move_excess(current_phase_idx, next_phase_idx,
-                phase_meta, e_counter, d_counter,
+                phase_meta, max_height_array, e_counter, d_counter,
                 data_excess, data_deficit):
 
     """
@@ -62,16 +62,16 @@ def move_excess(current_phase_idx, next_phase_idx,
 
     # Get the max height inbetween the two phases
     if next_phase_idx > current_phase_idx + 1:
-        max_height = np.amax(phase_meta[current_phase_idx + 1: next_phase_idx, 3])
+        max_height = np.amax(max_height_array[current_phase_idx + 1: next_phase_idx])
 
     elif next_phase_idx <= current_phase_idx:
 
         current_start = current_phase_idx + 1
         next_stop = next_phase_idx
 
-        slice_1 = phase_meta[current_start:, 3]
+        slice_1 = max_height_array[current_start:]
 
-        slice_2 = phase_meta[:next_stop, 3]
+        slice_2 = max_height_array[:next_stop]
 
         combined_array = np.concatenate((slice_1, slice_2))
 
@@ -129,25 +129,25 @@ def move_excess(current_phase_idx, next_phase_idx,
     phase_meta[current_phase_idx, 0] = start_idx
 
     # Current phase is now balanced
+    phase_meta[current_phase_idx, 3] = 0
     phase_meta[current_phase_idx, 4] = 0
-    phase_meta[current_phase_idx, 5] = 0
 
     # Change the max_height_array entry
 
     last_idx = phase_meta[current_phase_idx, 0] - 1
-    phase_meta[current_phase_idx, 3] = data_excess[current_phase_idx, last_idx, 0] + data_excess[current_phase_idx, last_idx, 1]
+    max_height_array[current_phase_idx] = data_excess[current_phase_idx, last_idx, 0] + data_excess[current_phase_idx, last_idx, 1]
 
     e_counter -= 1
 
     e_counter, d_counter, data_excess, data_deficit, phase_meta = (
-        balance_phase(next_phase_idx, phase_meta, e_counter, d_counter, data_excess, data_deficit)
+        balance_phase(next_phase_idx, phase_meta, max_height_array, e_counter, d_counter, data_excess, data_deficit)
     )
 
     return e_counter, d_counter, data_excess, data_deficit, phase_meta
 
 
 @njit(nogil = True, inline = "always", fastmath = True)
-def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit):
+def balance_phase(i, phase_meta, max_height_array, e_counter, d_counter, data_excess, data_deficit):
 
     """
     Balances newly moved excess packets for the phase
@@ -179,7 +179,7 @@ def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit
     """
 
     # 0. no uncovered deficit block -> nothing to do
-    if phase_meta[i, 5] == 0:
+    if phase_meta[i, 4] == 0:
 
         return e_counter, d_counter, data_excess, data_deficit, phase_meta
 
@@ -245,8 +245,8 @@ def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit
             # update counters and mark phase as still having excess
             d_counter -= 1
             e_counter += 1
-            phase_meta[i, 4] = 1
-            phase_meta[i, 5] = 0
+            phase_meta[i, 3] = 1
+            phase_meta[i, 4] = 0
 
             # return updated counters
             return e_counter, d_counter, data_excess, data_deficit, phase_meta
@@ -258,12 +258,12 @@ def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit
             if idx == total-1:
 
                 #state_mask[i] = 0, deficit counter --
+                phase_meta[i, 3] = 0
                 phase_meta[i, 4] = 0
-                phase_meta[i, 5] = 0
                 d_counter -= 1
 
                 # set max_height_array[i] to the end height of this block
-                phase_meta[i, 3] = data_excess[i, idx, 0] + data_excess[i, idx, 1]
+                max_height_array[i] = data_excess[i, idx, 0] + data_excess[i, idx, 1]
 
                 # number_of_excess_not_covered --
                 phase_meta[i, 2] -= 1
@@ -274,8 +274,8 @@ def balance_phase(i, phase_meta, e_counter, d_counter, data_excess, data_deficit
             else:
 
                 # state_mask[i] = 1, deficit counter--, excess counter++
-                phase_meta[i, 4] = 1
-                phase_meta[i, 5] = 0
+                phase_meta[i, 3] = 1
+                phase_meta[i, 4] = 0
                 d_counter -= 1
                 e_counter += 1
 
@@ -299,9 +299,8 @@ def init(excess_array, deficit_array):
     0: size_excess
     1: size_deficit
     2: number_of_excess_not_covered
-    3: max_height_array
-    4: mask[0] (Boolean: Has phase Excess?)
-    5: mask[1] (Boolean: Has phase Deficit?)
+    3: mask[0] (Boolean: Has phase Excess?)
+    4: mask[1] (Boolean: Has phase Deficit?)
 
 
     data arrays:
@@ -318,7 +317,8 @@ def init(excess_array, deficit_array):
     data_excess = np.empty((n, initial_capacity, 2), dtype=np.float64)
     data_deficit = np.empty((n, initial_capacity, 2), dtype=np.float64)
 
-    phase_meta = np.zeros((n, 6), dtype=np.float64)
+    phase_meta = np.zeros((n, 5), dtype=np.uint8)
+    max_height_array = np.zeros(n, dtype=np.float64)
     phase_meta[:, 0] = 1
     phase_meta[:, 1] = 1
 
@@ -337,7 +337,7 @@ def init(excess_array, deficit_array):
         if e_ex > e_def:
 
             e_counter += 1
-            phase_meta[i, 4] = 1
+            phase_meta[i, 3] = 1
             data_excess[i, 0, 1] = e_def
             data_excess[i, 1, 0] = e_def
             data_excess[i, 1, 1] = e_ex - e_def
@@ -347,7 +347,7 @@ def init(excess_array, deficit_array):
         elif e_def > e_ex:
 
             d_counter += 1
-            phase_meta[i, 5] = 1
+            phase_meta[i, 4] = 1
             data_deficit[i, 0, 1] = e_ex
             data_deficit[i, 1, 0] = e_ex
             data_deficit[i, 1, 1] = e_def - e_ex
@@ -355,23 +355,23 @@ def init(excess_array, deficit_array):
 
         else:
 
-            phase_meta[i, 3] = data_excess[i, 0, 0] + data_excess[i, 0, 1]
+            max_height_array[i] = data_excess[i, 0, 0] + data_excess[i, 0, 1]
 
-    return e_counter, d_counter, phase_meta, data_excess, data_deficit
+    return e_counter, d_counter, phase_meta, max_height_array, data_excess, data_deficit
 
 @njit(nogil = True, fastmath = True)
 def process_phases(excess_array, deficit_array, start_times):
 
     # Provides the initial states for each Phase object and balances them
-    e_counter, d_counter, phase_meta, data_excess, data_deficit = init(excess_array, deficit_array)
+    e_counter, d_counter, phase_meta, max_height_array, data_excess, data_deficit = init(excess_array, deficit_array)
 
     # Return when we either start with no Excess or no Deficit
     if e_counter == 0 or d_counter == 0:
         return (
-            phase_meta[:, 0].astype(np.uint8), phase_meta[:, 1].astype(np.uint8),
+            phase_meta[:, 0], phase_meta[:, 1],
             data_excess[:, :, 0], data_deficit[:, :, 0],
             data_excess[:, :, 1], data_deficit[:, :, 1],
-            phase_meta[:, 4:].T.astype(np.bool_)
+            phase_meta[:, 3:].T
         )
 
     # start with an excess overflow right away
@@ -390,7 +390,7 @@ def process_phases(excess_array, deficit_array, start_times):
 
         # Moves the Excess from the current Phase to the next non perfectly balanced phase
         e_counter, d_counter, data_excess, data_deficit, phase_meta = move_excess(
-            idx, next_phase_idx, phase_meta, e_counter, d_counter, data_excess, data_deficit
+            idx, next_phase_idx, phase_meta, max_height_array, e_counter, d_counter, data_excess, data_deficit
         )
 
         # Stop when either no more Excesses to move or no more Deficits to fill
@@ -408,8 +408,8 @@ def process_phases(excess_array, deficit_array, start_times):
 
     return \
     (
-        phase_meta[:, 0].astype(np.uint8), phase_meta[:, 1].astype(np.uint8),
+        phase_meta[:, 0], phase_meta[:, 1],
         data_excess[:, :, 0], data_deficit[:, :, 0],
         data_excess[:, :, 1], data_deficit[:, :, 1],
-        phase_meta[:, 4:].T.astype(np.bool_)
+        phase_meta[:, 3:].T
     )

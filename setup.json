@@ -1,8 +1,8 @@
 {
     "worst_case_scenario": false,
     "start_phase_count": 10,
-    "end_phase_count": 100000000,
-    "number_of_data_points": 300,
+    "end_phase_count": 5000000,
+    "number_of_data_points": 200,
     "repetition_count": 5,
     "master_seed": 125,
     "versions": [
@@ -10,12 +10,13 @@
         "append_improved",
         "append_improved_numba",
         "new_version_fusion",
-        "new_version_fusion_2",
-        "new_version_fusion_2_array_structure",
-        "new_version_fusion_2_parallel_no_resize"
+        "new_version_fusion_phaseless",
+        "new_version_fusion_phaseless_2",
+        "new_version_fusion_phaseless_2_array_structure",
+        "new_version_fusion_phaseless_2_parallel_no_resize"
     ],
     "index_to_use": [
-        5
+        3
     ],
     "abort": false
 }

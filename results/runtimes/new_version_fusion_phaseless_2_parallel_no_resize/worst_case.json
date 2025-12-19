@@ -1,6 +1,6 @@
 {
-  "version": "append_improved_numba",
-  "worst_case": false,
+  "version": "new_version_fusion_phaseless_2_parallel_no_resize",
+  "worst_case": true,
   "number_of_data_points": 200,
   "start_phase_count": 10,
   "end_phase_count": 5000000,
