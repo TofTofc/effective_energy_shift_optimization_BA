@@ -13,10 +13,11 @@
         "new_version_fusion_phaseless",
         "new_version_fusion_phaseless_2",
         "new_version_fusion_phaseless_2_array_structure",
-        "new_version_fusion_phaseless_2_parallel_no_resize"
+        "new_version_fusion_phaseless_2_parallel_no_resize",
+        "deficit_based"
     ],
     "index_to_use": [
-        0
+        8
     ],
     "abort": false
 }
