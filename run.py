@@ -21,12 +21,12 @@ if __name__ == '__main__':
 
     #log_log_linear_regression(cfg, "deficit_based", min_phase_count = 1000, max_phase_count = 30000000)
 
-    #submethod_analysis("test_no_numba")
+    #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("original", "deficit_based", start = 10, end = 1000, repetitions_count = 10)
+    test_versions("original", "deficit_based", start = 10, end = 300, repetitions_count = 2)
 
-    #test_version_solo("new_version_fusion_2_avg_case_dtypes_index_strategy", False, 10000)
+    #test_version_solo("deficit_based", False, 1000000)
 
     #visualize_output_each_step(phase_count =  13)
 
-    #visualize(cfg,"new_version_fusion_deficit_based" , phase=13, max_cols = 100, case = "average_case")
+    #visualize(cfg,"deficit_based" , phase=13, max_cols = 100, case = "average_case")

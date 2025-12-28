@@ -6,6 +6,8 @@ from versions.deficit_based.resize import add_excess_value, add_deficit_value, i
 
 """
 
+Huge Problem: get_next_deficit_index and find_previous_deficit lead to non linear behaviour 
+
 init capacity of 2 and growth of + 5 per resize (same as old version)
 """
 
