@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("original", "new_version_fusion_phaseless_2_array_structure", start = 10, end = 100, repetitions_count = 2)
+    #test_versions("original", "deficit_based", start = 10, end = 300, repetitions_count = 2)
 
     #test_version_solo("deficit_based", False, 1000000)
 
