@@ -47,7 +47,7 @@ class Phase:
         self.excess_ids[0] = self.id
 
         # Initial Balancing
-        if energy_excess > energy_deficit:
+        if (energy_excess - energy_deficit) > 1e-12:
 
             self.energy_excess[0] = energy_deficit
 
@@ -58,7 +58,7 @@ class Phase:
             self.size_excess = 2
             self.number_of_excess_not_covered = 1
 
-        elif energy_deficit > energy_excess:
+        elif (energy_deficit - energy_excess) > 1e-12:
 
             self.energy_deficit[0] = energy_excess
 

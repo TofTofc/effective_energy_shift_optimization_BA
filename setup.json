@@ -1,8 +1,8 @@
 {
     "worst_case_scenario": false,
     "start_phase_count": 10,
-    "end_phase_count": 5000000,
-    "number_of_data_points": 200,
+    "end_phase_count": 1000000,
+    "number_of_data_points": 100,
     "repetition_count": 5,
     "master_seed": 125,
     "versions": [
@@ -13,11 +13,12 @@
         "new_version_fusion_phaseless",
         "new_version_fusion_phaseless_2",
         "new_version_fusion_phaseless_2_array_structure",
+        "new_version_fusion_phaseless_2_array_structure_ic_15",
         "new_version_fusion_phaseless_2_parallel_no_resize",
         "deficit_based"
     ],
     "index_to_use": [
-        6
+        7
     ],
     "abort": false
 }

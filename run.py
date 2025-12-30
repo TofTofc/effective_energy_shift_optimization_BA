@@ -17,13 +17,13 @@ if __name__ == '__main__':
 
     #compare_simulation_results("new_version_fusion_phaseless_2", "new_version_fusion_phaseless_2_parallel_no_resize", cfg)
 
-    #plot_from_json(cfg)
+    plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "deficit_based", min_phase_count = 1000, max_phase_count = 30000000)
+    #log_log_linear_regression(cfg, "new_version_fusion_phaseless_2_array_structure", min_phase_count = 1000, max_phase_count = 30000000)
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("original", "new_version_fusion_phaseless_2_array_structure", start = 10, end = 500, repetitions_count = 10)
+    #test_versions("original", "new_version_fusion_phaseless_2_array_structure_ic_15", start = 10, end = 200, repetitions_count = 2)
 
     #test_version_solo("deficit_based", False, 1000000)
 

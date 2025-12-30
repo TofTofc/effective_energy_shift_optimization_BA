@@ -109,7 +109,7 @@ def cover_deficit(current_phase_idx, excess_list,
 
         # merge condition:
         # start of moved packet equals end of last excess in current deficit phase
-        if excess_start == last_excess_end_height:
+        if abs(excess_start - last_excess_end_height) < 1e-12:
 
             # Merge: increase energy of last excess in current deficit phase
             data_excess[current_phase_idx, last_e_idx_dst, 1] += overflow_content
@@ -140,7 +140,7 @@ def cover_deficit(current_phase_idx, excess_list,
         def_energy = data_deficit[current_phase_idx, last_d_idx, 1]
 
         # Case 1: Moved Excess is smaller than deficit -> split deficit
-        if overflow_content < def_energy:
+        if (def_energy - overflow_content) > 1e-12:
 
             new_def_start = excess_start + overflow_content
             rem_def_energy = def_energy - overflow_content
@@ -149,7 +149,7 @@ def cover_deficit(current_phase_idx, excess_list,
             data_deficit, phase_meta = add_deficit_value(current_phase_idx, new_def_start, rem_def_energy, data_deficit, phase_meta)
 
         # Case 2: Moved Excess is larger than deficit -> split excess
-        elif overflow_content > def_energy:
+        elif (overflow_content - def_energy) > 1e-12:
 
             new_ex_start = excess_start + def_energy
             rem_ex_energy = overflow_content - def_energy
@@ -226,7 +226,7 @@ def init(excess_array, deficit_array):
         e_ex = excess_array[i]
         e_def = deficit_array[i]
 
-        if e_ex > e_def:
+        if (e_ex - e_def) > 1e-12:
 
             e_counter += 1
             phase_meta[i, 2] = 1
@@ -235,7 +235,7 @@ def init(excess_array, deficit_array):
             data_excess[i, 1, 1] = e_ex - e_def
             phase_meta[i, 0] = 2
 
-        elif e_def > e_ex:
+        elif (e_def - e_ex) > 1e-12:
 
             d_counter += 1
             phase_meta[i, 3] = 1

@@ -104,7 +104,7 @@ def move_excess(phases, current_phase_idx, next_phase_idx, max_height_array, mas
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
         # 2. start of moved packet equals end of last excess in next phase
-        if (next_phase.number_of_excess_not_covered > 0) and (excess_start == last_excess_end_height):
+        if (next_phase.number_of_excess_not_covered > 0) and (abs(excess_start - last_excess_end_height) < 1e-12):
             can_merge = True
 
         excess_id = current_phase.get_excess_id(idx)
@@ -193,7 +193,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
             # 3. For each current excess vs the uncovered deficit one of 3 happens:
 
             # a: excess < deficit:
-            if phase.get_energy_excess(idx) < phase.get_energy_deficit(-1):
+            if (phase.get_energy_deficit(-1) - phase.get_energy_excess(idx)) > 1e-12:
                 # Split the deficit
 
                 # New start is excess height + start
@@ -214,7 +214,7 @@ def balance_phase(phases, i, mask, max_height_array, e_counter, d_counter):
                 continue
 
             # b: excess > deficit
-            elif phase.get_energy_excess(idx) > phase.get_energy_deficit(-1):
+            elif (phase.get_energy_excess(idx) - phase.get_energy_deficit(-1)) > 1e-12:
 
                 excess_energy = phase.get_energy_excess(idx)
                 deficit_energy = phase.get_energy_deficit(-1)

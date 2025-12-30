@@ -3,17 +3,6 @@ import numpy as np
 from numba import njit, prange
 from numba.typed import List
 
-"""
-changes made from new_version_fusion_2_avg_case_dtypes:
-
-- parallel array manipulation with 8 threats 
-- parallel -> no resize 
-- bounds check of numba activated (slower than without)
-- starting with bigger init capacity to ensure out of bounds error being very unlikely  
-- post parallel work to finish the partially unfinished parallel work 
-
-"""
-
 THREAD_COUNT = 8
 INITIAL_CAPACITY = 20
 
@@ -115,7 +104,7 @@ def move_excess(current_phase_idx, next_phase_idx,
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
         # 2. start of moved packet equals end of last excess in next phase
-        can_merge = (number_of_excess_not_covered[next_phase_idx] > 0) and (excess_start == last_excess_end_height)
+        can_merge = (number_of_excess_not_covered[next_phase_idx] > 0) and (abs(excess_start - last_excess_end_height) < 1e-12)
 
         if can_merge:
 
@@ -211,8 +200,10 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
 
         # 3. For each current excess vs the uncovered deficit one of 3 happens:
 
+        diff = excess_energy - deficit_energy
+
         # a: excess < deficit:
-        if excess_energy < deficit_energy:
+        if diff < -1e-12:
             # Split the deficit
 
             # New start is excess height + start
@@ -236,7 +227,7 @@ def balance_phase(i, mask, max_height_array, e_counter, d_counter,
             continue
 
         # b: excess > deficit
-        elif excess_energy > deficit_energy:
+        elif diff > 1e-12:
 
             # computed start for the remaining excess
             new_start = deficit_start + deficit_energy
@@ -336,7 +327,9 @@ def init(excess_array, deficit_array):
         e_ex = excess_array[i]
         e_def = deficit_array[i]
 
-        if e_ex > e_def:
+        diff = e_ex - e_def
+
+        if diff > 1e-12:
 
             mask[0, i] = True
             mask[1, i] = False
@@ -350,7 +343,7 @@ def init(excess_array, deficit_array):
             size_deficit[i] = 1
             number_of_excess_not_covered[i] = 1
 
-        elif e_def > e_ex:
+        elif diff < -1e-12:
 
             mask[0, i] = False
             mask[1, i] = True

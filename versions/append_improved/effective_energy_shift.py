@@ -18,12 +18,12 @@ def balance_phase(phase: efes_dataclasses.Phase):
 
     phase.excess_balanced[phase.size_excess - 1] = True
 
-    if phase.energy_excess[phase.size_excess - 1] == phase.energy_deficit[phase.size_deficit - 1]:
+    if abs(phase.energy_excess[phase.size_excess - 1] - phase.energy_deficit[phase.size_deficit - 1]) < 1e-12:
 
         phase.deficit_balanced[phase.size_deficit - 1] = True
         return False, False
 
-    if phase.energy_excess[phase.size_excess - 1] > phase.energy_deficit[phase.size_deficit - 1]:
+    if (phase.energy_excess[phase.size_excess - 1] - phase.energy_deficit[phase.size_deficit - 1]) > 1e-12:
 
         phase.deficit_balanced[phase.size_deficit - 1] = True
 

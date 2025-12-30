@@ -4,14 +4,6 @@ from numba import njit
 
 from versions.new_version_fusion_phaseless_2_array_structure.resize import add_excess_value, add_deficit_value, insert_excess_value
 
-"""
-changes made from new_version_fusion_2_avg_case_dtypes:
-
-- changed array structures
-
-init capacity of 2 and growth of + 5 per resize (same as old version)
-"""
-
 @njit(nogil = True, inline = "always", fastmath = True)
 def get_next_excess_index(idx, phase_meta):
     """
@@ -106,7 +98,7 @@ def move_excess(current_phase_idx, next_phase_idx,
         # merge conditions:
         # 1. there is at least one uncovered excess in next phase
         # 2. start of moved packet equals end of last excess in next phase
-        can_merge = (phase_meta[next_phase_idx, 2] > 0) and (excess_start == last_excess_end_height)
+        can_merge = (phase_meta[next_phase_idx, 2] > 0) and (abs(excess_start - last_excess_end_height) < 1e-12)
 
         if can_merge:
 
@@ -201,8 +193,10 @@ def balance_phase(i, phase_meta, max_height_array, e_counter, d_counter, data_ex
 
         # 3. For each current excess vs the uncovered deficit one of 3 happens:
 
+        diff = excess_energy - deficit_energy
+
         # a: excess < deficit:
-        if excess_energy < deficit_energy:
+        if diff < -1e-12:
 
             # Split the deficit
 
@@ -226,7 +220,7 @@ def balance_phase(i, phase_meta, max_height_array, e_counter, d_counter, data_ex
             continue
 
         # b: excess > deficit
-        elif excess_energy > deficit_energy:
+        elif diff > 1e-12:
 
             # computed start for the remaining excess
             new_start = deficit_start + deficit_energy
@@ -334,7 +328,9 @@ def init(excess_array, deficit_array):
         e_ex = excess_array[i]
         e_def = deficit_array[i]
 
-        if e_ex > e_def:
+        diff = e_ex - e_def
+
+        if diff > 1e-12:
 
             e_counter += 1
             phase_meta[i, 3] = 1
@@ -344,7 +340,7 @@ def init(excess_array, deficit_array):
             phase_meta[i, 0] = 2
             phase_meta[i, 2] = 1
 
-        elif e_def > e_ex:
+        elif diff < -1e-12:
 
             d_counter += 1
             phase_meta[i, 4] = 1
