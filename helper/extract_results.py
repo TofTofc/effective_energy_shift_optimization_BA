@@ -1,18 +1,8 @@
 import sys
 
-import numpy as np
-
-
 def extract_results(process_phases_output):
 
     if isinstance(process_phases_output, tuple) and len(process_phases_output) == 7:
-        # return \
-        #     (
-        #         size_excess, size_deficit,
-        #         starts_excess, starts_deficit,
-        #         energy_excess, energy_deficit,
-        #         mask
-        #     )
 
         size_excess = process_phases_output[0]
         size_deficit = process_phases_output[1]
