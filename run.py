@@ -23,10 +23,10 @@ if __name__ == '__main__':
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("original", "deficit_based", start = 10, end = 300, repetitions_count = 2)
+    #test_versions("original", "new_version_fusion_phaseless_2_array_structure", start = 10, end = 500, repetitions_count = 10)
 
     #test_version_solo("deficit_based", False, 1000000)
 
     #visualize_output_each_step(phase_count =  13)
 
-    #visualize(cfg,"deficit_based" , phase=13, max_cols = 100, case = "average_case")
+    #visualize(cfg,"original" , phase=16, max_cols = 100, case = "average_case")

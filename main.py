@@ -41,8 +41,8 @@ def init(worst_case_scenario: bool,
     for rep_index in range(repetition_count):
 
         if worst_case_scenario:
-            energy_excess = np.arange(phase_count, 0, -1)
-            energy_deficit = np.arange(1, phase_count + 1)
+            energy_excess = np.arange(phase_count, 0, -1, dtype=np.float64)
+            energy_deficit = np.arange(1, phase_count + 1, dtype=np.float64)
         else:
 
             # Unique for combination of master seed, phase count and repetition index
@@ -53,8 +53,8 @@ def init(worst_case_scenario: bool,
             rng_excess = np.random.default_rng(ss_excess)
             rng_deficit = np.random.default_rng(ss_deficit)
 
-            energy_excess = rng_excess.integers(0, 100, phase_count)
-            energy_deficit = rng_deficit.integers(0, 100, phase_count)
+            energy_excess = rng_excess.uniform(0, 100, phase_count)
+            energy_deficit = rng_deficit.uniform(0, 100, phase_count)
 
 
         energy_excess_list.append(energy_excess)
