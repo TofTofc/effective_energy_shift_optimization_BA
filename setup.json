@@ -1,5 +1,5 @@
 {
-    "worst_case_scenario": false,
+    "worst_case_scenario": true,
     "start_phase_count": 10,
     "end_phase_count": 1000000,
     "number_of_data_points": 100,
@@ -18,7 +18,7 @@
         "deficit_based"
     ],
     "index_to_use": [
-        7
+        9
     ],
     "abort": false
 }
