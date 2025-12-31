@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("original", "new_version_fusion_phaseless_2_array_structure_ic_15", start = 10, end = 200, repetitions_count = 2, worst_case_scenario = True)
+    #test_versions("original", "deficit_based", start = 10, end = 200, repetitions_count = 2, worst_case_scenario = False)
 
-    #test_version_solo("deficit_based", False, 1000000)
+    #test_version_solo("deficit_based", False, 100)
 
     #visualize_output_each_step(phase_count =  13)
 
