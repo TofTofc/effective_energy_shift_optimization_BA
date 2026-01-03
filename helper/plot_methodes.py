@@ -4,7 +4,8 @@ import os
 from matplotlib import pyplot as plt
 import matplotlib.ticker as mticker
 
-def plot_from_json(cfg: dict, max_phase_count=None):
+
+def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
 
     case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
 
@@ -18,7 +19,10 @@ def plot_from_json(cfg: dict, max_phase_count=None):
 
     out_dir = average_folder if case_type == "average_case" else worst_folder
 
-    version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
+    if not versions_to_plot:
+        version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
+    else:
+        version_folders = [os.path.join(runtimes_folder, v) for v in versions_to_plot]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -61,4 +65,3 @@ def plot_from_json(cfg: dict, max_phase_count=None):
     plt.show()
     plt.close(fig)
     return output_path
-
