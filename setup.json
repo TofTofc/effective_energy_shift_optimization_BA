@@ -16,7 +16,7 @@
         "new_version_fusion_phaseless_2_array_structure_ic_15",
         "new_version_fusion_phaseless_2_parallel_no_resize",
         "deficit_based",
-        "test"
+        "new_version_fusion_phaseless_2_array_structure_float32"
     ],
     "index_to_use": [
         10

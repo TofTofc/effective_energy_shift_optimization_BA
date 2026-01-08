@@ -2,7 +2,6 @@ delim = "-"*100
 
 import numpy as np
 
-
 def is_equal(tuple_a, tuple_b):
     starts_excess_list_a, starts_deficit_list_a, energy_excess_list_a, energy_deficit_list_a, mask_a = tuple_a
     starts_excess_list_b, starts_deficit_list_b, energy_excess_list_b, energy_deficit_list_b, mask_b = tuple_b
@@ -22,17 +21,17 @@ def is_equal(tuple_a, tuple_b):
             print(f"Number of deficits is different: A has {len(starts_a)}, B has {len(starts_b)}.")
             return False
 
-        if not np.allclose(starts_a, starts_b):
+        if not np.allclose(starts_a, starts_b, atol=1e-3):
 
-            diff_idx = np.where(~np.isclose(starts_a, starts_b))[0][0]
+            diff_idx = np.where(~np.isclose(starts_a, starts_b, atol=1e-3))[0][0]
             print(f"Mismatch at phase {i}, Deficit index {diff_idx}:")
             print(f"  Start A: {starts_a[diff_idx]:.12f}")
             print(f"  Start B: {starts_b[diff_idx]:.12f}")
             return False
 
-        if not np.allclose(energy_a, energy_b):
+        if not np.allclose(energy_a, energy_b, atol=1e-3):
 
-            diff_idx = np.where(~np.isclose(energy_a, energy_b))[0][0]
+            diff_idx = np.where(~np.isclose(energy_a, energy_b, atol=1e-3))[0][0]
             print(f"Mismatch at phase {i}, Deficit index {diff_idx}:")
             print(f"  Energy A: {energy_a[diff_idx]:.12f}")
             print(f"  Energy B: {energy_b[diff_idx]:.12f}")
@@ -60,7 +59,7 @@ def merge_deficits(starts_deficit_list, energy_deficit_list):
             current_start = starts_arr[i]
             current_energy = energy_arr[i]
 
-            if np.isclose(current_start, last_end, atol=1e-12):
+            if np.isclose(current_start, last_end, atol=1e-3):
 
                 merged_energy[-1] += current_energy
                 last_end = merged_starts[-1] + merged_energy[-1]

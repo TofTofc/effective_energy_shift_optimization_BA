@@ -3,7 +3,7 @@ import numpy as np
 from numba import njit
 from numba.typed import List
 
-from versions.test.resize import add_excess_value, add_deficit_value, insert_excess_value
+from versions.new_version_fusion_phaseless_2_array_structure_float32.resize import add_excess_value, add_deficit_value, insert_excess_value
 
 """
 changes made from new_version_fusion:
