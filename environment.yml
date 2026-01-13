@@ -4,8 +4,10 @@ channels:
   - defaults
 dependencies:
   - python=3.13
-  - conda-forge::numba
-  - conda-forge::matplotlib
-  - conda-forge::numpy
-  - conda-forge::pandas
+  - conda-forge::numba=0.62.1
+  - conda-forge::matplotlib=3.10.8
+  - conda-forge::numpy=2.3.5
+  - conda-forge::pandas=2.3.3
+  - conda-forge::scipy=1.16.0
+  - conda-forge::h5py=3.15.1
 
