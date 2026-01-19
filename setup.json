@@ -16,10 +16,11 @@
         "new_version_fusion_phaseless_2_array_structure_ic_15",
         "new_version_fusion_phaseless_2_parallel_no_resize",
         "deficit_based",
-        "new_version_fusion_phaseless_2_array_structure_float32"
+        "new_version_fusion_phaseless_2_array_structure_float32",
+        "new_version_fusion_phaseless_2_array_structure_no_max_height"
     ],
     "index_to_use": [
-        10
+        11
     ],
     "abort": false
 }
