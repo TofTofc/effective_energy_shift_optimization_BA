@@ -18,7 +18,7 @@ if __name__ == '__main__':
     #compare_simulation_results("new_version_fusion_phaseless_2", "new_version_fusion_phaseless_2_parallel_no_resize", cfg)
 
     #to_plot = ["new_version_fusion_phaseless_2_array_structure_float32", "new_version_fusion_phaseless_2_array_structure"]
-    #plot_from_json(cfg, to_plot)
+    #plot_from_json(cfg)
 
     #log_log_linear_regression(cfg, "new_version_fusion_phaseless_2_array_structure", min_phase_count = 5000)
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     #test_versions("original", "new_version_fusion_phaseless_2_array_structure_float32", start = 10, end = 1000, repetitions_count = 2, worst_case_scenario = False)
 
-    #test_version_solo("deficit_based", False, 100)
+    test_version_solo("deficit_based", False, 100)
 
     #visualize_output_each_step(phase_count =  13)
 
