@@ -17,8 +17,8 @@ if __name__ == '__main__':
 
     #compare_simulation_results("new_version_fusion_phaseless_2", "new_version_fusion_phaseless_2_parallel_no_resize", cfg)
 
-    to_plot = ["new_version_fusion_phaseless_2_array_structure_no_max_height", "new_version_fusion_phaseless_2_array_structure"]
-    plot_from_json(cfg, to_plot)
+    #to_plot = ["new_version_fusion_phaseless_2_array_structure_no_max_height", "new_version_fusion_phaseless_2_array_structure"]
+    #plot_from_json(cfg, to_plot)
 
     #log_log_linear_regression(cfg, "new_version_fusion_phaseless_2_array_structure", min_phase_count = 5000)
 
