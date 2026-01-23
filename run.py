@@ -17,10 +17,10 @@ if __name__ == '__main__':
 
     #compare_simulation_results("new_version_fusion_phaseless_2", "new_version_fusion_phaseless_2_parallel_no_resize", cfg)
 
-    #to_plot = ["new_version_fusion_phaseless_2_array_structure_no_max_height", "new_version_fusion_phaseless_2_array_structure"]
+    #to_plot = ["aa_compress", "new_version_fusion_phaseless_2_array_structure"]
     #plot_from_json(cfg, to_plot)
 
-    #log_log_linear_regression(cfg, "aa_compress", min_phase_count = 5000)
+    log_log_linear_regression(cfg, "aa_compress", min_phase_count = 5000)
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
@@ -30,4 +30,4 @@ if __name__ == '__main__':
 
     #visualize_output_each_step(phase_count =  13)
 
-    visualize(cfg,"new_version_fusion_phaseless_2_array_structure" , phase=10, max_cols = 100, case = "average_case")
+    #visualize(cfg,"new_version_fusion_phaseless_2_array_structure" , phase=10, max_cols = 100, case = "average_case")
