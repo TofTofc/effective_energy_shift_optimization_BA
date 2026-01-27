@@ -20,11 +20,11 @@ if __name__ == '__main__':
     #to_plot = ["aa_compress", "new_version_fusion_phaseless_2_array_structure"]
     #plot_from_json(cfg, to_plot)
 
-    log_log_linear_regression(cfg, "aa_compress", min_phase_count = 5000)
+    #log_log_linear_regression(cfg, "aa_compress", min_phase_count = 5000)
 
     #submethod_analysis("new_version_fusion_phaseless_2_array_structure")
 
-    #test_versions("new_version_fusion_phaseless_2_array_structure", "new_version_fusion_phaseless_2_array_structure_no_max_height", start = 10, end = 100000, repetitions_count = 2, worst_case_scenario = False)
+    test_versions("original", "new_version_fusion_phaseless_2_array_structure", start = 25, end = 500, repetitions_count = 1, worst_case_scenario = False)
 
     #test_version_solo("aa_compress", False, 95)
 
