@@ -37,6 +37,8 @@ def test_versions(version_name_a, version_name_b, start = 10, end = 1000, repeti
 
         print(i)
 
+        #TODO: SELBST BESTIMMT EINGABEN DIE NICHT VON INIT KOMMEN ALS MÖGLICHKEIT
+
         energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, i, repetitions_count)
 
         for idx in range(repetitions_count):

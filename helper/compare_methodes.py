@@ -20,6 +20,16 @@ def is_equal(tuple_a, tuple_b):
         mask_b
     )
 
+    #print(dict_a)
+    #print(dict_b)
+
+    #print(np.diff(dict_a["capacity"]))
+
+    print(np.diff(dict_a["effectiveness_local"]))
+    print(np.diff(dict_b["effectiveness_local"]))
+
+    #TODO: Capacity Nr 1 = 0 / Eff: last = 0 / Eff streng monoton fallend / Eff startet mit phasenzahl
+
     if dict_a["capacity"].size != dict_b["capacity"].size:
         print(f"Mismatch in capacity array size: A has {dict_a['capacity'].size}, B has {dict_b['capacity'].size}.")
         return False
@@ -72,14 +82,14 @@ def compute_battery_arrays_from_data(starts_excess_list, starts_deficit_list, en
         capacity_phases + energy_additional_phases
     ]).flatten())
 
-    capacity = np.unique(np.round(capacity_raw, 12))
+    eps = 10
 
-    eps = 1e-12
+    capacity = np.unique(np.vectorize(round, otypes=[np.float64])(capacity_raw, eps))
 
     effectiveness_local = np.zeros(len(capacity))
     for start, energy_val in zip(capacity_phases, energy_additional_phases):
         upper_bound = start + energy_val
-        effectiveness_local[(start <= capacity + eps) & (capacity < upper_bound - eps)] += 1
+        effectiveness_local[(start <= capacity + 0.5 * 10**(-eps)) & (capacity < upper_bound - 0.5 * 10**(-eps))] += 1
 
     keep_mask = np.ones(len(effectiveness_local), dtype=bool)
 
