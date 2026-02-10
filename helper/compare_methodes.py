@@ -19,16 +19,42 @@ def is_equal(tuple_a, tuple_b):
         energy_deficit_list_b,
         mask_b
     )
-
+    #print("::::::::")
     #print(dict_a)
     #print(dict_b)
+    #print("::::::::")
 
-    #print(np.diff(dict_a["capacity"]))
+    phase_count = len(starts_excess_list_a)
 
-    print(np.diff(dict_a["effectiveness_local"]))
-    print(np.diff(dict_b["effectiveness_local"]))
+    def check_invariants(d, label):
+        cap = d["capacity"]
+        eff = d["effectiveness_local"]
 
-    #TODO: Capacity Nr 1 = 0 / Eff: last = 0 / Eff streng monoton fallend / Eff startet mit phasenzahl
+        # 1. Capacity at index 0 must be 0
+        if not np.isclose(cap[0], 0, atol=1e-12):
+            print(f"[{label}] Invariant Error: Initial capacity is not 0 (found {cap[0]})")
+            return False
+
+        # 2. Effectiveness: last element must be 0
+        if not np.isclose(eff[-1], 0, atol=1e-12):
+            print(f"[{label}] Invariant Error: Final effectiveness is not 0 (found {eff[-1]})")
+            return False
+
+        # 3. Effectiveness starts with phase_count
+        if not np.isclose(eff[0], phase_count, atol=1e-12):
+            print(f"[{label}] Invariant Error: Effectiveness starts with {eff[0]} instead of phase_count {phase_count}")
+            return False
+
+        # 4. Effectiveness must be monotonically decreasing (diff <= 0)
+        if not np.all(np.diff(eff) <= 0):
+            print(f"[{label}] Invariant Error: Effectiveness is not monotonically decreasing")
+            return False
+
+        return True
+
+    # Validate both
+    if not check_invariants(dict_a, "A") or not check_invariants(dict_b, "B"):
+        return False
 
     if dict_a["capacity"].size != dict_b["capacity"].size:
         print(f"Mismatch in capacity array size: A has {dict_a['capacity'].size}, B has {dict_b['capacity'].size}.")
@@ -84,7 +110,19 @@ def compute_battery_arrays_from_data(starts_excess_list, starts_deficit_list, en
 
     eps = 10
 
-    capacity = np.unique(np.vectorize(round, otypes=[np.float64])(capacity_raw, eps))
+    #capacity = np.unique(np.vectorize(round, otypes=[np.float64])(capacity_raw, eps))
+
+    capacity_rounded = np.round(capacity_raw, decimals=eps)
+
+    capacity_sorted = np.sort(capacity_rounded)
+
+    if len(capacity_sorted) > 0:
+
+        mask = np.ones(len(capacity_sorted), dtype=np.bool_)
+        mask[1:] = np.diff(capacity_sorted) > 1e-12
+        capacity = capacity_sorted[mask]
+    else:
+        capacity = capacity_sorted
 
     effectiveness_local = np.zeros(len(capacity))
     for start, energy_val in zip(capacity_phases, energy_additional_phases):

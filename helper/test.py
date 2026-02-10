@@ -28,32 +28,44 @@ def submethod_analysis(version_name, worst_case_scenario = False, phase_count = 
     ps.sort_stats("tottime")
     ps.print_stats()
 
-def test_versions(version_name_a, version_name_b, start = 10, end = 1000, repetitions_count = 1, worst_case_scenario = False):
 
-    module_a = import_version(version_name_a)
-    module_b = import_version(version_name_b)
+def test_versions(versions_to_test, start=10, end=1000, repetitions_count=1, worst_case_scenario=False):
+
+    original_module = import_version("original")
+    test_modules = {name: import_version(name) for name in versions_to_test}
+    failed_versions = set()
 
     for i in range(start, end):
 
-        print(i)
+        print(f"Testing Phase count: {i}")
 
-        #TODO: SELBST BESTIMMT EINGABEN DIE NICHT VON INIT KOMMEN ALS MÖGLICHKEIT
-
-        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, 125, i, repetitions_count)
+        energy_excess_lists, energy_deficit_lists, start_time_phases = init(
+            worst_case_scenario, 125, i, repetitions_count
+        )
 
         for idx in range(repetitions_count):
 
-            phases_list_a = module_a.process_phases(energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases)
-            phases_list_b = module_b.process_phases(energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases)
+            phases_orig = original_module.process_phases(
+                energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases
+            )
+            result_orig = extract_results(phases_orig)
 
-            result_a = extract_results(phases_list_a)
-            result_b = extract_results(phases_list_b)
+            for version_name in versions_to_test:
+                current_module = test_modules[version_name]
 
-            if not is_equal(result_a, result_b):
-                print(f"Versions are not equal at phase count i = {i}")
-                return
+                phases_test = current_module.process_phases(
+                    energy_excess_lists[idx], energy_deficit_lists[idx], start_time_phases
+                )
+                result_test = extract_results(phases_test)
 
-    print("Versions are equal")
+                if not is_equal(result_orig, result_test):
+                    print(f"Version '{version_name}' failed at phase count {i}")
+                    failed_versions.add(version_name)
+
+    print(delim)
+    for name in versions_to_test:
+        status = "FAILED" if name in failed_versions else "PASSED"
+        print(f"Version {name}: {status}")
 
 def test_version_solo(version_name, worst_case_scenario = False, phase_count = 5):
 

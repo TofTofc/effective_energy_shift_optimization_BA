@@ -15,11 +15,10 @@
         "new_version_fusion_phaseless_2_array_structure",
         "new_version_fusion_phaseless_2_array_structure_ic_15",
         "new_version_fusion_phaseless_2_parallel_no_resize",
-        "deficit_based",
-        "aa_compress"
+        "deficit_based"
     ],
     "index_to_use": [
-        10
+        6
     ],
     "abort": false
 }
