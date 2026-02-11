@@ -19,10 +19,10 @@ def is_equal(tuple_a, tuple_b):
         energy_deficit_list_b,
         mask_b
     )
-    #print("::::::::")
-    #print(dict_a)
-    #print(dict_b)
-    #print("::::::::")
+    print("::::::::")
+    print(dict_a)
+    print(dict_b)
+    print("::::::::")
 
     phase_count = len(starts_excess_list_a)
 

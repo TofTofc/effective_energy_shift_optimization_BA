@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     #submethod_analysis("append_improved", phase_count = 10000)
 
-    blacklist = ["new_version_fusion", "deficit_based"]
+    blacklist = ["deficit_based"]
     to_test = [v for v in cfg['versions'] if v not in blacklist]
-    test_versions(to_test, start = 10, end = 1000, repetitions_count = 5, worst_case_scenario = False)
+    test_versions(to_test, start = 10, end = 30, repetitions_count = 5, worst_case_scenario = False)
 
     #test_version_solo("aa_compress", False, 95)
 

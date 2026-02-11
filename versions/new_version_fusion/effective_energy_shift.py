@@ -291,7 +291,7 @@ def init(phases):
     # mask[1][idx]: phases[idx] deficit is NOT balanced
     mask = np.ones((2, len(phases)), dtype=np.bool)
 
-    max_height_array = np.zeros(n, dtype=np.int64)
+    max_height_array = np.zeros(n, dtype=np.float64)
 
     e_counter = 0
     d_counter = 0
