@@ -19,10 +19,10 @@ def is_equal(tuple_a, tuple_b):
         energy_deficit_list_b,
         mask_b
     )
-    print("::::::::")
-    print(dict_a)
-    print(dict_b)
-    print("::::::::")
+    #print("::::::::")
+    #print(dict_a)
+    #print(dict_b)
+    #print("::::::::")
 
     phase_count = len(starts_excess_list_a)
 
@@ -103,31 +103,30 @@ def compute_battery_arrays_from_data(starts_excess_list, starts_deficit_list, en
     capacity_phases = np.array(capacity_phases)
     energy_additional_phases = np.array(energy_additional_phases)
 
-    capacity_raw = np.sort(np.array([
+    eps = 8
+    multiplier = 10 ** eps
+
+    capacity_raw_ints = np.round(np.array([
         capacity_phases,
         capacity_phases + energy_additional_phases
-    ]).flatten())
+    ]).flatten() * multiplier).astype(np.int64)
 
-    eps = 10
+    capacity_sorted_ints = np.sort(capacity_raw_ints)
 
-    #capacity = np.unique(np.vectorize(round, otypes=[np.float64])(capacity_raw, eps))
+    mask = np.ones(len(capacity_sorted_ints), dtype=np.bool_)
+    mask[1:] = np.diff(capacity_sorted_ints) > 0
+    capacity_ints = capacity_sorted_ints[mask]
 
-    capacity_rounded = np.round(capacity_raw, decimals=eps)
-
-    capacity_sorted = np.sort(capacity_rounded)
-
-    if len(capacity_sorted) > 0:
-
-        mask = np.ones(len(capacity_sorted), dtype=np.bool_)
-        mask[1:] = np.diff(capacity_sorted) > 1e-12
-        capacity = capacity_sorted[mask]
-    else:
-        capacity = capacity_sorted
+    capacity = capacity_ints / multiplier
 
     effectiveness_local = np.zeros(len(capacity))
-    for start, energy_val in zip(capacity_phases, energy_additional_phases):
-        upper_bound = start + energy_val
-        effectiveness_local[(start <= capacity + 0.5 * 10**(-eps)) & (capacity < upper_bound - 0.5 * 10**(-eps))] += 1
+
+    phases_start_ints = np.round(capacity_phases * multiplier).astype(np.int64)
+
+    phases_end_ints = np.round((capacity_phases + energy_additional_phases) * multiplier).astype(np.int64)
+
+    for start_int, end_int in zip(phases_start_ints, phases_end_ints):
+        effectiveness_local[(start_int <= capacity_ints) & (capacity_ints < end_int)] += 1
 
     keep_mask = np.ones(len(effectiveness_local), dtype=bool)
 

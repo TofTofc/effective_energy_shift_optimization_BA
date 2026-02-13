@@ -121,6 +121,15 @@ def calculate_and_print_regression_stats(x_log, y_log, p):
     print(f"  Standard deviation of the error:                      {std_err_orig: .6f}")
 
 def plot_powerlaw_fit(x, y, a, b, version_name):
+    plt.rcParams.update({
+        'font.size': 14,
+        'axes.titlesize': 18,
+        'axes.labelsize': 16,
+        'xtick.labelsize': 14,
+        'ytick.labelsize': 14,
+        'legend.fontsize': 12,
+        'figure.titlesize': 20
+    })
 
     fig, ax = plt.subplots(figsize=(7,5))
 
@@ -137,7 +146,6 @@ def plot_powerlaw_fit(x, y, a, b, version_name):
 
     ax.set_xlabel("Phase Count (log scale)")
     ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title(f"Runtimes vs Phase Count - Version {version_name}")
     ax.legend()
     ax.grid(True, which="both", ls="--")
 

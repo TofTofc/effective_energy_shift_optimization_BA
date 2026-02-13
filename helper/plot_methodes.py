@@ -7,6 +7,16 @@ import matplotlib.ticker as mticker
 
 def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
 
+    plt.rcParams.update({
+        'font.size': 18,  # Standardgröße
+        'axes.titlesize': 20,  # Titel oben
+        'axes.labelsize': 18,  # Achsenbeschriftung
+        'xtick.labelsize': 14,  # Zahlen an der x-Achse
+        'ytick.labelsize': 14,  # Zahlen an der y-Achse
+        'legend.fontsize': 13,  # Legende
+        'figure.titlesize': 20  # Falls su suptitle nutzt
+    })
+
     case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
 
     base_folder = "results"
@@ -49,17 +59,16 @@ def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
     ax.set_yscale('log')
     ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
     ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
-    ax.set_xlabel("Phase Count (log scale)")
-    ax.set_ylabel("Runtime (s, log scale)")
-    ax.set_title("Runtimes per Module vs Phase Count")
+    ax.set_xlabel("Anzahl der Phasen")
+    ax.set_ylabel("Laufzeit (s)")
     ax.legend()
     ax.grid(True, which="both", ls="--")
 
-    output_path = os.path.join(out_dir, "Runtimes_from_json.png")
+    output_path = os.path.join(out_dir, "Runtimes_from_json.pdf")
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
 
     if cfg.get("save_copy_of_visuals"):
-        copy_path = os.path.join(copies_folder, "Runtimes_from_json_copy.png")
+        copy_path = os.path.join(copies_folder, "Runtimes_from_json_copy.pdf")
         fig.savefig(copy_path, dpi=300, bbox_inches="tight")
 
     plt.show()

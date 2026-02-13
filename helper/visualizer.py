@@ -109,7 +109,6 @@ def plot_columns(
 
     ax.set_xlabel("Phase Column")
     ax.set_ylabel("Energy")
-    ax.set_title(f"Excess (red) vs Deficit (blue) {title_suffix}")
     red_patch = plt.Rectangle((0, 0), 1, 1, color="#e57373")
     blue_patch = plt.Rectangle((0, 0), 1, 1, color="#64b5f6")
     ax.legend(handles=[red_patch, blue_patch], labels=["Excess", "Deficit"])
@@ -171,7 +170,7 @@ def visualize(
         for i, step_phases in enumerate(step_data):
             excess, deficit, starts_e, starts_d = _extract_from_objects(step_phases)
 
-            out_filename = f"step_{i}.png"
+            out_filename = f"step_{i}.pdf"
             out_path = base_folder / out_filename
 
             plot_columns(
@@ -200,7 +199,7 @@ def visualize(
     base_folder = Path("results/visuals_output") / version_name
     pc = phase
 
-    out_filename = f"{case}_output_pc_{pc}.png"
+    out_filename = f"{case}_output_pc_{pc}.pdf"
     out_path = base_folder / out_filename
 
     plot_columns(
