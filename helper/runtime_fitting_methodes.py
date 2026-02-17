@@ -122,12 +122,12 @@ def calculate_and_print_regression_stats(x_log, y_log, p):
 
 def plot_powerlaw_fit(x, y, a, b, version_name):
     plt.rcParams.update({
-        'font.size': 14,
-        'axes.titlesize': 18,
-        'axes.labelsize': 16,
+        'font.size': 18,
+        'axes.titlesize': 20,
+        'axes.labelsize': 18,
         'xtick.labelsize': 14,
         'ytick.labelsize': 14,
-        'legend.fontsize': 12,
+        'legend.fontsize': 13,
         'figure.titlesize': 20
     })
 
@@ -144,8 +144,8 @@ def plot_powerlaw_fit(x, y, a, b, version_name):
     ax.xaxis.set_major_locator(mticker.LogLocator(base=10.0))
     ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0))
 
-    ax.set_xlabel("Phase Count (log scale)")
-    ax.set_ylabel("Runtime (s, log scale)")
+    ax.set_xlabel("Anzahl der Phasen")
+    ax.set_ylabel("Laufzeit (s)")
     ax.legend()
     ax.grid(True, which="both", ls="--")
 

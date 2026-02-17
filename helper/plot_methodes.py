@@ -8,13 +8,13 @@ import matplotlib.ticker as mticker
 def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
 
     plt.rcParams.update({
-        'font.size': 18,  # Standardgröße
-        'axes.titlesize': 20,  # Titel oben
-        'axes.labelsize': 18,  # Achsenbeschriftung
-        'xtick.labelsize': 14,  # Zahlen an der x-Achse
-        'ytick.labelsize': 14,  # Zahlen an der y-Achse
-        'legend.fontsize': 13,  # Legende
-        'figure.titlesize': 20  # Falls su suptitle nutzt
+        'font.size': 18,
+        'axes.titlesize': 20,
+        'axes.labelsize': 18,
+        'xtick.labelsize': 14,
+        'ytick.labelsize': 14,
+        'legend.fontsize': 13,
+        'figure.titlesize': 20
     })
 
     case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
