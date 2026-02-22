@@ -15,10 +15,12 @@
         "new_version_fusion_phaseless_2_array_structure",
         "new_version_fusion_phaseless_2_array_structure_ic_15",
         "new_version_fusion_phaseless_2_parallel_no_resize",
-        "deficit_based"
+        "deficit_based",
+        "aa_mefes",
+        "aa_mefes_2"
     ],
     "index_to_use": [
-        0
+        11
     ],
     "abort": false
 }

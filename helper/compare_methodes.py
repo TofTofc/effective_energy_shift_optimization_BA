@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 def is_equal(tuple_a, tuple_b):
@@ -84,8 +86,19 @@ def compute_battery_arrays_from_data(starts_excess_list, starts_deficit_list, en
 
     capacity_phases = []
     energy_additional_phases = []
-
     deficit_masks = mask_list[1]
+
+    """
+    for i in range(len(starts_deficit_list)):
+        if len(starts_deficit_list[i]) > 0:
+            combined_def = sorted(zip(starts_deficit_list[i], energy_deficit_list[i]), key=lambda x: x[0])
+            starts_deficit_list[i], energy_deficit_list[i] = map(list, zip(*combined_def))
+
+        if len(starts_excess_list[i]) > 0:
+            combined_exc = sorted(zip(starts_excess_list[i], energy_excess_list[i]), key=lambda x: x[0])
+            starts_excess_list[i], energy_excess_list[i] = map(list, zip(*combined_exc))
+    
+     """
 
     for i in range(len(deficit_masks)):
 
@@ -142,5 +155,8 @@ def compute_battery_arrays_from_data(starts_excess_list, starts_deficit_list, en
 
     capacity = capacity[keep_mask]
     effectiveness_local = effectiveness_local[keep_mask]
+
+    #print(capacity)
+    #print(effectiveness_local)
 
     return dict(capacity=capacity, effectiveness_local=effectiveness_local)

@@ -1,4 +1,3 @@
-from helper.hdf5_methodes import compare_simulation_results
 from helper.json_methodes import change_cfg, load_config, init_results_folders
 from helper.plot_methodes import plot_from_json
 from helper.runtime_fitting_methodes import log_log_linear_regression
@@ -14,23 +13,21 @@ if __name__ == '__main__':
 
     #main(save_to_hdf_till = 10000)
 
-    #compare_simulation_results("new_version_fusion_phaseless_2", "new_version_fusion_phaseless_2_parallel_no_resize", cfg)
-
     #to_plot = ["new_version_fusion_phaseless_2_array_structure", "new_version_fusion_phaseless_2_array_structure_ic_15"]
     #plot_from_json(cfg, to_plot)
 
     #plot_from_json(cfg)
 
-    log_log_linear_regression(cfg, "original", min_phase_count = 10)
+    #log_log_linear_regression(cfg, "aa_mefes", min_phase_count = 10)
 
-    #submethod_analysis("append_improved", phase_count = 10000)
+    #submethod_analysis("aa_mefes", phase_count = 10000)
 
-    #blacklist = ["deficit_based"]
-    #to_test = [v for v in cfg['versions'] if v not in blacklist]
-    #test_versions(to_test, start =  10, end =  1000, repetitions_count = 5, worst_case_scenario = False)
+    blacklist = ["deficit_based"]
+    to_test = [v for v in cfg['versions'] if v not in blacklist]
+    test_versions(to_test, start =  10, end =  1000, repetitions_count = 5, worst_case_scenario = False)
 
     #test_version_solo("aa_compress", False, 95)
 
     #visualize_output_each_step(phase_count =  13)
 
-    #visualize(cfg,"new_version_fusion_phaseless_2_array_structure" , phase=10, max_cols = 100, case = "average_case")
+    #visualize(cfg,"original" , phase=10, max_cols = 100, case = "average_case")

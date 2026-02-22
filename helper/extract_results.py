@@ -1,4 +1,6 @@
 import sys
+from collections import deque
+from enum import IntEnum
 
 def extract_results(process_phases_output):
 
@@ -61,6 +63,48 @@ def extract_results(process_phases_output):
             energy_deficit_list.append(energy_deficit_arr)
 
         return starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list, process_phases_output[1]
+
+    elif hasattr(process_phases_output, "phase_pairs"):
+
+        class PacketType(IntEnum):
+            EXCESS = 0
+            DEFICIT = 1
+            BALANCED = 2
+            UNDEFINED = 3
+
+
+        ctx = process_phases_output
+
+        starts_excess_list = []
+        starts_deficit_list = []
+        energy_excess_list = []
+        energy_deficit_list = []
+        mask_excess = []
+        mask_deficit = []
+
+        for pp in ctx.phase_pairs:
+
+            excess_pkts = pp.energy_packets.get(PacketType.EXCESS, deque())
+            deficit_pkts = pp.energy_packets.get(PacketType.DEFICIT, deque())
+            balanced_pkts = pp.energy_packets.get(PacketType.BALANCED, deque())
+
+            e_starts = [pkt.capacity for pkt in excess_pkts] + [pkt.capacity for pkt in balanced_pkts]
+            e_energy = [pkt.energy for pkt in excess_pkts] + [pkt.energy for pkt in balanced_pkts]
+            d_starts = [pkt.capacity for pkt in deficit_pkts] + [pkt.capacity for pkt in balanced_pkts]
+            d_energy = [pkt.energy for pkt in deficit_pkts] + [pkt.energy for pkt in balanced_pkts]
+
+            starts_excess_list.append(e_starts)
+            energy_excess_list.append(e_energy)
+            starts_deficit_list.append(d_starts)
+            energy_deficit_list.append(d_energy)
+
+            mask_excess.append(1 if len(excess_pkts) > 0 else 0)
+            mask_deficit.append(1 if len(deficit_pkts) > 0 else 0)
+
+        mask = [mask_excess, mask_deficit]
+
+        return starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list, mask
+
 
     else:
         sys.exit("Wrong input for extract_results")
