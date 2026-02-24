@@ -88,10 +88,10 @@ def extract_results(process_phases_output):
             deficit_pkts = pp.energy_packets.get(PacketType.DEFICIT, deque())
             balanced_pkts = pp.energy_packets.get(PacketType.BALANCED, deque())
 
-            e_starts = [pkt.capacity for pkt in excess_pkts] + [pkt.capacity for pkt in balanced_pkts]
-            e_energy = [pkt.energy for pkt in excess_pkts] + [pkt.energy for pkt in balanced_pkts]
-            d_starts = [pkt.capacity for pkt in deficit_pkts] + [pkt.capacity for pkt in balanced_pkts]
-            d_energy = [pkt.energy for pkt in deficit_pkts] + [pkt.energy for pkt in balanced_pkts]
+            e_starts = [pkt.capacity for pkt in balanced_pkts] + [pkt.capacity for pkt in excess_pkts]
+            e_energy = [pkt.energy for pkt in balanced_pkts] + [pkt.energy for pkt in excess_pkts]
+            d_starts = [pkt.capacity for pkt in balanced_pkts] + [pkt.capacity for pkt in deficit_pkts]
+            d_energy = [pkt.energy for pkt in balanced_pkts] + [pkt.energy for pkt in deficit_pkts]
 
             starts_excess_list.append(e_starts)
             energy_excess_list.append(e_energy)
@@ -102,6 +102,12 @@ def extract_results(process_phases_output):
             mask_deficit.append(1 if len(deficit_pkts) > 0 else 0)
 
         mask = [mask_excess, mask_deficit]
+
+        #print(starts_excess_list)
+        #print(energy_excess_list)
+        #print(starts_deficit_list)
+        #print(energy_deficit_list)
+        #print(mask)
 
         return starts_excess_list, starts_deficit_list, energy_excess_list, energy_deficit_list, mask
 

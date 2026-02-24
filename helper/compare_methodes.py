@@ -67,6 +67,10 @@ def is_equal(tuple_a, tuple_b):
         print(f"Mismatch in capacity at index {diff_idx}:")
         print(f"  Capacity A: {dict_a['capacity'][diff_idx]:.12f}")
         print(f"  Capacity B: {dict_b['capacity'][diff_idx]:.12f}")
+
+        print(f"  Capacity B before: {dict_b['capacity'][diff_idx-1]:.12f}")
+        print(f"  Capacity B after : {dict_b['capacity'][diff_idx+1]:.12f}")
+
         return False
 
     if dict_a["effectiveness_local"].size != dict_b["effectiveness_local"].size:

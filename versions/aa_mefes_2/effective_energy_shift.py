@@ -18,7 +18,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 # Toggle at import-time / runtime.
-CHECK_INVARIANTS = True
+CHECK_INVARIANTS = False
 DEBUG_LOG = False
 REC_EVTS = False
 
@@ -864,7 +864,7 @@ class PhaseGroup:
             if REC_EVTS:
                 self.rec_evt(EventType.BALANCE_OBSOLETE)
 
-            self.shift_inputs = []
+            #removed #self.shift_inputs = []
             return
 
         if self.group_type == PacketType.DEFICIT or self.group_type == PacketType.EXCESS:
