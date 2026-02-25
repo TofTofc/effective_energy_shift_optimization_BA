@@ -18,13 +18,13 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "aa_mefes", min_phase_count = 10)
+    #log_log_linear_regression(cfg, "aa_mefes_2", min_phase_count = 10)
 
     #submethod_analysis("aa_mefes", phase_count = 10000)
 
-    blacklist = ["deficit_based"]
-    to_test = [v for v in cfg['versions'] if v not in blacklist]
-    test_versions(to_test, start =  10, end =  1000, repetitions_count = 5, worst_case_scenario = False)
+    #blacklist = ["deficit_based"]
+    #to_test = [v for v in cfg['versions'] if v not in blacklist]
+    #test_versions(to_test, start =  10, end =  1000, repetitions_count = 5, worst_case_scenario = False)
 
     #test_version_solo("aa_compress", False, 95)
 
