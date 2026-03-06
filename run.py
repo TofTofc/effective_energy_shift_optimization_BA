@@ -4,6 +4,7 @@ from helper.runtime_fitting_methodes import log_log_linear_regression
 from helper.test import submethod_analysis, test_versions, test_version_solo, visualize_output_each_step
 from helper.visualizer import visualize
 from main import main
+from helper.csv import convert_jsons_to_csv
 
 if __name__ == '__main__':
 
@@ -13,8 +14,10 @@ if __name__ == '__main__':
 
     #main(save_to_hdf_till = 10000)
 
-    #to_plot = ["new_version_fusion_phaseless_2_array_structure", "new_version_fusion_phaseless_2_array_structure_ic_15"]
+    #to_plot = ["new_version_fusion_phaseless", "new_version_fusion"]
     #plot_from_json(cfg, to_plot)
+
+    #convert_jsons_to_csv()
 
     #plot_from_json(cfg)
 
