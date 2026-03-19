@@ -104,12 +104,10 @@ def do_normal_mode(module, energy_excess_list, energy_deficit_list, start_time_p
             data_arrays = extract_results(result)
             module_results.append(data_arrays)
 
-    median_runtime = np.median(runtimes_single)
-
     if not fake_run:
-        output_runtime(module, median_runtime)
+        output_runtime(module, np.median(runtimes_single))
 
-    return module_results, median_runtime
+    return module_results, runtimes_single
 
 
 def main(save_to_hdf_till):
@@ -153,7 +151,7 @@ def main(save_to_hdf_till):
 
             energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, phase_count, repetition_count)
 
-            module_results, median_runtime = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases,save_to_hdf_till, repetition_count, fake_run=False)
+            module_results, runtimes_list = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases,save_to_hdf_till, repetition_count, fake_run=False)
 
             if not saving_done:
 
@@ -166,4 +164,4 @@ def main(save_to_hdf_till):
                     phase_counts_done = []
                     saving_done = True
 
-            save_to_json(cfg, phase_count, median_runtime, version_name)
+            save_to_json(cfg, phase_count, runtimes_list, version_name)

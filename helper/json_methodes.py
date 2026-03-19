@@ -18,8 +18,8 @@ def load_config(filename="setup.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder="results"):
 
+def save_to_json(cfg, phase_count, runtimes_list, version_name, results_folder="results"):
     case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
     subfolder = Path(results_folder) / "runtimes" / version_name
@@ -32,9 +32,17 @@ def save_to_json(cfg, phase_count, median_runtime, version_name, results_folder=
 
     if phase_count in phase_count_to_index:
         entry_index = phase_count_to_index[phase_count]
-        current_runtime = data["results"][entry_index]["runtime"]
-        if current_runtime == -1:
-            data["results"][entry_index]["runtime"] = median_runtime
+
+        if data["results"][entry_index]["runtime"] == -1:
+            r = np.array(runtimes_list)
+            data["results"][entry_index]["runtime"] = {
+                "min": float(np.min(r)),
+                "max": float(np.max(r)),
+                "mean": float(np.mean(r)),
+                "q25": float(np.percentile(r, 25)),
+                "q50": float(np.percentile(r, 50)),
+                "q75": float(np.percentile(r, 75))
+            }
 
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)

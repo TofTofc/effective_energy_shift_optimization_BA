@@ -39,7 +39,12 @@ def log_log_linear_regression(cfg, version_name: str = None, min_phase_count: in
         runtimes = []
         for entry in entries:
             phase_count = int(entry["phase_count"])
-            runtime = float(entry["runtime"])
+            raw_runtime = entry.get("runtime")
+
+            if not isinstance(raw_runtime, dict):
+                continue
+
+            runtime = float(raw_runtime["q50"])
 
             if runtime <= 0:
                 continue

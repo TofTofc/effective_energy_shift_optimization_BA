@@ -12,7 +12,7 @@ if __name__ == '__main__':
     cfg = load_config()
     init_results_folders(cfg)
 
-    #main(save_to_hdf_till = 10000)
+    main(save_to_hdf_till = 10000)
 
     #to_plot = ["new_version_fusion_phaseless", "new_version_fusion"]
     #plot_from_json(cfg, to_plot)
