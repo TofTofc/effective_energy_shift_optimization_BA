@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "aa_mefes_2", min_phase_count = 10)
+    #log_log_linear_regression(cfg, "original", min_phase_count = 100)
 
     #submethod_analysis("aa_mefes", phase_count = 10000)
 

@@ -63,12 +63,12 @@ def init(worst_case_scenario: bool,
             energy_excess = rng_excess.uniform(0, 100, phase_count)
             energy_deficit = rng_deficit.uniform(0, 100, phase_count)
 
-        if num_balanced > 0:
+            if num_balanced > 0:
 
-            ss_balance = np.random.SeedSequence([master_seed, phase_count, rep_index, 2])
-            rng_balance = np.random.default_rng(ss_balance)
-            indices_to_balance = rng_balance.choice(phase_count, size=num_balanced, replace=False)
-            energy_excess[indices_to_balance] = energy_deficit[indices_to_balance]
+                ss_balance = np.random.SeedSequence([master_seed, phase_count, rep_index, 2])
+                rng_balance = np.random.default_rng(ss_balance)
+                indices_to_balance = rng_balance.choice(phase_count, size=num_balanced, replace=False)
+                energy_excess[indices_to_balance] = energy_deficit[indices_to_balance]
 
         energy_excess_list.append(energy_excess)
         energy_deficit_list.append(energy_deficit)

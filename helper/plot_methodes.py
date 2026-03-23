@@ -45,9 +45,18 @@ def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
 
         phase_counts = []
         runtimes = []
+
         for entry in json_data["results"]:
+
             phase_count = int(entry["phase_count"])
-            runtime = float(entry["runtime"])
+            runtime_data = entry.get("runtime", {})
+
+            if isinstance(runtime_data, dict):
+                runtime = float(runtime_data.get("mean", 0))
+
+            else:
+                runtime = float(runtime_data)
+
             if runtime > 0 and (max_phase_count is None or phase_count <= max_phase_count):
                 phase_counts.append(phase_count)
                 runtimes.append(runtime)
