@@ -3,7 +3,7 @@
     "start_phase_count": 10,
     "end_phase_count": 1000000,
     "number_of_data_points": 100,
-    "repetition_count": 5,
+    "repetition_count": 25,
     "master_seed": 125,
     "versions": [
         "original",
