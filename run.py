@@ -12,7 +12,7 @@ if __name__ == '__main__':
     cfg = load_config()
     init_results_folders(cfg)
 
-    main(save_to_hdf_till = 10000)
+    #main(save_to_hdf_till = 10000)
 
     #to_plot = ["new_version_fusion_phaseless", "new_version_fusion"]
     #plot_from_json(cfg, to_plot)
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     #plot_from_json(cfg)
 
-    #log_log_linear_regression(cfg, "new_version_fusion_phaseless_2_array_structure_ic_15", min_phase_count = 100)
+    #log_log_linear_regression(cfg, "new_version_fusion_phaseless_2_parallel_no_resize", min_phase_count = 100)
 
     #submethod_analysis("aa_mefes", phase_count = 10000)
 
