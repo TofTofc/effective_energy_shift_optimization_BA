@@ -31,6 +31,7 @@ def import_version(folder_name: str):
 
 
 def init(worst_case_scenario: bool,
+         new_worst_case_scenario,
          master_seed: int,
          phase_count: int,
          repetition_count: int,
@@ -48,8 +49,17 @@ def init(worst_case_scenario: bool,
     for rep_index in range(repetition_count):
 
         if worst_case_scenario:
-            energy_excess = np.arange(phase_count, 0, -1, dtype=np.float64)
-            energy_deficit = np.arange(1, phase_count + 1, dtype=np.float64)
+            if new_worst_case_scenario:
+
+                n = phase_count
+                energy_excess = np.array([2 * (n - i) - 1 for i in range(n)], dtype=np.float64)
+                energy_deficit = np.array([2 * (n - i) - 2 for i in range(n)], dtype=np.float64)
+
+                energy_deficit[-1] = n - 1
+            else:
+
+                energy_excess = np.arange(phase_count, 0, -1, dtype=np.float64)
+                energy_deficit = np.arange(1, phase_count + 1, dtype=np.float64)
         else:
 
             # Unique for combination of master seed, phase count and repetition index
@@ -122,7 +132,7 @@ def main(save_to_hdf_till):
     while True:
 
         # Load needed info like repetition_count or current phase counts from the results folder
-        version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario = get_run_info_from_json(cfg)
+        version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario, new_worst_case_scenario = get_run_info_from_json(cfg)
 
         if not pending_phase_counts:
             print("Job done. Everything was measured")
@@ -131,7 +141,7 @@ def main(save_to_hdf_till):
         module = import_version(version_name)
 
         # Fake run for numba compiling
-        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, 10,repetition_count)
+        energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, new_worst_case_scenario, master_seed, 10,repetition_count)
         do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases, save_to_hdf_till, repetition_count=1, fake_run=True)
 
         print(f"{delim}\n{delim}")
@@ -149,7 +159,7 @@ def main(save_to_hdf_till):
             print(delim)
             print("Current Phase Count: ", phase_count)
 
-            energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, master_seed, phase_count, repetition_count)
+            energy_excess_lists, energy_deficit_lists, start_time_phases = init(worst_case_scenario, new_worst_case_scenario, master_seed, phase_count, repetition_count)
 
             module_results, runtimes_list = do_normal_mode(module, energy_excess_lists, energy_deficit_lists, start_time_phases,save_to_hdf_till, repetition_count, fake_run=False)
 

@@ -17,17 +17,18 @@ def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
         'figure.titlesize': 20
     })
 
-    case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
+    if cfg.get("new_worst_case_scenario", False):
+        case_type = "new_worst_case"
+    else:
+        case_type = "worst_case" if cfg.get("worst_case_scenario", False) else "average_case"
 
     base_folder = "results"
     runtimes_folder = os.path.join(base_folder, "runtimes")
     visuals_folder = os.path.join(base_folder, "visuals")
 
-    average_folder = os.path.join(visuals_folder, "average_case")
-    worst_folder = os.path.join(visuals_folder, "worst_case")
+    out_dir = os.path.join(visuals_folder, case_type)
+    os.makedirs(out_dir, exist_ok=True)
     copies_folder = os.path.join(visuals_folder, "copies")
-
-    out_dir = average_folder if case_type == "average_case" else worst_folder
 
     if not versions_to_plot:
         version_folders = [f.path for f in os.scandir(runtimes_folder) if f.is_dir()]
@@ -77,7 +78,7 @@ def plot_from_json(cfg: dict, versions_to_plot=None, max_phase_count=None):
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
 
     if cfg.get("save_copy_of_visuals"):
-        copy_path = os.path.join(copies_folder, "Runtimes_from_json_copy.pdf")
+        copy_path = os.path.join(copies_folder, f"Runtimes_from_json_{case_type}.pdf")
         fig.savefig(copy_path, dpi=300, bbox_inches="tight")
 
     plt.show()

@@ -20,7 +20,10 @@ def load_config(filename="setup.json"):
 
 
 def save_to_json(cfg, phase_count, runtimes_list, version_name, results_folder="results"):
-    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+    if cfg.get("new_worst_case_scenario", False):
+        case_file = "new_worst_case.json"
+    else:
+        case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
     subfolder = Path(results_folder) / "runtimes" / version_name
     json_path = subfolder / case_file
@@ -63,7 +66,6 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
         folder.mkdir(parents=True, exist_ok=True)
 
     versions = cfg.get("versions", [])
-
     repetition_count = cfg["repetition_count"]
     master_seed = cfg["master_seed"]
     start_phase_count = cfg["start_phase_count"]
@@ -83,12 +85,19 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
         hdf5_subpath = output_folder / version
         hdf5_subpath.mkdir(parents=True, exist_ok=True)
 
-        for case_name, worst_flag in (("average_case.json", False), ("worst_case.json", True)):
+        cases = [
+            ("average_case.json", False, False),
+            ("worst_case.json", True, False),
+            ("new_worst_case.json", True, True)
+        ]
+
+        for case_name, worst_flag, new_worst_flag in cases:
             json_path = runtimes_subpath / case_name
             if not json_path.exists():
                 meta = {
                     "version": version,
                     "worst_case": worst_flag,
+                    "new_worst_case": new_worst_flag,
                     "number_of_data_points": number_of_data_points,
                     "start_phase_count": start_phase_count,
                     "end_phase_count": end_phase_count,
@@ -106,7 +115,11 @@ def init_results_folders(cfg: dict, parent_folder: str = "results"):
 
 def get_run_info_from_json(cfg: dict):
 
-    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+    if cfg.get("new_worst_case_scenario", False):
+        case_file = "new_worst_case.json"
+    else:
+        case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+
     runtimes_folder = os.path.join("results", "runtimes")
 
     index_list = cfg.get("index_to_use")
@@ -151,8 +164,9 @@ def get_run_info_from_json(cfg: dict):
     repetition_count = data.get("repetition_count")
     master_seed = data.get("master_seed")
     worst_case_scenario = data.get("worst_case")
+    new_worst_case_scenario = data.get("new_worst_case", False)  # DEFAULT False
 
-    return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario
+    return version_name, pending_phase_counts, repetition_count, master_seed, worst_case_scenario, new_worst_case_scenario
 
 def change_cfg(key, new_value):
     file = Path("setup.json")

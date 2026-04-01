@@ -6,15 +6,18 @@ from helper.json_methodes import get_run_info_from_json
 
 
 def save_simulation_results(all_data, phase_counts, cfg):
-
     print("saving data")
 
-    version_name, _, repetition_count, master_seed, worst_case_scenario = get_run_info_from_json(cfg)
+    version_name, _, repetition_count, master_seed, worst_case_scenario, new_worst_case_scenario = get_run_info_from_json(cfg)
 
     output_dir = Path("results") / "output" / version_name
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    case_file = "worst_case.h5" if cfg.get("worst_case_scenario", False) else "average_case.h5"
+    if cfg.get("new_worst_case_scenario", False):
+        case_file = "new_worst_case.h5"
+    else:
+        case_file = "worst_case.h5" if cfg.get("worst_case_scenario", False) else "average_case.h5"
+
     file_path = output_dir / case_file
 
     dt_int32_vlen = h5py.vlen_dtype(np.dtype('int32'))
@@ -28,6 +31,7 @@ def save_simulation_results(all_data, phase_counts, cfg):
 
             f.attrs['version_name'] = version_name
             f.attrs['worst_case_scenario'] = worst_case_scenario
+            f.attrs['new_worst_case_scenario'] = new_worst_case_scenario
             f.attrs['repetition_count'] = repetition_count
             f.attrs['master_seed'] = master_seed
 

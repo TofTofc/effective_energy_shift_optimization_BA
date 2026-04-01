@@ -9,22 +9,28 @@ delim = "-"*100
 def clear_console():
     print("\n" * 200)
 
+
 def log_log_linear_regression(cfg, version_name: str = None, min_phase_count: int = None, max_phase_count: int = None):
     runtimes_folder = os.path.join("results", "runtimes")
-    case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
+
+    if cfg.get("new_worst_case_scenario", False):
+        case_file = "new_worst_case.json"
+    else:
+        case_file = "worst_case.json" if cfg.get("worst_case_scenario", False) else "average_case.json"
 
     if version_name is not None:
         version_folders = [os.path.join(runtimes_folder, version_name)]
     else:
         candidate = []
         for f in os.scandir(runtimes_folder):
-            json_path = os.path.join(f.path, case_file)
-            with open(json_path, "r", encoding="utf-8") as fh:
-                j = json.load(fh)
-            results_list = j.get("results", [])
-            first_runtime = results_list[0].get("runtime", None)
-            if first_runtime != -1:
-                candidate.append(f.path)
+            if f.is_dir():
+                json_path = os.path.join(f.path, case_file)
+                if os.path.exists(json_path):
+                    with open(json_path, "r", encoding="utf-8") as fh:
+                        j = json.load(fh)
+                    results_list = j.get("results", [])
+                    if results_list and results_list[0].get("runtime", None) != -1:
+                        candidate.append(f.path)
         version_folders = candidate
 
     for vfolder in version_folders:
