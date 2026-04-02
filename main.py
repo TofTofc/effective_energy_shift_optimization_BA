@@ -52,8 +52,8 @@ def init(worst_case_scenario: bool,
             if new_worst_case_scenario:
 
                 n = phase_count
-                energy_excess = np.array([2 * (n - i) - 1 for i in range(n)], dtype=np.float64)
-                energy_deficit = np.array([2 * (n - i) - 2 for i in range(n)], dtype=np.float64)
+                energy_excess = np.array([2 * (n - i) - 3 for i in range(n)], dtype=np.float64)
+                energy_deficit = np.array([2 * (n - i) - 4 for i in range(n)], dtype=np.float64)
 
                 energy_deficit[-1] = n - 1
             else:
